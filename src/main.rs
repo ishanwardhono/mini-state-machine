@@ -20,7 +20,7 @@ pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 async fn main() -> std::io::Result<()> {
     //environment
     dotenv::dotenv().ok();
-    std::env::set_var("RUST_LOG", "actix_web=debud");
+    std::env::set_var("RUST_LOG", "actix_web=debug");
 
     //database
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
