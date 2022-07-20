@@ -4,6 +4,7 @@ use crate::Pool;
 
 mod model;
 mod repo;
+mod schema;
 
 #[get("/state/register")]
 pub async fn get_states(data: web::Data<Pool>) -> impl Responder  {
