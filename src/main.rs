@@ -14,7 +14,9 @@ async fn main() -> std::io::Result<()> {
     //server
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(cores::database::set_db()))
+            .app_data(web::Data::new(
+                cores::database::set_db(std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
+            ))
             .service(services::state::get_states)
     })
     .bind(std::env::var("APP_URL").expect("APP_URL must be set"))?

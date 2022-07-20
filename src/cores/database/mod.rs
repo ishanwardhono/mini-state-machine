@@ -5,9 +5,9 @@ pub mod schema;
 
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-pub fn set_db() -> Pool {
+pub fn set_db(database_url: String) -> Pool {
     let manager = ConnectionManager::<PgConnection>::new(
-        std::env::var("DATABASE_URL").expect("DATABASE_URL must be set")
+        database_url
     );
     r2d2::Pool::builder()
         .build(manager)
