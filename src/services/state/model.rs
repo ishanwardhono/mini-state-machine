@@ -1,5 +1,5 @@
 
-use super::schema::*;
+use crate::cores::database::schema::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
