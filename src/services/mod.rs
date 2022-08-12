@@ -1,7 +1,8 @@
 use actix_web::web::ServiceConfig;
 
-pub mod state;
+mod state;
 
-pub fn register_handlers(config: &mut ServiceConfig) {
-    config.configure(state::handler);
+//Http Handler Registration
+pub fn http_register(config: &mut ServiceConfig) {
+    config.service(state::handler::http::register_handler());
 }
