@@ -1,12 +1,15 @@
-use actix_web::web;
 use super::model::State;
-use crate::cores::database::{self, schema::states::dsl::*};
-use crate::diesel::RunQueryDsl;
+use crate::cores::database::DbPool;
+use sqlx::postgres::PgRow;
+use sqlx::Row;
 
-pub fn get_all_states(pool: web::Data<database::Pool>) -> Result<Vec<State>, diesel::result::Error> {
-    let conn = pool.get().unwrap();
-
-    let items = states.load::<State>(&conn)?;
-
-    Ok(items)
+pub async fn get_all_states(pool: &DbPool) -> Result<Vec<State>, sqlx::Error> {
+    sqlx::query("SELECT * FROM states")
+        .map(|row: PgRow| State {
+            id: row.get("id"),
+            code: row.get("code"),
+            description: row.get("description"),
+            webhooks: row.get("webhooks"),
+            created_at: row.get("created_at"),
+        }).fetch_all(pool).await
 }

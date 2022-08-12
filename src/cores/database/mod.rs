@@ -1,15 +1,12 @@
-pub mod schema;
+use sqlx::Postgres;
+use sqlx::pool::Pool;
+use sqlx::postgres::{PgPool, PgPoolOptions};
 
-use diesel::prelude::*;
-use diesel::r2d2::{self, ConnectionManager};
+pub type DbPool = Pool<Postgres>;
 
-pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
-
-pub fn set_db(database_url: String) -> Pool {
-    let manager = ConnectionManager::<PgConnection>::new(
-        database_url
-    );
-    r2d2::Pool::builder()
-        .build(manager)
-        .expect("Failed to create database pool")
+pub async fn set_db(database_url: String) -> PgPool {
+    PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&database_url).await
+        .expect("Failed to create pool")
 }
