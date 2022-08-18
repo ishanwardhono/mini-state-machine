@@ -2,6 +2,7 @@ use super::{model::State, repo::Repo};
 
 pub mod get_states;
 
+#[derive(Clone)]
 pub struct BusinessFactory {
     repo: Repo
 }

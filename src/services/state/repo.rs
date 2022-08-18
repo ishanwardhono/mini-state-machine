@@ -3,6 +3,7 @@ use crate::cores::database::DbPool;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 
+#[derive(Clone)]
 pub struct Repo {
     pool: DbPool
 }

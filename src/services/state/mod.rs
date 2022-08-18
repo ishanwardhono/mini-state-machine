@@ -9,6 +9,7 @@ mod repo;
 mod handler;
 mod business;
 
+#[derive(Clone)]
 pub struct StateService {
     pub factory: BusinessFactory
 }
