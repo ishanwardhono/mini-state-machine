@@ -14,8 +14,7 @@ async fn main() -> std::io::Result<()> {
     //server
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(pool.clone()))
-            .configure(services::http_register)
+            .service(services::http_register(pool.clone()))
     })
     .bind(std::env::var("APP_URL").expect("APP_URL must be set"))?
     .run()

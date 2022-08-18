@@ -1,9 +1,7 @@
 use crate::services::state;
-
-use crate::cores::database::DbPool;
+use crate::services::state::repo::Repo;
 use state::model::State;
-use state::repo;
 
-pub async fn execute(db: DbPool) -> Result<Vec<State>, sqlx::Error>  {
-    repo::get_all_states(&db).await
+pub async fn execute(repo: &Repo) -> Result<Vec<State>, sqlx::Error>  {
+    repo.get_all_states().await
 }
