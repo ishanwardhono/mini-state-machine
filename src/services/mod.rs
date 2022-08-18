@@ -1,5 +1,5 @@
 use actix_web::{
-    web::{self, ServiceConfig},
+    web::{self},
     Scope,
 };
 

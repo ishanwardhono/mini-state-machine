@@ -1,10 +1,10 @@
 use actix_web::{
     error::ErrorInternalServerError,
-    web::{self, get, resource},
+    web::{self, get},
     Error, HttpResponse, Scope,
 };
 
-use crate::services::state::{business::BusinessFactory, model::State};
+use crate::services::state::{business::BusinessFactory};
 
 pub fn register_handler(factory: BusinessFactory) -> Scope {
     web::scope("/states")
