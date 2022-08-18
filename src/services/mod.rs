@@ -1,4 +1,7 @@
-use actix_web::{web::{ServiceConfig, self}, Scope};
+use actix_web::{
+    web::{self, ServiceConfig},
+    Scope,
+};
 
 use crate::cores::database::DbPool;
 

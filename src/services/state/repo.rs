@@ -5,7 +5,7 @@ use sqlx::Row;
 
 #[derive(Clone)]
 pub struct Repo {
-    pool: DbPool
+    pool: DbPool,
 }
 
 impl Repo {
@@ -21,6 +21,8 @@ impl Repo {
                 description: row.get("description"),
                 webhooks: row.get("webhooks"),
                 created_at: row.get("created_at"),
-            }).fetch_all(&self.pool).await
+            })
+            .fetch_all(&self.pool)
+            .await
     }
 }

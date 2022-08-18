@@ -4,7 +4,7 @@ pub mod get_states;
 
 #[derive(Clone)]
 pub struct BusinessFactory {
-    repo: Repo
+    repo: Repo,
 }
 
 impl BusinessFactory {

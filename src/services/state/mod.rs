@@ -4,14 +4,14 @@ use crate::cores::database::DbPool;
 
 use self::{business::BusinessFactory, repo::Repo};
 
+mod business;
+mod handler;
 mod model;
 mod repo;
-mod handler;
-mod business;
 
 #[derive(Clone)]
 pub struct StateService {
-    pub factory: BusinessFactory
+    pub factory: BusinessFactory,
 }
 
 impl StateService {
