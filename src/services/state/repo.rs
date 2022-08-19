@@ -1,20 +1,29 @@
 use super::model::State;
 use crate::cores::database::DbPool;
+use async_trait::async_trait;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct Repo {
+pub struct DbRepoImpl {
     pool: Arc<DbPool>,
 }
 
-impl Repo {
-    pub fn new(pool: Arc<DbPool>) -> Self {
-        Self { pool }
-    }
+#[async_trait]
+pub trait DbRepo: Sync + Send {
+    async fn get_all_states(&self) -> Result<Vec<State>, sqlx::Error>;
+}
 
-    pub async fn get_all_states(&self) -> Result<Vec<State>, sqlx::Error> {
+impl DbRepoImpl {
+    pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
+        Arc::new(Self { pool })
+    }
+}
+
+#[async_trait]
+impl DbRepo for DbRepoImpl {
+    async fn get_all_states(&self) -> Result<Vec<State>, sqlx::Error> {
         sqlx::query("SELECT * FROM states")
             .map(|row: PgRow| State {
                 id: row.get("id"),

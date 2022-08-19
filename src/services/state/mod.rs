@@ -1,6 +1,6 @@
 use self::{
     business::{Business, BusinessFactory},
-    repo::Repo,
+    repo::DbRepoImpl,
 };
 use crate::cores::database::DbPool;
 use actix_web::Scope;
@@ -18,7 +18,7 @@ pub struct StateService {
 impl StateService {
     pub fn new(pool: Arc<DbPool>) -> Self {
         Self {
-            factory: BusinessFactory::new(Repo::new(pool)),
+            factory: BusinessFactory::new(DbRepoImpl::new(pool)),
         }
     }
 
