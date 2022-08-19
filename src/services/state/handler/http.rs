@@ -4,7 +4,7 @@ use actix_web::{
     Error, HttpResponse, Scope,
 };
 
-use crate::services::state::{business::BusinessFactory};
+use crate::services::state::business::BusinessFactory;
 
 pub fn register_handler(factory: BusinessFactory) -> Scope {
     web::scope("/states")

@@ -12,9 +12,11 @@ use self::state::StateService;
 mod state;
 
 //Http Handler Registration
-pub fn http_register(pool: Arc<DbPool>) -> Scope {
-    let service = Arc::new(StateService::new(pool));
+pub fn provider(pool: Arc<DbPool>) -> Scope {
+    let service = StateService::new(pool.clone());
+    let service2 = StateService::new(pool.clone());
+
     web::scope("/app")
-        .service(service.clone().init_http_service())
-        .service(web::scope("nested").service(service.clone().init_http_service()))
+        .service(service.init_http_service())
+        .service(web::scope("nested").service(service2.init_http_service()))
 }

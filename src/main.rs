@@ -21,7 +21,7 @@ async fn main() -> std::io::Result<()> {
             .await;
 
     //server
-    HttpServer::new(move || App::new().service(services::http_register(Arc::new(pool.clone()))))
+    HttpServer::new(move || App::new().service(services::provider(Arc::new(pool.clone()))))
         .bind(std::env::var("APP_URL").expect("APP_URL must be set"))?
         .run()
         .await
