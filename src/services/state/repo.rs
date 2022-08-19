@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::model::State;
 use crate::cores::database::DbPool;
 use sqlx::postgres::PgRow;
@@ -5,11 +7,11 @@ use sqlx::Row;
 
 #[derive(Clone)]
 pub struct Repo {
-    pool: DbPool,
+    pool: Arc<DbPool>,
 }
 
 impl Repo {
-    pub fn new(pool: DbPool) -> Self {
+    pub fn new(pool: Arc<DbPool>) -> Self {
         Self { pool }
     }
 
@@ -22,7 +24,7 @@ impl Repo {
                 webhooks: row.get("webhooks"),
                 created_at: row.get("created_at"),
             })
-            .fetch_all(&self.pool)
+            .fetch_all(self.pool.as_ref())
             .await
     }
 }
