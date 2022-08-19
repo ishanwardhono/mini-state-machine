@@ -16,7 +16,7 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let pool =
-        cores::database::set_db(std::env::var("DATABASE_URL").expect("DATAB&ASE_URL must be set"))
+        cores::database::set_db(std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
             .await;
 
     //server
