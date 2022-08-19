@@ -1,10 +1,10 @@
 use sqlx::pool::Pool;
-use sqlx::postgres::{PgPool, PgPoolOptions};
+use sqlx::postgres::PgPoolOptions;
 use sqlx::Postgres;
 
 pub type DbPool = Pool<Postgres>;
 
-pub async fn set_db(database_url: String) -> PgPool {
+pub async fn set_db(database_url: String) -> DbPool {
     PgPoolOptions::new()
         .max_connections(5)
         .connect(&database_url)
