@@ -2,7 +2,8 @@ use super::{model::State, repo::DbRepo};
 use async_trait::async_trait;
 use std::sync::Arc;
 
-pub mod get_states;
+pub mod get_all;
+pub mod get_by_id;
 
 pub struct BusinessFactory {
     repo: Arc<dyn DbRepo>,
@@ -11,6 +12,7 @@ pub struct BusinessFactory {
 #[async_trait]
 pub trait Business {
     async fn get_all(&self) -> Result<Vec<State>, sqlx::Error>;
+    async fn get_by_id(&self, id: i32) -> Result<State, sqlx::Error>;
 }
 
 impl BusinessFactory {
@@ -22,6 +24,9 @@ impl BusinessFactory {
 #[async_trait]
 impl Business for BusinessFactory {
     async fn get_all(&self) -> Result<Vec<State>, sqlx::Error> {
-        get_states::execute(self.repo.clone()).await
+        get_all::execute(self.repo.clone()).await
+    }
+    async fn get_by_id(&self, id: i32) -> Result<State, sqlx::Error> {
+        get_by_id::execute(self.repo.clone(), id).await
     }
 }
