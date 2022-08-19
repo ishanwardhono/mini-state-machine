@@ -1,9 +1,8 @@
-use std::sync::Arc;
-
 use super::model::State;
 use crate::cores::database::DbPool;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Repo {

@@ -1,13 +1,10 @@
-use std::sync::Arc;
-
-use actix_web::Scope;
-
-use crate::cores::database::DbPool;
-
 use self::{
     business::{Business, BusinessFactory},
     repo::Repo,
 };
+use crate::cores::database::DbPool;
+use actix_web::Scope;
+use std::sync::Arc;
 
 mod business;
 mod handler;

@@ -1,13 +1,10 @@
-use std::sync::Arc;
-
+use self::state::StateService;
+use crate::cores::database::DbPool;
 use actix_web::{
     web::{self},
     Scope,
 };
-
-use crate::cores::database::DbPool;
-
-use self::state::StateService;
+use std::sync::Arc;
 
 mod state;
 

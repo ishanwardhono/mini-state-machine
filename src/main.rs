@@ -1,7 +1,6 @@
 extern crate sqlx;
-use std::sync::Arc;
-
 use actix_web::{App, HttpServer};
+use std::sync::Arc;
 
 mod cores;
 mod services;

@@ -1,12 +1,10 @@
-use std::sync::Arc;
-
+use crate::services::state::business::Business;
 use actix_web::{
     error::ErrorInternalServerError,
     web::{self, get},
     Error, HttpResponse, Scope,
 };
-
-use crate::services::state::business::Business;
+use std::sync::Arc;
 
 pub fn register_handler(factory: Arc<dyn Business>) -> Scope {
     web::scope("/states")

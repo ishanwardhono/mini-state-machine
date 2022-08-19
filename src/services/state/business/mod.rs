@@ -1,7 +1,6 @@
-use std::sync::Arc;
-
 use super::{model::State, repo::Repo};
 use async_trait::async_trait;
+use std::sync::Arc;
 
 pub mod get_states;
 
