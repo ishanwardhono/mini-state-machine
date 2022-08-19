@@ -6,16 +6,16 @@ use actix_web::{
     Error, HttpResponse, Scope,
 };
 
-use crate::services::state::business::StateFactory;
+use crate::services::state::business::Business;
 
-pub fn register_handler(factory: Arc<dyn StateFactory>) -> Scope {
+pub fn register_handler(factory: Arc<dyn Business>) -> Scope {
     web::scope("/states")
         .route("/register", get().to(get_states))
         .route("/get-all", get().to(get_all))
         .app_data(web::Data::from(factory))
 }
 
-async fn get_states(factory: web::Data<dyn StateFactory>) -> Result<HttpResponse, Error> {
+async fn get_states(factory: web::Data<dyn Business>) -> Result<HttpResponse, Error> {
     let result = factory.get_all().await;
     match result {
         Ok(res) => Ok(HttpResponse::Ok().json(res)),
@@ -23,7 +23,7 @@ async fn get_states(factory: web::Data<dyn StateFactory>) -> Result<HttpResponse
     }
 }
 
-async fn get_all(factory: web::Data<dyn StateFactory>) -> Result<HttpResponse, Error> {
+async fn get_all(factory: web::Data<dyn Business>) -> Result<HttpResponse, Error> {
     let result = factory.get_all().await;
     match result {
         Ok(res) => Ok(HttpResponse::Ok().json(res)),

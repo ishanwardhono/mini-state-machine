@@ -5,7 +5,7 @@ use actix_web::Scope;
 use crate::cores::database::DbPool;
 
 use self::{
-    business::{BusinessFactory, StateFactory},
+    business::{Business, BusinessFactory},
     repo::Repo,
 };
 
@@ -15,7 +15,7 @@ mod model;
 mod repo;
 
 pub struct StateService {
-    pub factory: Arc<dyn StateFactory>,
+    pub factory: Arc<dyn Business>,
 }
 
 impl StateService {

@@ -18,5 +18,6 @@ pub fn provider(pool: Arc<DbPool>) -> Scope {
 
     web::scope("/app")
         .service(service.init_http_service())
+        .service(web::scope("servc1").service(service.init_http_service()))
         .service(web::scope("nested").service(service2.init_http_service()))
 }

@@ -11,18 +11,18 @@ pub struct BusinessFactory {
 }
 
 #[async_trait]
-pub trait StateFactory {
+pub trait Business {
     async fn get_all(&self) -> Result<Vec<State>, sqlx::Error>;
 }
 
 impl BusinessFactory {
-    pub fn new(repo: Repo) -> Arc<dyn StateFactory> {
+    pub fn new(repo: Repo) -> Arc<dyn Business> {
         Arc::new(Self { repo })
     }
 }
 
 #[async_trait]
-impl StateFactory for BusinessFactory {
+impl Business for BusinessFactory {
     async fn get_all(&self) -> Result<Vec<State>, sqlx::Error> {
         get_states::execute(&self.repo).await
     }
