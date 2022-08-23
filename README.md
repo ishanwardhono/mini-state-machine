@@ -1,8 +1,9 @@
 ## Todo List
 - [ ] CRUD for states services
 - [ ] Error
-- [ ] Db Middleware (Create, Update fields)
+- [ ] Manage Entity
 - [ ] Http middleware (json success & error)
+- [ ] Change db id to uuid
 - [ ] Sql traits
 - [ ] remove factory from mod.rs
 - [ ] logging
