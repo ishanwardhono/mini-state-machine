@@ -1,4 +1,4 @@
-use super::model::State;
+use super::model::{State, StateRequest};
 use crate::cores::database::DbPool;
 use async_trait::async_trait;
 use sqlx::postgres::PgRow;
@@ -14,6 +14,7 @@ pub struct DbRepoImpl {
 pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, sqlx::Error>;
     async fn get_by_id(&self, id: i32) -> Result<State, sqlx::Error>;
+    async fn insert(&self, state: StateRequest) -> Result<bool, sqlx::Error>;
 }
 
 impl DbRepoImpl {
@@ -49,5 +50,26 @@ impl DbRepo for DbRepoImpl {
             })
             .fetch_one(self.pool.as_ref())
             .await
+    }
+
+    async fn insert(&self, state: StateRequest) -> Result<bool, sqlx::Error> {
+        let result =
+            sqlx::query("INSERT INTO states (code, description, webhooks) VALUES ($1,$2,$3)")
+                .bind(state.code)
+                .bind(state.description)
+                .bind(state.webhooks)
+                .execute(self.pool.as_ref())
+                .await;
+
+        match result {
+            Ok(res) => {
+                if res.rows_affected() > 0 {
+                    Ok(true)
+                } else {
+                    Ok(false)
+                }
+            }
+            Err(e) => Err(e),
+        }
     }
 }
