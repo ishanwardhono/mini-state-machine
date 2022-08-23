@@ -1,5 +1,5 @@
 use crate::services::state::{
-    model::{State, StateRequest},
+    model::{StateRequest},
     repo::DbRepo,
 };
 use std::sync::Arc;

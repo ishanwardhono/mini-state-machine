@@ -1,6 +1,6 @@
 use crate::services::state::{
     business::Business,
-    model::{InsertResponse, State, StateRequest},
+    model::{InsertResponse, StateRequest},
 };
 use actix_web::{
     error::ErrorInternalServerError,
