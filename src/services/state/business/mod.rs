@@ -5,9 +5,11 @@ use super::{
 use async_trait::async_trait;
 use std::sync::Arc;
 
+pub mod delete;
 pub mod get_all;
 pub mod get_by_id;
 pub mod insert;
+pub mod update;
 
 pub struct BusinessFactory {
     repo: Arc<dyn DbRepo>,
@@ -18,6 +20,8 @@ pub trait Business {
     async fn get_all(&self) -> Result<Vec<State>, sqlx::Error>;
     async fn get_by_id(&self, id: i32) -> Result<State, sqlx::Error>;
     async fn insert(&self, state: StateRequest) -> Result<bool, sqlx::Error>;
+    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, sqlx::Error>;
+    async fn delete(&self, id: i32) -> Result<bool, sqlx::Error>;
 }
 
 impl BusinessFactory {
@@ -36,5 +40,11 @@ impl Business for BusinessFactory {
     }
     async fn insert(&self, state: StateRequest) -> Result<bool, sqlx::Error> {
         insert::execute(self.repo.clone(), state).await
+    }
+    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, sqlx::Error> {
+        update::execute(self.repo.clone(), id, state).await
+    }
+    async fn delete(&self, id: i32) -> Result<bool, sqlx::Error> {
+        delete::execute(self.repo.clone(), id).await
     }
 }

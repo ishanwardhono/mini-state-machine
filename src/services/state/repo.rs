@@ -15,6 +15,8 @@ pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, sqlx::Error>;
     async fn get_by_id(&self, id: i32) -> Result<State, sqlx::Error>;
     async fn insert(&self, state: StateRequest) -> Result<bool, sqlx::Error>;
+    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, sqlx::Error>;
+    async fn delete(&self, id: i32) -> Result<bool, sqlx::Error>;
 }
 
 impl DbRepoImpl {
@@ -60,6 +62,47 @@ impl DbRepo for DbRepoImpl {
                 .bind(state.webhooks)
                 .execute(self.pool.as_ref())
                 .await;
+
+        match result {
+            Ok(res) => {
+                if res.rows_affected() > 0 {
+                    Ok(true)
+                } else {
+                    Ok(false)
+                }
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, sqlx::Error> {
+        let result = sqlx::query(
+            "UPDATE states SET (code, description, webhooks) = ($2,$3,$4) WHERE id = $1",
+        )
+        .bind(id)
+        .bind(state.code)
+        .bind(state.description)
+        .bind(state.webhooks)
+        .execute(self.pool.as_ref())
+        .await;
+
+        match result {
+            Ok(res) => {
+                if res.rows_affected() > 0 {
+                    Ok(true)
+                } else {
+                    Ok(false)
+                }
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    async fn delete(&self, id: i32) -> Result<bool, sqlx::Error> {
+        let result = sqlx::query("DELETE FROM states WHERE id = $1")
+            .bind(id)
+            .execute(self.pool.as_ref())
+            .await;
 
         match result {
             Ok(res) => {
