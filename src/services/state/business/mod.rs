@@ -5,11 +5,11 @@ use super::{
 use async_trait::async_trait;
 use std::sync::Arc;
 
-pub mod delete;
-pub mod get_all;
-pub mod get_by_id;
-pub mod insert;
-pub mod update;
+mod delete;
+mod get_all;
+mod get_by_id;
+mod insert;
+mod update;
 
 pub struct BusinessFactory {
     repo: Arc<dyn DbRepo>,
