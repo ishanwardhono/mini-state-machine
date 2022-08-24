@@ -1,4 +1,4 @@
-use actix_web::{App, HttpServer};
+use actix_web::{web, App, HttpResponse, HttpServer};
 use std::sync::Arc;
 
 mod cores;
@@ -19,8 +19,12 @@ async fn main() -> std::io::Result<()> {
             .await;
 
     //server
-    HttpServer::new(move || App::new().service(services::provider(Arc::new(pool.clone()))))
-        .bind(std::env::var("APP_URL").expect("APP_URL must be set"))?
-        .run()
-        .await
+    HttpServer::new(move || {
+        App::new()
+            .service(services::provider(Arc::new(pool.clone())))
+            .route("/", web::get().to(|| HttpResponse::Ok()))
+    })
+    .bind(std::env::var("APP_URL").expect("APP_URL must be set"))?
+    .run()
+    .await
 }

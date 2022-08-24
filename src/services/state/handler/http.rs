@@ -1,11 +1,13 @@
-use crate::services::state::{
-    business::Business,
-    model::{InsertResponse, StateRequest},
+use crate::{
+    cores::errors::Error,
+    services::state::{
+        business::Business,
+        model::{InsertResponse, StateRequest},
+    },
 };
 use actix_web::{
-    error::ErrorInternalServerError,
     web::{self, get, post, put},
-    Error, HttpResponse, Scope,
+    HttpResponse, Scope,
 };
 use std::sync::Arc;
 
@@ -20,11 +22,8 @@ pub fn register_handler(factory: Arc<dyn Business>) -> Scope {
 }
 
 async fn get_all(factory: web::Data<dyn Business>) -> Result<HttpResponse, Error> {
-    let result = factory.get_all().await;
-    match result {
-        Ok(res) => Ok(HttpResponse::Ok().json(res)),
-        Err(e) => Err(ErrorInternalServerError(e)),
-    }
+    let result = factory.get_all().await?;
+    Ok(HttpResponse::Ok().json(result))
 }
 
 async fn get_by_id(
@@ -32,23 +31,16 @@ async fn get_by_id(
     path: web::Path<i32>,
 ) -> Result<HttpResponse, Error> {
     let id = path.into_inner();
-    let result = factory.get_by_id(id).await;
-    match result {
-        Ok(res) => Ok(HttpResponse::Ok().json(res)),
-        Err(e) => Err(ErrorInternalServerError(e)),
-    }
+    let result = factory.get_by_id(id).await?;
+    Ok(HttpResponse::Ok().json(result))
 }
 
 async fn insert(
     factory: web::Data<dyn Business>,
     req: web::Json<StateRequest>,
 ) -> Result<HttpResponse, Error> {
-    let result = factory.insert(req.into_inner()).await;
-
-    match result {
-        Ok(res) => Ok(HttpResponse::Ok().json(InsertResponse { is_success: res })),
-        Err(e) => Err(ErrorInternalServerError(e)),
-    }
+    let result = factory.insert(req.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
 }
 
 async fn update(
@@ -56,22 +48,14 @@ async fn update(
     req: web::Json<StateRequest>,
     path: web::Path<i32>,
 ) -> Result<HttpResponse, Error> {
-    let result = factory.update(path.into_inner(), req.into_inner()).await;
-
-    match result {
-        Ok(res) => Ok(HttpResponse::Ok().json(InsertResponse { is_success: res })),
-        Err(e) => Err(ErrorInternalServerError(e)),
-    }
+    let result = factory.update(path.into_inner(), req.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
 }
 
 async fn delete(
     factory: web::Data<dyn Business>,
     path: web::Path<i32>,
 ) -> Result<HttpResponse, Error> {
-    let result = factory.delete(path.into_inner()).await;
-
-    match result {
-        Ok(res) => Ok(HttpResponse::Ok().json(InsertResponse { is_success: res })),
-        Err(e) => Err(ErrorInternalServerError(e)),
-    }
+    let result = factory.delete(path.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
 }

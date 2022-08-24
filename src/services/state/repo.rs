@@ -42,7 +42,7 @@ impl DbRepo for DbRepoImpl {
 
         match result {
             Ok(res) => Ok(res),
-            Err(e) => Err(Error::new(e)),
+            Err(e) => Err(Error::from_db(e)),
         }
     }
 
@@ -61,7 +61,7 @@ impl DbRepo for DbRepoImpl {
 
         match result {
             Ok(res) => Ok(res),
-            Err(e) => Err(Error::new(e)),
+            Err(e) => Err(Error::from_db(e)),
         }
     }
 
@@ -82,7 +82,7 @@ impl DbRepo for DbRepoImpl {
                     Ok(false)
                 }
             }
-            Err(e) => Err(Error::new(e)),
+            Err(e) => Err(Error::from_db(e)),
         }
     }
 
@@ -105,7 +105,7 @@ impl DbRepo for DbRepoImpl {
                     Ok(false)
                 }
             }
-            Err(e) => Err(Error::new(e)),
+            Err(e) => Err(Error::from_db(e)),
         }
     }
 
@@ -123,7 +123,7 @@ impl DbRepo for DbRepoImpl {
                     Ok(false)
                 }
             }
-            Err(e) => Err(Error::new(e)),
+            Err(e) => Err(Error::from_db(e)),
         }
     }
 }
