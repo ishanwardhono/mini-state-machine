@@ -1,5 +1,6 @@
 use super::model::{State, StateRequest};
 use crate::cores::database::DbPool;
+use crate::cores::errors::Error;
 use async_trait::async_trait;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
@@ -12,11 +13,11 @@ pub struct DbRepoImpl {
 
 #[async_trait]
 pub trait DbRepo: Sync + Send {
-    async fn get_all(&self) -> Result<Vec<State>, sqlx::Error>;
-    async fn get_by_id(&self, id: i32) -> Result<State, sqlx::Error>;
-    async fn insert(&self, state: StateRequest) -> Result<bool, sqlx::Error>;
-    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, sqlx::Error>;
-    async fn delete(&self, id: i32) -> Result<bool, sqlx::Error>;
+    async fn get_all(&self) -> Result<Vec<State>, Error>;
+    async fn get_by_id(&self, id: i32) -> Result<State, Error>;
+    async fn insert(&self, state: StateRequest) -> Result<bool, Error>;
+    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, Error>;
+    async fn delete(&self, id: i32) -> Result<bool, Error>;
 }
 
 impl DbRepoImpl {
@@ -27,8 +28,8 @@ impl DbRepoImpl {
 
 #[async_trait]
 impl DbRepo for DbRepoImpl {
-    async fn get_all(&self) -> Result<Vec<State>, sqlx::Error> {
-        sqlx::query("SELECT * FROM states")
+    async fn get_all(&self) -> Result<Vec<State>, Error> {
+        let result = sqlx::query("SELECT * FROM states")
             .map(|row: PgRow| State {
                 id: row.get("id"),
                 code: row.get("code"),
@@ -37,11 +38,16 @@ impl DbRepo for DbRepoImpl {
                 created_at: row.get("created_at"),
             })
             .fetch_all(self.pool.as_ref())
-            .await
+            .await;
+
+        match result {
+            Ok(res) => Ok(res),
+            Err(e) => Err(Error::new(e)),
+        }
     }
 
-    async fn get_by_id(&self, id: i32) -> Result<State, sqlx::Error> {
-        sqlx::query("SELECT * FROM states WHERE id = $1")
+    async fn get_by_id(&self, id: i32) -> Result<State, Error> {
+        let result = sqlx::query("SELECT * FROM states WHERE id = $1")
             .bind(id)
             .map(|row: PgRow| State {
                 id: row.get("id"),
@@ -51,10 +57,15 @@ impl DbRepo for DbRepoImpl {
                 created_at: row.get("created_at"),
             })
             .fetch_one(self.pool.as_ref())
-            .await
+            .await;
+
+        match result {
+            Ok(res) => Ok(res),
+            Err(e) => Err(Error::new(e)),
+        }
     }
 
-    async fn insert(&self, state: StateRequest) -> Result<bool, sqlx::Error> {
+    async fn insert(&self, state: StateRequest) -> Result<bool, Error> {
         let result =
             sqlx::query("INSERT INTO states (code, description, webhooks) VALUES ($1,$2,$3)")
                 .bind(state.code)
@@ -71,11 +82,11 @@ impl DbRepo for DbRepoImpl {
                     Ok(false)
                 }
             }
-            Err(e) => Err(e),
+            Err(e) => Err(Error::new(e)),
         }
     }
 
-    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, sqlx::Error> {
+    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, Error> {
         let result = sqlx::query(
             "UPDATE states SET (code, description, webhooks) = ($2,$3,$4) WHERE id = $1",
         )
@@ -94,11 +105,11 @@ impl DbRepo for DbRepoImpl {
                     Ok(false)
                 }
             }
-            Err(e) => Err(e),
+            Err(e) => Err(Error::new(e)),
         }
     }
 
-    async fn delete(&self, id: i32) -> Result<bool, sqlx::Error> {
+    async fn delete(&self, id: i32) -> Result<bool, Error> {
         let result = sqlx::query("DELETE FROM states WHERE id = $1")
             .bind(id)
             .execute(self.pool.as_ref())
@@ -112,7 +123,7 @@ impl DbRepo for DbRepoImpl {
                     Ok(false)
                 }
             }
-            Err(e) => Err(e),
+            Err(e) => Err(Error::new(e)),
         }
     }
 }

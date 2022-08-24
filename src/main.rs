@@ -1,4 +1,3 @@
-extern crate sqlx;
 use actix_web::{App, HttpServer};
 use std::sync::Arc;
 
