@@ -3,5 +3,6 @@ CREATE TABLE states (
     code VARCHAR(20) NOT NULL,
     description TEXT,
     webhooks TEXT[],
-    created_at TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc')
+    create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
+    update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc')
 );

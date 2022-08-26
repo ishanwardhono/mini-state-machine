@@ -6,7 +6,8 @@ pub struct State {
     pub code: String,
     pub description: Option<String>,
     pub webhooks: Option<Vec<String>>,
-    pub created_at: chrono::NaiveDateTime,
+    pub create_time: chrono::NaiveDateTime,
+    pub update_time: chrono::NaiveDateTime,
 }
 
 //Todo

@@ -1,5 +1,5 @@
 use super::model::{State, StateRequest};
-use crate::cores::database::DbPool;
+use crate::cores::database::{db_time_now, DbPool, DbQueryArguments};
 use crate::cores::errors::Error;
 use async_trait::async_trait;
 use sqlx::postgres::PgRow;
@@ -24,19 +24,36 @@ impl DbRepoImpl {
     pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
         Arc::new(Self { pool })
     }
+
+    fn state_full_map(&self) -> fn(PgRow) -> State {
+        |row: PgRow| State {
+            id: row.get("id"),
+            code: row.get("code"),
+            description: row.get("description"),
+            webhooks: row.get("webhooks"),
+            create_time: row.get("create_time"),
+            update_time: row.get("update_time"),
+        }
+    }
+
+    fn state_default_bind(&self, query: DbQueryArguments, state: StateRequest) -> DbQueryArguments {
+        query
+            //code
+            .bind(state.code)
+            //description
+            .bind(state.description)
+            //webhooks
+            .bind(state.webhooks)
+            //update_time
+            .bind(db_time_now())
+    }
 }
 
 #[async_trait]
 impl DbRepo for DbRepoImpl {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
         let result = sqlx::query("SELECT * FROM states")
-            .map(|row: PgRow| State {
-                id: row.get("id"),
-                code: row.get("code"),
-                description: row.get("description"),
-                webhooks: row.get("webhooks"),
-                created_at: row.get("created_at"),
-            })
+            .map(self.state_full_map())
             .fetch_all(self.pool.as_ref())
             .await;
 
@@ -49,13 +66,7 @@ impl DbRepo for DbRepoImpl {
     async fn get_by_id(&self, id: i32) -> Result<State, Error> {
         let result = sqlx::query("SELECT * FROM states WHERE id = $1")
             .bind(id)
-            .map(|row: PgRow| State {
-                id: row.get("id"),
-                code: row.get("code"),
-                description: row.get("description"),
-                webhooks: row.get("webhooks"),
-                created_at: row.get("created_at"),
-            })
+            .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
             .await;
 
@@ -66,13 +77,16 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn insert(&self, state: StateRequest) -> Result<bool, Error> {
-        let result =
-            sqlx::query("INSERT INTO states (code, description, webhooks) VALUES ($1,$2,$3)")
-                .bind(state.code)
-                .bind(state.description)
-                .bind(state.webhooks)
-                .execute(self.pool.as_ref())
-                .await;
+        let query = sqlx::query(
+            "INSERT INTO states (code, description, webhooks, update_time, create_time) VALUES ($1,$2,$3,$4,$5)",
+        );
+
+        let result = self
+            .state_default_bind(query, state)
+            //created_time
+            .bind(db_time_now())
+            .execute(self.pool.as_ref())
+            .await;
 
         match result {
             Ok(res) => {
@@ -87,15 +101,15 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn update(&self, id: i32, state: StateRequest) -> Result<bool, Error> {
-        let result = sqlx::query(
-            "UPDATE states SET (code, description, webhooks) = ($2,$3,$4) WHERE id = $1",
+        let query = sqlx::query(
+            "UPDATE states SET (code, description, webhooks, update_time) = ($2,$3,$4,$5) WHERE id = $1",
         )
-        .bind(id)
-        .bind(state.code)
-        .bind(state.description)
-        .bind(state.webhooks)
-        .execute(self.pool.as_ref())
-        .await;
+        .bind(id);
+
+        let result = self
+            .state_default_bind(query, state)
+            .execute(self.pool.as_ref())
+            .await;
 
         match result {
             Ok(res) => {
