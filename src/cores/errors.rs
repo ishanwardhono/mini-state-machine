@@ -1,6 +1,8 @@
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
 
+use super::http::ErrorResponse;
+
 #[derive(Debug, Display)]
 pub enum Error {
     #[display(fmt = "Internal Server Error: Please try again later!")]
@@ -25,10 +27,14 @@ impl Error {
 impl error::ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         let message = match self {
-            Self::BadRequest(message) | Self::BadRequest(message) => self.to_string() + message,
+            Self::BadRequest(message) => self.to_string() + message,
             _ => self.to_string(),
         };
-        HttpResponse::build(self.status_code()).json(message)
+        let error_response = ErrorResponse {
+            error: self.status_code().to_string(),
+            message: message,
+        };
+        HttpResponse::build(self.status_code()).json(error_response)
     }
 
     fn status_code(&self) -> StatusCode {
