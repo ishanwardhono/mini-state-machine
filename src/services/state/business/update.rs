@@ -1,6 +1,6 @@
 use crate::{
     cores::errors::Error,
-    services::state::{model::StateRequest, repo::DbRepo},
+    services::state::{model::request::StateRequest, repo::DbRepo},
 };
 use std::sync::Arc;
 

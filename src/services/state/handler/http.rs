@@ -2,7 +2,7 @@ use crate::{
     cores::errors::Error,
     services::state::{
         business::Business,
-        model::{InsertResponse, StateRequest},
+        model::{request::StateRequest, response::InsertResponse},
     },
 };
 use actix_web::{

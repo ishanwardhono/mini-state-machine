@@ -1,4 +1,5 @@
-use super::model::{State, StateRequest};
+use super::model::entity::State;
+use super::model::request::StateRequest;
 use crate::cores::database::{db_time_now, DbPool, DbQueryArguments};
 use crate::cores::errors::Error;
 use async_trait::async_trait;

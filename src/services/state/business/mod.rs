@@ -1,7 +1,7 @@
 use crate::cores::errors::Error;
 
 use super::{
-    model::{State, StateRequest},
+    model::{entity::State, request::StateRequest},
     repo::DbRepo,
 };
 use async_trait::async_trait;
