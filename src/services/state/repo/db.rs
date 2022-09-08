@@ -1,7 +1,7 @@
 use crate::cores::database::{db_time_now, DbPool, DbQueryArguments};
 use crate::cores::error::Error;
 use crate::services::state::model::entity::State;
-use crate::services::state::model::request::StateRequest;
+use crate::services::state::model::request::{StateCreateRequest, StateUpdateRequest};
 use async_trait::async_trait;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
@@ -17,10 +17,10 @@ pub struct DbRepoImpl {
 #[async_trait]
 pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
-    async fn get_by_id(&self, id: i32) -> Result<State, Error>;
-    async fn insert(&self, state: StateRequest) -> Result<bool, Error>;
-    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, Error>;
-    async fn delete(&self, id: i32) -> Result<bool, Error>;
+    async fn get_by_code(&self, code: &String) -> Result<State, Error>;
+    async fn insert(&self, state: StateCreateRequest) -> Result<bool, Error>;
+    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<bool, Error>;
+    async fn delete(&self, code: &String) -> Result<bool, Error>;
 }
 
 impl DbRepoImpl {
@@ -39,7 +39,11 @@ impl DbRepoImpl {
         }
     }
 
-    fn state_default_bind(&self, query: DbQueryArguments, state: StateRequest) -> DbQueryArguments {
+    fn state_default_bind(
+        &self,
+        query: DbQueryArguments,
+        state: StateCreateRequest,
+    ) -> DbQueryArguments {
         query
             //code
             .bind(state.code)
@@ -66,9 +70,9 @@ impl DbRepo for DbRepoImpl {
         }
     }
 
-    async fn get_by_id(&self, id: i32) -> Result<State, Error> {
-        let result = sqlx::query(db_query::SELECT_BY_ID)
-            .bind(id)
+    async fn get_by_code(&self, code: &String) -> Result<State, Error> {
+        let result = sqlx::query(db_query::SELECT_BY_CODE)
+            .bind(code)
             .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
             .await;
@@ -79,7 +83,7 @@ impl DbRepo for DbRepoImpl {
         }
     }
 
-    async fn insert(&self, state: StateRequest) -> Result<bool, Error> {
+    async fn insert(&self, state: StateCreateRequest) -> Result<bool, Error> {
         let query = sqlx::query(db_query::INSERT);
 
         let result = self
@@ -101,11 +105,12 @@ impl DbRepo for DbRepoImpl {
         }
     }
 
-    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, Error> {
-        let query = sqlx::query(db_query::UPDATE).bind(id);
-
-        let result = self
-            .state_default_bind(query, state)
+    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<bool, Error> {
+        let result = sqlx::query(db_query::UPDATE)
+            .bind(code)
+            .bind(state.description)
+            .bind(state.webhooks)
+            .bind(db_time_now())
             .execute(self.pool.as_ref())
             .await;
 
@@ -121,9 +126,9 @@ impl DbRepo for DbRepoImpl {
         }
     }
 
-    async fn delete(&self, id: i32) -> Result<bool, Error> {
+    async fn delete(&self, code: &String) -> Result<bool, Error> {
         let result = sqlx::query(db_query::DELETE)
-            .bind(id)
+            .bind(code)
             .execute(self.pool.as_ref())
             .await;
 

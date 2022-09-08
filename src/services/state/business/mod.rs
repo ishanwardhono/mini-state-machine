@@ -1,7 +1,10 @@
 use crate::cores::error::Error;
 
 use super::{
-    model::{entity::State, request::StateRequest},
+    model::{
+        entity::State,
+        request::{StateCreateRequest, StateUpdateRequest},
+    },
     repo::db::DbRepo,
 };
 use async_trait::async_trait;
@@ -20,10 +23,10 @@ pub struct BusinessFactory {
 #[async_trait]
 pub trait Business {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
-    async fn get_by_id(&self, id: i32) -> Result<State, Error>;
-    async fn insert(&self, state: StateRequest) -> Result<bool, Error>;
-    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, Error>;
-    async fn delete(&self, id: i32) -> Result<bool, Error>;
+    async fn get_by_id(&self, code: &String) -> Result<State, Error>;
+    async fn insert(&self, state: StateCreateRequest) -> Result<bool, Error>;
+    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<bool, Error>;
+    async fn delete(&self, code: &String) -> Result<bool, Error>;
 }
 
 impl BusinessFactory {
@@ -37,16 +40,16 @@ impl Business for BusinessFactory {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
         get_all::execute(self.repo.clone()).await
     }
-    async fn get_by_id(&self, id: i32) -> Result<State, Error> {
-        get_by_id::execute(self.repo.clone(), id).await
+    async fn get_by_id(&self, code: &String) -> Result<State, Error> {
+        get_by_id::execute(self.repo.clone(), code).await
     }
-    async fn insert(&self, state: StateRequest) -> Result<bool, Error> {
+    async fn insert(&self, state: StateCreateRequest) -> Result<bool, Error> {
         insert::execute(self.repo.clone(), state).await
     }
-    async fn update(&self, id: i32, state: StateRequest) -> Result<bool, Error> {
-        update::execute(self.repo.clone(), id, state).await
+    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<bool, Error> {
+        update::execute(self.repo.clone(), code, state).await
     }
-    async fn delete(&self, id: i32) -> Result<bool, Error> {
-        delete::execute(self.repo.clone(), id).await
+    async fn delete(&self, code: &String) -> Result<bool, Error> {
+        delete::execute(self.repo.clone(), code).await
     }
 }

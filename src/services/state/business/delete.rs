@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use crate::{cores::error::Error, services::state::repo::db::DbRepo};
 
-pub async fn execute(repo: Arc<dyn DbRepo>, id: i32) -> Result<bool, Error> {
-    validate(id)?;
-    repo.delete(id).await
+pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<bool, Error> {
+    validate(code)?;
+    repo.delete(code).await
 }
 
-fn validate(id: i32) -> Result<(), Error> {
-    if id <= 0 {
-        return Err(Error::BadRequest("ID is empty".to_string()));
+fn validate(code: &String) -> Result<(), Error> {
+    if code.is_empty() {
+        return Err(Error::BadRequest("Code is empty".to_string()));
     }
     Ok(())
 }

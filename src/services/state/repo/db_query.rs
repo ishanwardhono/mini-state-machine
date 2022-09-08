@@ -2,8 +2,8 @@ pub const SELECT_ALL: &str = "
     SELECT * FROM states
 ";
 
-pub const SELECT_BY_ID: &str = "
-    SELECT * FROM states WHERE id = $1
+pub const SELECT_BY_CODE: &str = "
+    SELECT * FROM states WHERE code = $1
 ";
 
 pub const INSERT: &str = "
@@ -15,11 +15,11 @@ pub const INSERT: &str = "
 
 pub const UPDATE: &str = "
     UPDATE states SET
-        (code, description, webhooks, update_time) = ($2,$3,$4,$5)
+        (description, webhooks, update_time) = ($2,$3,$4)
     WHERE
-        id = $1
+        code = $1
 ";
 
 pub const DELETE: &str = "
-    DELETE FROM states WHERE id = $1
+    DELETE FROM states WHERE code = $1
 ";

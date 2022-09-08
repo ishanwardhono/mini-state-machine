@@ -2,7 +2,10 @@ use crate::{
     cores::error::Error,
     services::state::{
         business::Business,
-        model::{request::StateRequest, response::InsertResponse},
+        model::{
+            request::{StateCreateRequest, StateUpdateRequest},
+            response::InsertResponse,
+        },
     },
 };
 use actix_web::{
@@ -15,9 +18,9 @@ pub fn register_handler(factory: Arc<dyn Business>) -> Scope {
     web::scope("/states")
         .route("/", get().to(get_all))
         .route("/", post().to(insert))
-        .route("/{id}", get().to(get_by_id))
-        .route("/{id}", put().to(update))
-        .route("/{id}", web::delete().to(delete))
+        .route("/{code}", get().to(get_by_id))
+        .route("/{code}", put().to(update))
+        .route("/{code}", web::delete().to(delete))
         .app_data(web::Data::from(factory))
 }
 
@@ -28,16 +31,16 @@ async fn get_all(factory: web::Data<dyn Business>) -> Result<HttpResponse, Error
 
 async fn get_by_id(
     factory: web::Data<dyn Business>,
-    path: web::Path<i32>,
+    path: web::Path<String>,
 ) -> Result<HttpResponse, Error> {
-    let id = path.into_inner();
-    let result = factory.get_by_id(id).await?;
+    let code = path.into_inner();
+    let result = factory.get_by_id(&code).await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
 async fn insert(
     factory: web::Data<dyn Business>,
-    req: web::Json<StateRequest>,
+    req: web::Json<StateCreateRequest>,
 ) -> Result<HttpResponse, Error> {
     let result = factory.insert(req.into_inner()).await?;
     Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
@@ -45,17 +48,17 @@ async fn insert(
 
 async fn update(
     factory: web::Data<dyn Business>,
-    req: web::Json<StateRequest>,
-    path: web::Path<i32>,
+    req: web::Json<StateUpdateRequest>,
+    path: web::Path<String>,
 ) -> Result<HttpResponse, Error> {
-    let result = factory.update(path.into_inner(), req.into_inner()).await?;
+    let result = factory.update(&path.into_inner(), req.into_inner()).await?;
     Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
 }
 
 async fn delete(
     factory: web::Data<dyn Business>,
-    path: web::Path<i32>,
+    path: web::Path<String>,
 ) -> Result<HttpResponse, Error> {
-    let result = factory.delete(path.into_inner()).await?;
+    let result = factory.delete(&path.into_inner()).await?;
     Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
 }
