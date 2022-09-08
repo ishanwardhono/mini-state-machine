@@ -4,6 +4,14 @@ use crate::{
 };
 use std::sync::Arc;
 
-pub async fn execute(repo: Arc<dyn DbRepo>, state: StateRequest) -> Result<bool, Error> {
-    repo.insert(state).await
+pub async fn execute(repo: Arc<dyn DbRepo>, req: StateRequest) -> Result<bool, Error> {
+    validate(&req)?;
+    repo.insert(req).await
+}
+
+fn validate(req: &StateRequest) -> Result<(), Error> {
+    if req.code == "" {
+        return Err(Error::BadRequest("Code is empty".to_string()));
+    }
+    Ok(())
 }

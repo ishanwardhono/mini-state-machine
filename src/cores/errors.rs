@@ -8,8 +8,9 @@ pub enum Error {
     #[display(fmt = "Please try again later!")]
     InternalError(String),
 
-    // #[display(fmt = "Bad Request")]
-    // BadRequest(String),
+    #[display(fmt = "Bad Request")]
+    BadRequest(String),
+
     #[display(fmt = "No Data")]
     NotFound(String),
 }
@@ -27,8 +28,10 @@ impl error::ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         let mut message = match self {
             Self::InternalError(message) => message.to_string(),
+            Self::BadRequest(message) => message.to_string(),
             _ => "".to_string(),
         };
+
         let error_msg: String;
         if message != "" {
             error_msg = format!("{} : {}", self.status_code().to_string(), self.to_string());
@@ -46,7 +49,7 @@ impl error::ResponseError for Error {
     fn status_code(&self) -> StatusCode {
         match self {
             Error::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            // Error::BadRequest(_) => StatusCode::BAD_REQUEST,
+            Error::BadRequest(_) => StatusCode::BAD_REQUEST,
             Error::NotFound(_) => StatusCode::NOT_FOUND,
         }
     }
