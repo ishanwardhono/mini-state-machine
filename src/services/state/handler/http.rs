@@ -1,5 +1,5 @@
 use crate::{
-    cores::errors::Error,
+    cores::error::Error,
     services::state::{
         business::Business,
         model::{request::StateRequest, response::InsertResponse},

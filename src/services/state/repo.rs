@@ -1,7 +1,7 @@
 use super::model::entity::State;
 use super::model::request::StateRequest;
 use crate::cores::database::{db_time_now, DbPool, DbQueryArguments};
-use crate::cores::errors::Error;
+use crate::cores::error::Error;
 use async_trait::async_trait;
 use sqlx::postgres::PgRow;
 use sqlx::Row;

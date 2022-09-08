@@ -1,4 +1,4 @@
-use crate::cores::errors::Error;
+use crate::cores::error::Error;
 
 use super::{
     model::{entity::State, request::StateRequest},

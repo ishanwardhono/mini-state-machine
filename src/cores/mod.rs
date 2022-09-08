@@ -1,4 +1,4 @@
 pub mod database;
 pub mod environment;
-pub mod errors;
+pub mod error;
 pub mod http;
