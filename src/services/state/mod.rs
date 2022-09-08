@@ -1,6 +1,6 @@
 use self::{
     business::{Business, BusinessFactory},
-    repo::DbRepoImpl,
+    repo::db::DbRepoImpl,
 };
 use crate::cores::database::DbPool;
 use actix_web::Scope;

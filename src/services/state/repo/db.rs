@@ -1,11 +1,13 @@
-use super::model::entity::State;
-use super::model::request::StateRequest;
 use crate::cores::database::{db_time_now, DbPool, DbQueryArguments};
 use crate::cores::error::Error;
+use crate::services::state::model::entity::State;
+use crate::services::state::model::request::StateRequest;
 use async_trait::async_trait;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::sync::Arc;
+
+use super::db_query;
 
 #[derive(Clone)]
 pub struct DbRepoImpl {
@@ -53,7 +55,7 @@ impl DbRepoImpl {
 #[async_trait]
 impl DbRepo for DbRepoImpl {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
-        let result = sqlx::query("SELECT * FROM states")
+        let result = sqlx::query(db_query::SELECT_ALL)
             .map(self.state_full_map())
             .fetch_all(self.pool.as_ref())
             .await;
@@ -65,7 +67,7 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn get_by_id(&self, id: i32) -> Result<State, Error> {
-        let result = sqlx::query("SELECT * FROM states WHERE id = $1")
+        let result = sqlx::query(db_query::SELECT_BY_ID)
             .bind(id)
             .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
@@ -78,9 +80,7 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn insert(&self, state: StateRequest) -> Result<bool, Error> {
-        let query = sqlx::query(
-            "INSERT INTO states (code, description, webhooks, update_time, create_time) VALUES ($1,$2,$3,$4,$5)",
-        );
+        let query = sqlx::query(db_query::INSERT);
 
         let result = self
             .state_default_bind(query, state)
@@ -102,10 +102,7 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn update(&self, id: i32, state: StateRequest) -> Result<bool, Error> {
-        let query = sqlx::query(
-            "UPDATE states SET (code, description, webhooks, update_time) = ($2,$3,$4,$5) WHERE id = $1",
-        )
-        .bind(id);
+        let query = sqlx::query(db_query::UPDATE).bind(id);
 
         let result = self
             .state_default_bind(query, state)
@@ -125,7 +122,7 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn delete(&self, id: i32) -> Result<bool, Error> {
-        let result = sqlx::query("DELETE FROM states WHERE id = $1")
+        let result = sqlx::query(db_query::DELETE)
             .bind(id)
             .execute(self.pool.as_ref())
             .await;

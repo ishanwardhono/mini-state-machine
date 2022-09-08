@@ -2,7 +2,7 @@ use crate::cores::error::Error;
 
 use super::{
     model::{entity::State, request::StateRequest},
-    repo::DbRepo,
+    repo::db::DbRepo,
 };
 use async_trait::async_trait;
 use std::sync::Arc;
