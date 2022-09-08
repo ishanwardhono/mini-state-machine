@@ -1,16 +1,34 @@
 use chrono::{NaiveDateTime, Utc};
 use sqlx::pool::Pool;
-use sqlx::postgres::{PgArguments, PgPoolOptions};
+use sqlx::postgres::{PgArguments, PgConnectOptions, PgPoolOptions};
 use sqlx::query::Query;
-use sqlx::Postgres;
+use sqlx::{ConnectOptions, Postgres};
 
 pub type DbPool = Pool<Postgres>;
 pub type DbQueryArguments = Query<'static, Postgres, PgArguments>;
 
-pub async fn set_db(database_url: String) -> DbPool {
+pub async fn set_db() -> DbPool {
+    let mut options = PgConnectOptions::new()
+        .host(&std::env::var("DB_HOST").expect("DB_HOST must be set"))
+        .port(
+            std::env::var("DB_PORT")
+                .expect("DB_PORT must be set")
+                .parse::<u16>()
+                .unwrap(),
+        )
+        .database(&std::env::var("DB_NAME").expect("DB_NAME must be set"));
+
+    if let Ok(user) = std::env::var("DB_USER") {
+        options = options.username(&user)
+    }
+    if let Ok(password) = std::env::var("DB_PASS") {
+        options = options.password(&password)
+    }
+    options.disable_statement_logging();
+
     PgPoolOptions::new()
         .max_connections(5)
-        .connect(&database_url)
+        .connect_with(options)
         .await
         .expect("Failed to create pool")
 }

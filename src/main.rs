@@ -1,4 +1,5 @@
 use actix_web::{self, web, App, HttpResponse, HttpServer};
+use log::info;
 use std::sync::Arc;
 
 mod cores;
@@ -9,14 +10,13 @@ async fn main() -> std::io::Result<()> {
     //environment
     cores::environment::set_env();
 
-    //development logger
-    std::env::set_var("RUST_LOG", "debug");
-    std::env::set_var("RUST_BACKTRACE", "1");
-    env_logger::init();
+    //log
+    cores::log::init_log();
 
-    let pool =
-        cores::database::set_db(std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
-            .await;
+    let pool = cores::database::set_db().await;
+
+    let app_url = std::env::var("APP_URL").expect("APP_URL must be set");
+    info!("Server Started on {}", app_url);
 
     //server
     HttpServer::new(move || {
@@ -24,7 +24,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::provider(Arc::new(pool.clone())))
             .route("/", web::get().to(|| HttpResponse::Ok()))
     })
-    .bind(std::env::var("APP_URL").expect("APP_URL must be set"))?
+    .bind(app_url)?
     .run()
     .await
 }
