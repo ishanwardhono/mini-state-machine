@@ -4,7 +4,7 @@ use crate::{
         business::Business,
         model::{
             request::{StateCreateRequest, StateUpdateRequest},
-            response::InsertResponse,
+            response::{CodeResponse, InsertResponse},
         },
     },
 };
@@ -42,8 +42,8 @@ async fn insert(
     factory: web::Data<dyn Business>,
     req: web::Json<StateCreateRequest>,
 ) -> Result<HttpResponse, Error> {
-    let result = factory.insert(req.into_inner()).await?;
-    Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
+    let result = factory.insert(&req.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(InsertResponse { state: result }))
 }
 
 async fn update(
@@ -52,7 +52,7 @@ async fn update(
     path: web::Path<String>,
 ) -> Result<HttpResponse, Error> {
     let result = factory.update(&path.into_inner(), req.into_inner()).await?;
-    Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
+    Ok(HttpResponse::Ok().json(CodeResponse { code: result }))
 }
 
 async fn delete(
@@ -60,5 +60,5 @@ async fn delete(
     path: web::Path<String>,
 ) -> Result<HttpResponse, Error> {
     let result = factory.delete(&path.into_inner()).await?;
-    Ok(HttpResponse::Ok().json(InsertResponse { is_success: result }))
+    Ok(HttpResponse::Ok().json(CodeResponse { code: result }))
 }

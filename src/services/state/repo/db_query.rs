@@ -1,9 +1,12 @@
+//All Columns
+//id, code, description, webhooks, create_time, update_time
+
 pub const SELECT_ALL: &str = "
-    SELECT * FROM states
+    SELECT id, code, description, webhooks, create_time, update_time FROM states
 ";
 
 pub const SELECT_BY_CODE: &str = "
-    SELECT * FROM states WHERE code = $1
+    SELECT id, code, description, webhooks, create_time, update_time FROM states WHERE code = $1
 ";
 
 pub const INSERT: &str = "
@@ -11,6 +14,8 @@ pub const INSERT: &str = "
         (code, description, webhooks, update_time, create_time)
     VALUES
         ($1,$2,$3,$4,$5)
+    RETURNING
+        id, code, description, webhooks, create_time, update_time
 ";
 
 pub const UPDATE: &str = "

@@ -18,9 +18,9 @@ pub struct DbRepoImpl {
 pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &String) -> Result<State, Error>;
-    async fn insert(&self, state: StateCreateRequest) -> Result<bool, Error>;
-    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<bool, Error>;
-    async fn delete(&self, code: &String) -> Result<bool, Error>;
+    async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error>;
+    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error>;
+    async fn delete(&self, code: &String) -> Result<String, Error>;
 }
 
 impl DbRepoImpl {
@@ -42,15 +42,15 @@ impl DbRepoImpl {
     fn state_default_bind(
         &self,
         query: DbQueryArguments,
-        state: StateCreateRequest,
+        state: &StateCreateRequest,
     ) -> DbQueryArguments {
         query
             //code
-            .bind(state.code)
+            .bind(state.code.clone())
             //description
-            .bind(state.description)
+            .bind(state.description.clone())
             //webhooks
-            .bind(state.webhooks)
+            .bind(state.webhooks.clone())
             //update_time
             .bind(db_time_now())
     }
@@ -83,29 +83,24 @@ impl DbRepo for DbRepoImpl {
         }
     }
 
-    async fn insert(&self, state: StateCreateRequest) -> Result<bool, Error> {
+    async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error> {
         let query = sqlx::query(db_query::INSERT);
 
         let result = self
             .state_default_bind(query, state)
             //created_time
             .bind(db_time_now())
-            .execute(self.pool.as_ref())
+            .map(self.state_full_map())
+            .fetch_one(self.pool.as_ref())
             .await;
 
         match result {
-            Ok(res) => {
-                if res.rows_affected() > 0 {
-                    Ok(true)
-                } else {
-                    Ok(false)
-                }
-            }
+            Ok(res) => Ok(res),
             Err(e) => Err(Error::from_db(e)),
         }
     }
 
-    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<bool, Error> {
+    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error> {
         let result = sqlx::query(db_query::UPDATE)
             .bind(code)
             .bind(state.description)
@@ -117,16 +112,16 @@ impl DbRepo for DbRepoImpl {
         match result {
             Ok(res) => {
                 if res.rows_affected() > 0 {
-                    Ok(true)
+                    Ok(code.clone())
                 } else {
-                    Ok(false)
+                    Err(Error::NotFound("State not found".to_string()))
                 }
             }
             Err(e) => Err(Error::from_db(e)),
         }
     }
 
-    async fn delete(&self, code: &String) -> Result<bool, Error> {
+    async fn delete(&self, code: &String) -> Result<String, Error> {
         let result = sqlx::query(db_query::DELETE)
             .bind(code)
             .execute(self.pool.as_ref())
@@ -135,9 +130,9 @@ impl DbRepo for DbRepoImpl {
         match result {
             Ok(res) => {
                 if res.rows_affected() > 0 {
-                    Ok(true)
+                    Ok(code.clone())
                 } else {
-                    Ok(false)
+                    Err(Error::NotFound("State not found".to_string()))
                 }
             }
             Err(e) => Err(Error::from_db(e)),

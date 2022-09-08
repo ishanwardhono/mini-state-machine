@@ -24,9 +24,9 @@ pub struct BusinessFactory {
 pub trait Business {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_id(&self, code: &String) -> Result<State, Error>;
-    async fn insert(&self, state: StateCreateRequest) -> Result<bool, Error>;
-    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<bool, Error>;
-    async fn delete(&self, code: &String) -> Result<bool, Error>;
+    async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error>;
+    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error>;
+    async fn delete(&self, code: &String) -> Result<String, Error>;
 }
 
 impl BusinessFactory {
@@ -43,13 +43,13 @@ impl Business for BusinessFactory {
     async fn get_by_id(&self, code: &String) -> Result<State, Error> {
         get_by_id::execute(self.repo.clone(), code).await
     }
-    async fn insert(&self, state: StateCreateRequest) -> Result<bool, Error> {
+    async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error> {
         insert::execute(self.repo.clone(), state).await
     }
-    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<bool, Error> {
+    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error> {
         update::execute(self.repo.clone(), code, state).await
     }
-    async fn delete(&self, code: &String) -> Result<bool, Error> {
+    async fn delete(&self, code: &String) -> Result<String, Error> {
         delete::execute(self.repo.clone(), code).await
     }
 }

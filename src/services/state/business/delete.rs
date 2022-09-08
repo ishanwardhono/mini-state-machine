@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{cores::error::Error, services::state::repo::db::DbRepo};
 
-pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<bool, Error> {
+pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<String, Error> {
     validate(code)?;
     repo.delete(code).await
 }

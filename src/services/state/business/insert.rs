@@ -1,10 +1,13 @@
 use crate::{
     cores::error::Error,
-    services::state::{model::request::StateCreateRequest, repo::db::DbRepo},
+    services::state::{
+        model::{entity::State, request::StateCreateRequest},
+        repo::db::DbRepo,
+    },
 };
 use std::sync::Arc;
 
-pub async fn execute(repo: Arc<dyn DbRepo>, req: StateCreateRequest) -> Result<bool, Error> {
+pub async fn execute(repo: Arc<dyn DbRepo>, req: &StateCreateRequest) -> Result<State, Error> {
     validate(&req)?;
     repo.insert(req).await
 }

@@ -8,6 +8,6 @@ pub async fn execute(
     repo: Arc<dyn DbRepo>,
     code: &String,
     state: StateUpdateRequest,
-) -> Result<bool, Error> {
+) -> Result<String, Error> {
     repo.update(code, state).await
 }

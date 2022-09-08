@@ -15,10 +15,16 @@ pub enum Error {
     NotFound(String),
 }
 
+const DBERROR_VIOLATE_UNIQUE: &str = "23505";
+
 impl Error {
     pub fn from_db(e: sqlx::Error) -> Self {
         match e {
             sqlx::Error::RowNotFound => Error::NotFound("".to_owned()),
+            sqlx::Error::Database(err) => match err.code().unwrap().to_string().as_str() {
+                DBERROR_VIOLATE_UNIQUE => Error::BadRequest(err.to_string()),
+                _ => Error::InternalError(err.to_string()),
+            },
             _ => Error::InternalError(e.to_string()),
         }
     }
