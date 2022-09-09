@@ -1,6 +1,5 @@
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
-
 use super::http::ErrorResponse;
 
 #[derive(Debug, Display)]
@@ -49,6 +48,7 @@ impl error::ResponseError for Error {
             error: error_msg,
             message: message,
         };
+
         HttpResponse::build(self.status_code()).json(error_response)
     }
 

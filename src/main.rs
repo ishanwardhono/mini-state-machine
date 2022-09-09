@@ -1,5 +1,4 @@
 use actix_web::{self, web, App, HttpResponse, HttpServer};
-use log::info;
 use std::sync::Arc;
 
 mod cores;
@@ -16,7 +15,7 @@ async fn main() -> std::io::Result<()> {
     let pool = cores::database::set_db().await;
 
     let app_url = std::env::var("APP_URL").expect("APP_URL must be set");
-    info!("Server Started on {}", app_url);
+    log::info!("Server Started on {}", app_url);
 
     //server
     HttpServer::new(move || {
