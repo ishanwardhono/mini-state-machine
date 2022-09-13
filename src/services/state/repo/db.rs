@@ -59,6 +59,8 @@ impl DbRepoImpl {
 #[async_trait]
 impl DbRepo for DbRepoImpl {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
+        tracing::info!("Database execution");
+
         let result = sqlx::query(db_query::SELECT_ALL)
             .map(self.state_full_map())
             .fetch_all(self.pool.as_ref())

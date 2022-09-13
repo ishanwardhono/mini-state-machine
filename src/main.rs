@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
     let pool = cores::database::set_db().await;
 
     let app_url = std::env::var("APP_URL").expect("APP_URL must be set");
-    log::info!("Server Started on {}", app_url);
+    tracing::info!("Server Started on {}", app_url);
 
     //server
     HttpServer::new(move || {
