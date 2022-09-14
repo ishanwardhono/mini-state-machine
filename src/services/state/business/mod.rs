@@ -38,18 +38,23 @@ impl BusinessFactory {
 #[async_trait]
 impl Business for BusinessFactory {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
+        tracing::info!("Business Execute - Status GetAll");
         get_all::execute(self.repo.clone()).await
     }
     async fn get_by_id(&self, code: &String) -> Result<State, Error> {
+        tracing::info!("Business Execute - Status GetById");
         get_by_id::execute(self.repo.clone(), code).await
     }
     async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error> {
+        tracing::info!("Business Execute - Status Insert");
         insert::execute(self.repo.clone(), state).await
     }
     async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error> {
+        tracing::info!("Business Execute - Status Update");
         update::execute(self.repo.clone(), code, state).await
     }
     async fn delete(&self, code: &String) -> Result<String, Error> {
+        tracing::info!("Business Execute - Status Delete");
         delete::execute(self.repo.clone(), code).await
     }
 }

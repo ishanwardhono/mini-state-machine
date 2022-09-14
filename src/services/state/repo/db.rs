@@ -59,7 +59,7 @@ impl DbRepoImpl {
 #[async_trait]
 impl DbRepo for DbRepoImpl {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
-        tracing::info!("Database execution");
+        tracing::debug!("Database Execute - Status GetAll Query");
 
         let result = sqlx::query(db_query::SELECT_ALL)
             .map(self.state_full_map())
@@ -73,6 +73,8 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn get_by_code(&self, code: &String) -> Result<State, Error> {
+        tracing::debug!("Database Execute - Status GetByCode Query");
+
         let result = sqlx::query(db_query::SELECT_BY_CODE)
             .bind(code)
             .map(self.state_full_map())
@@ -86,6 +88,8 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error> {
+        tracing::debug!("Database Execute - Status Insert Query");
+
         let query = sqlx::query(db_query::INSERT);
 
         let result = self
@@ -103,6 +107,8 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error> {
+        tracing::debug!("Database Execute - Status Update Query");
+
         let result = sqlx::query(db_query::UPDATE)
             .bind(code)
             .bind(state.description)
@@ -124,6 +130,8 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn delete(&self, code: &String) -> Result<String, Error> {
+        tracing::debug!("Database Execute - Status Delete Query");
+
         let result = sqlx::query(db_query::DELETE)
             .bind(code)
             .execute(self.pool.as_ref())

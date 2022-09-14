@@ -13,7 +13,9 @@ pub async fn execute(repo: Arc<dyn DbRepo>, req: &StateCreateRequest) -> Result<
 }
 
 fn validate(req: &StateCreateRequest) -> Result<(), Error> {
+    tracing::debug!("executing ...");
     if req.code == "" {
+        tracing::error!("Validation Error - Code is Empty");
         return Err(Error::BadRequest("Code is empty".to_string()));
     }
     Ok(())

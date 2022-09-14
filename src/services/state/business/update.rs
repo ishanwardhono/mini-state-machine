@@ -9,5 +9,6 @@ pub async fn execute(
     code: &String,
     state: StateUpdateRequest,
 ) -> Result<String, Error> {
+    tracing::debug!("executing ...");
     repo.update(code, state).await
 }
