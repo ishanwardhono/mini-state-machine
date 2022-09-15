@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 mod cores;
 mod services;
+mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

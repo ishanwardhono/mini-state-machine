@@ -1,17 +1,20 @@
 use std::sync::Arc;
 
-use crate::{cores::error::Error, services::state::repo::db::DbRepo};
+use crate::{
+    cores::error::Error, services::state::repo::db::DbRepo, utils::common::FieldValidation,
+};
 
 pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<String, Error> {
+    tracing::debug!("executing ...");
     validate(code)?;
     repo.delete(code).await
 }
 
-fn validate(code: &String) -> Result<(), Error> {
-    tracing::debug!("executing ...");
-    if code.is_empty() {
-        tracing::error!("Validation Error - Code is Empty");
-        return Err(Error::BadRequest("Code is empty".to_string()));
+fn validate(req: &String) -> Result<(), Error> {
+    let mut validation = FieldValidation::new();
+    if req == "" {
+        validation.add("Code is empty");
     }
-    Ok(())
+
+    validation.check()
 }
