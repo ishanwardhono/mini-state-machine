@@ -1,6 +1,6 @@
+use super::http::ErrorResponse;
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
-use super::http::ErrorResponse;
 
 #[derive(Debug, Display)]
 pub enum Error {
