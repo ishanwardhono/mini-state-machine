@@ -14,7 +14,7 @@ pub fn init_log() {
         _ => tracing::Level::INFO,
     };
 
-    if common::StringToBool(
+    if common::string_to_bool(
         std::env::var("LOG_IS_JSON")
             .unwrap_or("false".to_string())
             .to_lowercase(),
