@@ -63,8 +63,11 @@ where
             let res = fut.await?;
 
             let end_time = SystemTime::now();
-            let response_time = end_time.duration_since(start_time).unwrap_or_default();
-            tracing::info!("HTTP Request finished: {:?}", response_time);
+            let response_time = end_time
+                .duration_since(start_time)
+                .unwrap_or_default()
+                .as_millis();
+            tracing::info!("HTTP Request finished: {:?}ms", response_time);
             Ok(res)
         })
     }
