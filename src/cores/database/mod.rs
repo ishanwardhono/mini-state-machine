@@ -26,6 +26,8 @@ pub async fn set_db() -> DbPool {
     }
     options.disable_statement_logging();
 
+    tracing::info!("Database initialization");
+
     PgPoolOptions::new()
         .max_connections(5)
         .connect_with(options)
