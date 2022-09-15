@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
-use crate::{
-    cores::error::Error, services::state::repo::db::DbRepo, utils::common::FieldValidation,
-};
+use crate::{cores::error::Error, services::state::repo::db::DbRepo, utils::validation};
 
 pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<String, Error> {
     tracing::debug!("executing ...");
@@ -11,7 +9,7 @@ pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<String, Err
 }
 
 fn validate(req: &String) -> Result<(), Error> {
-    let mut validation = FieldValidation::new();
+    let mut validation = validation::Fields::new();
     if req == "" {
         validation.add("Code is empty");
     }

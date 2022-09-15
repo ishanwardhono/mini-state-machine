@@ -4,7 +4,7 @@ use crate::{
         model::{entity::State, request::StateCreateRequest},
         repo::db::DbRepo,
     },
-    utils::common::FieldValidation,
+    utils::validation,
 };
 use std::sync::Arc;
 
@@ -15,7 +15,7 @@ pub async fn execute(repo: Arc<dyn DbRepo>, req: &StateCreateRequest) -> Result<
 }
 
 fn validate(req: &StateCreateRequest) -> Result<(), Error> {
-    let mut validation = FieldValidation::new();
+    let mut validation = validation::Fields::new();
     if req.code == "" {
         validation.add("Code is empty");
     }
