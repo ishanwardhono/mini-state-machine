@@ -7,6 +7,7 @@ use std::{
     future::{ready, Ready},
     time::SystemTime,
 };
+use tracing::Instrument;
 
 pub struct HttpMiddleware;
 
@@ -44,8 +45,6 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        let start_time = SystemTime::now();
-
         let req_attributes = format!(
             "{} {} {} {}",
             req.peer_addr()
@@ -54,21 +53,27 @@ where
             req.path(),
             req.query_string(),
         );
-
-        tracing::info!("HTTP Request Started: {}", req_attributes);
-
         let fut = self.service.call(req);
 
-        Box::pin(async move {
-            let res = fut.await?;
+        Box::pin(
+            async move {
+                let start_time = SystemTime::now();
+                tracing::info!("HTTP Request Started: {}", req_attributes);
 
-            let end_time = SystemTime::now();
-            let response_time = end_time
-                .duration_since(start_time)
-                .unwrap_or_default()
-                .as_millis();
-            tracing::info!("HTTP Request finished: {}ms", response_time);
-            Ok(res)
-        })
+                let res = fut.await?;
+
+                let end_time = SystemTime::now();
+                let response_time = end_time
+                    .duration_since(start_time)
+                    .unwrap_or_default()
+                    .as_millis();
+                tracing::info!("HTTP Request finished: {}ms", response_time);
+                Ok(res)
+            }
+            .instrument(tracing::info_span!(
+                "context",
+                request_id = ?uuid::Uuid::new_v4()
+            )),
+        )
     }
 }

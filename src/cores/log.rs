@@ -15,6 +15,7 @@ pub fn init_log() {
         .with_line_number(true)
         .with_target(false)
         .with_max_level(log_level)
+        .with_span_list(false)
         .init();
 
     tracing::debug!("Start tracing on {} level", log_level);
