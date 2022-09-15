@@ -21,6 +21,7 @@ async fn main() -> std::io::Result<()> {
     tracing::info!("Server Started on {}", app_url);
     HttpServer::new(move || {
         App::new()
+            .wrap(cores::http::middleware::HttpMiddleware {})
             .service(services::provider(Arc::new(pool.clone())))
             .route("/", web::get().to(|| HttpResponse::Ok()))
     })
