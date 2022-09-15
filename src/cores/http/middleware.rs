@@ -67,7 +67,7 @@ where
                 .duration_since(start_time)
                 .unwrap_or_default()
                 .as_millis();
-            tracing::info!("HTTP Request finished: {:?}ms", response_time);
+            tracing::info!("HTTP Request finished: {}ms", response_time);
             Ok(res)
         })
     }
