@@ -1,7 +1,8 @@
 use crate::utils::common;
+use std::env::var;
 
-pub fn init_log() {
-    let env_log_level = std::env::var("LOG_LEVEL").unwrap_or("INFO".to_string());
+pub fn init_log() -> tracing_appender::non_blocking::WorkerGuard {
+    let env_log_level = var("LOG_LEVEL").unwrap_or("INFO".to_string());
 
     let with_file = true;
     let with_line_number = true;
@@ -14,8 +15,16 @@ pub fn init_log() {
         _ => tracing::Level::INFO,
     };
 
+    let log_file_dir = var("LOG_FILE").unwrap_or("".to_string());
+    let (non_blocking, guard) = if log_file_dir.is_empty() {
+        tracing_appender::non_blocking(std::io::stdout())
+    } else {
+        let file_appender = tracing_appender::rolling::minutely(".log", log_file_dir);
+        tracing_appender::non_blocking(file_appender)
+    };
+
     if common::string_to_bool(
-        std::env::var("LOG_IS_JSON")
+        var("LOG_IS_JSON")
             .unwrap_or("false".to_string())
             .to_lowercase(),
     )
@@ -28,6 +37,7 @@ pub fn init_log() {
             .with_line_number(with_line_number)
             .with_target(with_target)
             .with_max_level(log_level)
+            .with_writer(non_blocking)
             .init();
     } else {
         tracing_subscriber::fmt()
@@ -35,8 +45,10 @@ pub fn init_log() {
             .with_line_number(with_line_number)
             .with_target(with_target)
             .with_max_level(log_level)
+            .with_writer(non_blocking)
             .init();
     }
 
     tracing::debug!("Start tracing on {} level", log_level);
+    guard
 }

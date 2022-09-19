@@ -11,7 +11,7 @@ async fn main() -> std::io::Result<()> {
     cores::environment::set_env();
 
     //log
-    cores::log::init_log();
+    let _log_guard = cores::log::init_log();
 
     let pool = cores::database::set_db().await;
 
