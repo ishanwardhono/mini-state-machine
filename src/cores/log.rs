@@ -19,7 +19,7 @@ pub fn init_log() -> tracing_appender::non_blocking::WorkerGuard {
     let (non_blocking, guard) = if log_file_dir.is_empty() {
         tracing_appender::non_blocking(std::io::stdout())
     } else {
-        let file_appender = tracing_appender::rolling::minutely(".log", log_file_dir);
+        let file_appender = tracing_appender::rolling::daily(".log", log_file_dir);
         tracing_appender::non_blocking(file_appender)
     };
 
