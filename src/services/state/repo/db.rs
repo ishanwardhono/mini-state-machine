@@ -1,4 +1,4 @@
-use crate::cores::database::{db_time_now, DbPool, DbQueryArguments};
+use crate::cores::database::pg::{db_time_now, DbPool, DbQueryArguments};
 use crate::cores::error::Error;
 use crate::services::state::model::entity::State;
 use crate::services::state::model::request::{StateCreateRequest, StateUpdateRequest};

@@ -1,2 +1,2 @@
 pub mod db;
-pub mod db_query;
+mod db_query;

@@ -1,4 +1,4 @@
-use super::http::ErrorResponse;
+use super::http::entity::ErrorResponse;
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
 

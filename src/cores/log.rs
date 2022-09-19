@@ -1,7 +1,7 @@
 use crate::utils::common;
 use std::env::var;
 
-pub fn init_log() -> tracing_appender::non_blocking::WorkerGuard {
+pub fn init() -> tracing_appender::non_blocking::WorkerGuard {
     let env_log_level = var("LOG_LEVEL").unwrap_or("INFO".to_string());
 
     let with_file = true;

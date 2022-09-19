@@ -1,7 +1,7 @@
 use crate::{
     cores::error::Error,
     services::state::{
-        business::Business,
+        business::factory::Business,
         model::{
             request::{StateCreateRequest, StateUpdateRequest},
             response::{CodeResponse, InsertResponse},

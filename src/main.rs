@@ -11,9 +11,9 @@ async fn main() -> std::io::Result<()> {
     cores::environment::set_env();
 
     //log
-    let _log_guard = cores::log::init_log();
+    let _log_guard = cores::log::init();
 
-    let pool = cores::database::set_db().await;
+    let pool = cores::database::pg::init().await;
 
     let app_url = std::env::var("APP_URL").expect("APP_URL must be set");
 
@@ -22,7 +22,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(cores::http::middleware::HttpMiddleware {})
-            .service(services::provider(Arc::new(pool.clone())))
+            .service(services::provider::register(Arc::new(pool.clone())))
             .route("/", web::get().to(|| HttpResponse::Ok()))
     })
     .bind(app_url)?
