@@ -18,9 +18,9 @@ mod tests {
     use std::sync::Arc;
 
     #[tokio::test]
-    async fn get_all_execute() -> Result<(), Error> {
+    async fn success() -> Result<(), Error> {
         let mut mock_db_repo = MockDbRepo::new();
-        mock_db_repo.expect_get_all().once().returning_st(move || {
+        mock_db_repo.expect_get_all().once().returning(move || {
             Box::pin(async {
                 Ok(vec![State {
                     id: 1,

@@ -23,6 +23,8 @@ pub const UPDATE: &str = "
         (description, webhooks, update_time) = ($2,$3,$4)
     WHERE
         code = $1
+    RETURNING
+        id, code, description, webhooks, create_time, update_time
 ";
 
 pub const DELETE: &str = "

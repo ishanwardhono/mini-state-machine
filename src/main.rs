@@ -21,9 +21,9 @@ async fn main() -> std::io::Result<()> {
     tracing::info!("Server Started on {}", app_url);
     HttpServer::new(move || {
         App::new()
-            .wrap(actix_web::middleware::NormalizePath::new(
-                actix_web::middleware::TrailingSlash::Always,
-            ))
+            // .wrap(actix_web::middleware::NormalizePath::new(
+            //     actix_web::middleware::TrailingSlash::Always,
+            // ))
             .wrap(cores::http::middleware::HttpMiddleware {})
             .service(services::provider::register(Arc::new(pool.clone())))
             .route("/", web::get().to(|| HttpResponse::Ok()))

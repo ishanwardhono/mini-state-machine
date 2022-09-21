@@ -19,7 +19,7 @@ pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &String) -> Result<State, Error>;
     async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error>;
-    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error>;
+    async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error>;
     async fn delete(&self, code: &String) -> Result<String, Error>;
 }
 
@@ -106,25 +106,20 @@ impl DbRepo for DbRepoImpl {
         }
     }
 
-    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error> {
+    async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error> {
         tracing::debug!("Database Execute - Status Update Query");
 
         let result = sqlx::query(db_query::UPDATE)
             .bind(code)
-            .bind(state.description)
-            .bind(state.webhooks)
+            .bind(state.description.clone())
+            .bind(state.webhooks.clone())
             .bind(db_time_now())
-            .execute(self.pool.as_ref())
+            .map(self.state_full_map())
+            .fetch_one(self.pool.as_ref())
             .await;
 
         match result {
-            Ok(res) => {
-                if res.rows_affected() > 0 {
-                    Ok(code.clone())
-                } else {
-                    Err(Error::NotFound("State not found".to_string()))
-                }
-            }
+            Ok(res) => Ok(res),
             Err(e) => Err(Error::from_db(e)),
         }
     }

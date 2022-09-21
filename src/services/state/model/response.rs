@@ -2,7 +2,7 @@ use super::entity::State;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct InsertResponse {
+pub struct UpsertResponse {
     pub state: State,
 }
 

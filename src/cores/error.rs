@@ -2,7 +2,7 @@ use super::http::entity::ErrorResponse;
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
 
-#[derive(Debug, Display)]
+#[derive(Debug, Display, PartialEq)]
 pub enum Error {
     #[display(fmt = "Please try again later!")]
     InternalError(String),

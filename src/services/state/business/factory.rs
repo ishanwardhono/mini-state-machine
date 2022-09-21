@@ -1,7 +1,7 @@
 use crate::{
     cores::error::Error,
     services::state::{
-        business::{delete, get_all, get_by_id, insert, update},
+        business::{delete, get_all, get_by_code, insert, update},
         model::{entity::State, request::StateCreateRequest, request::StateUpdateRequest},
         repo::db::DbRepo,
     },
@@ -16,9 +16,9 @@ pub struct BusinessFactory {
 #[async_trait]
 pub trait Business {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
-    async fn get_by_id(&self, code: &String) -> Result<State, Error>;
+    async fn get_by_code(&self, code: &String) -> Result<State, Error>;
     async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error>;
-    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error>;
+    async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error>;
     async fn delete(&self, code: &String) -> Result<String, Error>;
 }
 
@@ -34,15 +34,15 @@ impl Business for BusinessFactory {
         tracing::info!("Business Execute - Status GetAll");
         get_all::execute(self.repo.clone()).await
     }
-    async fn get_by_id(&self, code: &String) -> Result<State, Error> {
+    async fn get_by_code(&self, code: &String) -> Result<State, Error> {
         tracing::info!("Business Execute - Status GetById");
-        get_by_id::execute(self.repo.clone(), code).await
+        get_by_code::execute(self.repo.clone(), code).await
     }
     async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error> {
         tracing::info!("Business Execute - Status Insert");
         insert::execute(self.repo.clone(), state).await
     }
-    async fn update(&self, code: &String, state: StateUpdateRequest) -> Result<String, Error> {
+    async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error> {
         tracing::info!("Business Execute - Status Update");
         update::execute(self.repo.clone(), code, state).await
     }
