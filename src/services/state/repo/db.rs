@@ -1,3 +1,4 @@
+use super::db_query;
 use crate::cores::database::pg::{db_time_now, DbPool, DbQueryArguments};
 use crate::cores::error::Error;
 use crate::services::state::model::entity::State;
@@ -7,14 +8,13 @@ use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::sync::Arc;
 
-use super::db_query;
-
 #[derive(Clone)]
 pub struct DbRepoImpl {
     pool: Arc<DbPool>,
 }
 
 #[async_trait]
+#[cfg_attr(test, mockall::automock)]
 pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &String) -> Result<State, Error>;
