@@ -5,6 +5,6 @@ use crate::{
 use std::sync::Arc;
 
 pub async fn execute(repo: Arc<dyn DbRepo>, username: &String) -> Result<User, Error> {
-    tracing::debug!("executing");
+    tracing::debug!("executing...");
     repo.get_by_username(username).await
 }

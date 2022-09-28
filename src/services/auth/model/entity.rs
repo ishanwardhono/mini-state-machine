@@ -1,4 +1,5 @@
 use super::role::Role;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 pub struct User {
@@ -7,4 +8,15 @@ pub struct User {
     pub role: Role,
     pub create_time: chrono::NaiveDateTime,
     pub update_time: chrono::NaiveDateTime,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Claim {
+    pub sub: String,
+    pub exp: usize,
+    pub jti: Option<String>,
+    pub nbf: Option<usize>,
+    pub iat: Option<usize>,
+    pub iss: Option<String>,
+    pub aud: Option<String>,
 }

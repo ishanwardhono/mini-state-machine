@@ -12,6 +12,9 @@ pub enum Error {
 
     #[display(fmt = "No Data")]
     NotFound(String),
+
+    #[display(fmt = "Unauthorized")]
+    Unauthorized(String),
 }
 
 const DBERROR_VIOLATE_UNIQUE: &str = "23505";
@@ -34,6 +37,7 @@ impl error::ResponseError for Error {
         let mut message = match self {
             Self::InternalError(message) => message.to_string(),
             Self::BadRequest(message) => message.to_string(),
+            Self::Unauthorized(message) => message.to_string(),
             _ => "".to_string(),
         };
 
@@ -57,6 +61,7 @@ impl error::ResponseError for Error {
             Error::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::BadRequest(_) => StatusCode::BAD_REQUEST,
             Error::NotFound(_) => StatusCode::NOT_FOUND,
+            Error::Unauthorized(_) => StatusCode::UNAUTHORIZED,
         }
     }
 }
