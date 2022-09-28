@@ -1,4 +1,5 @@
-#[derive(sqlx::Type)]
+#[derive(sqlx::Type, Debug, Clone)]
+#[sqlx(type_name = "role")]
 #[sqlx(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Role {
     Admin,
