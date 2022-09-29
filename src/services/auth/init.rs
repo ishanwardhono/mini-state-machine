@@ -5,14 +5,8 @@ use super::{
 use crate::cores::database::pg::DbPool;
 use std::sync::Arc;
 
-pub struct AuthService {
-    pub factory: Arc<dyn Business>,
-}
+pub type AuthService = Arc<dyn Business>;
 
-impl AuthService {
-    pub fn new(pool: Arc<DbPool>) -> Self {
-        Self {
-            factory: BusinessFactory::new(DbRepoImpl::new(pool)),
-        }
-    }
+pub fn new(pool: Arc<DbPool>) -> Arc<dyn Business> {
+    BusinessFactory::new(DbRepoImpl::new(pool))
 }

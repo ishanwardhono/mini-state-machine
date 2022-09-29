@@ -9,9 +9,9 @@ use std::{
 };
 use tracing::Instrument;
 
-pub struct HttpMiddleware;
+pub struct Middleware;
 
-impl<S, B> Transform<S, ServiceRequest> for HttpMiddleware
+impl<S, B> Transform<S, ServiceRequest> for Middleware
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -20,19 +20,19 @@ where
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = Middleware<S>;
+    type Transform = ServiceMiddleware<S>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ready(Ok(Middleware { service }))
+        ready(Ok(ServiceMiddleware { service }))
     }
 }
 
-pub struct Middleware<S> {
+pub struct ServiceMiddleware<S> {
     service: S,
 }
 
-impl<S, B> Service<ServiceRequest> for Middleware<S>
+impl<S, B> Service<ServiceRequest> for ServiceMiddleware<S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,

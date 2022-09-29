@@ -1,4 +1,4 @@
-use super::role::Role;
+use crate::cores::auth::role::Role;
 
 #[derive(Clone)]
 pub struct UserCreateRequest {

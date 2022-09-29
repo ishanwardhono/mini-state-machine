@@ -1,10 +1,12 @@
+use std::fmt::format;
+
 use super::http::entity::ErrorResponse;
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
 
 #[derive(Debug, Display, PartialEq)]
 pub enum Error {
-    #[display(fmt = "Please try again later!")]
+    #[display(fmt = "Internal Server Error")]
     InternalError(String),
 
     #[display(fmt = "Bad Request")]
@@ -30,29 +32,32 @@ impl Error {
             _ => Error::InternalError(e.to_string()),
         }
     }
+
+    pub fn get_message(&self) -> String {
+        match self {
+            Error::InternalError(msg)
+            | Error::BadRequest(msg)
+            | Error::NotFound(msg)
+            | Error::Unauthorized(msg) => msg,
+        }
+        .to_owned()
+    }
+
+    pub fn to_message_display(&self) -> String {
+        let msg = self.get_message();
+        if msg.is_empty() {
+            return format!("{}", self.to_string());
+        }
+        format!("{}: {}", self.to_string(), msg)
+    }
 }
 
 impl error::ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
-        let mut message = match self {
-            Self::InternalError(message) => message.to_string(),
-            Self::BadRequest(message) => message.to_string(),
-            Self::Unauthorized(message) => message.to_string(),
-            _ => "".to_string(),
-        };
-
-        let error_msg: String;
-        if message != "" {
-            error_msg = format!("{} : {}", self.status_code().to_string(), self.to_string());
-        } else {
-            error_msg = self.status_code().to_string();
-            message = self.to_string();
-        }
         let error_response = ErrorResponse {
-            error: error_msg,
-            message: message,
+            error: self.status_code().to_string(),
+            message: self.get_message(),
         };
-
         HttpResponse::build(self.status_code()).json(error_response)
     }
 

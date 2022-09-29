@@ -1,5 +1,6 @@
-use super::role::Role;
 use serde::{Deserialize, Serialize};
+
+use crate::cores::auth::role::Role;
 
 #[derive(Debug)]
 pub struct User {

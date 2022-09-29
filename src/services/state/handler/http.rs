@@ -1,10 +1,13 @@
 use crate::{
-    cores::error::Error,
-    services::state::{
-        business::factory::Business,
-        model::{
-            request::{StateCreateRequest, StateUpdateRequest},
-            response::{CodeResponse, UpsertResponse},
+    cores::{auth::role::Role, error::Error, http::middleware::auth::AuthMiddleware},
+    services::{
+        auth::init::AuthService,
+        state::{
+            business::factory::Business,
+            model::{
+                request::{StateCreateRequest, StateUpdateRequest},
+                response::{CodeResponse, UpsertResponse},
+            },
         },
     },
 };
@@ -14,9 +17,15 @@ use actix_web::{
 };
 use std::sync::Arc;
 
-pub fn register_handler(factory: Arc<dyn Business>) -> Scope {
+pub fn register_handler(factory: Arc<dyn Business>, auth: AuthService) -> Scope {
     web::scope("/states")
-        .route("", get().to(get_all))
+        .route(
+            "",
+            get().to(get_all).wrap(AuthMiddleware {
+                valid_role: Role::Admin,
+                auth_service: auth,
+            }),
+        )
         .route("", post().to(insert))
         .route("/{code}", get().to(get_by_code))
         .route("/{code}", put().to(update))

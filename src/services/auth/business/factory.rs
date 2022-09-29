@@ -45,7 +45,7 @@ impl Business for BusinessFactory {
     }
 
     async fn token_validation(&self, token: &String) -> Result<i32, Error> {
-        tracing::info!("Auth - Login");
+        tracing::info!("Auth - Authorizing");
         token_validation::execute(self.repo.clone(), token).await
     }
 }
