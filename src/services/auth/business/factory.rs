@@ -1,7 +1,7 @@
 use crate::{
     cores::{auth::role::Role, error::service::Error},
     services::auth::{
-        business::{authorize, check_permission, get_by_username, insert, login, token_validation},
+        business::{authorize, get_by_username, insert, is_permitted, login, token_validation},
         model::{entity::User, request::UserCreateRequest},
         repo::db::DbRepo,
     },
@@ -20,7 +20,7 @@ pub trait Business {
     async fn login(&self, username: &String) -> Result<String, Error>;
     async fn authorize(&self, token: Option<String>, valid_permission: Role) -> Result<i32, Error>;
     async fn token_validation(&self, token: &String) -> Result<User, Error>;
-    fn check_permission(&self, valid_permission: Role, user_permission: Role) -> bool;
+    fn is_permitted(&self, valid_permission: Role, user_permission: Role) -> bool;
 }
 
 impl BusinessFactory {
@@ -56,8 +56,8 @@ impl Business for BusinessFactory {
         token_validation::execute(self.repo.clone(), token).await
     }
 
-    fn check_permission(&self, valid_permission: Role, user_permission: Role) -> bool {
+    fn is_permitted(&self, valid_permission: Role, user_permission: Role) -> bool {
         tracing::debug!("Auth - Checking Permission");
-        check_permission::execute(valid_permission, user_permission)
+        is_permitted::execute(valid_permission, user_permission)
     }
 }

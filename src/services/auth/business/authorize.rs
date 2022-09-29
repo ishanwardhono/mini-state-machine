@@ -1,5 +1,8 @@
 use super::factory::Business;
-use crate::cores::{auth::role::Role, error::service::Error};
+use crate::cores::{
+    auth::role::Role,
+    error::{service::Error, types::AuthError},
+};
 
 pub async fn execute(
     factory: &impl Business,
@@ -7,24 +10,15 @@ pub async fn execute(
     valid_permission: Role,
 ) -> Result<i32, Error> {
     let token = token_opt.ok_or_else(|| {
-        tracing::error!("Auth Token not provided");
-        Error::Unauthorized("Auth Token not provided".to_string())
+        tracing::error!("{}", AuthError::NotProvided);
+        Error::unauth_from(AuthError::NotProvided)
     })?;
 
-    let user = factory.token_validation(&token).await.map_err(|e| {
-        tracing::error!("{}", e.to_message_display());
-        e
-    })?;
+    let user = factory.token_validation(&token).await?;
 
-    if !factory.check_permission(valid_permission, user.role) {
-        tracing::error!(
-            "User {} ({}) has no permission for action",
-            user.username,
-            user.id
-        );
-        return Err(Error::Unauthorized(
-            "User has no permission for action".to_string(),
-        ));
+    if !factory.is_permitted(valid_permission, user.role) {
+        tracing::error!("{}", AuthError::NotPermitted);
+        return Err(Error::unauth_from(AuthError::NotPermitted));
     }
 
     Ok(user.id)

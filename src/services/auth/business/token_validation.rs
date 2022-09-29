@@ -1,5 +1,5 @@
 use crate::{
-    cores::error::service::Error,
+    cores::error::{service::Error, types::AuthError},
     services::auth::{
         model::entity::{Claim, User},
         repo::db::DbRepo,
@@ -13,14 +13,12 @@ pub async fn execute(repo: Arc<dyn DbRepo>, token: &String) -> Result<User, Erro
 
     let token_part: Vec<&str> = token.split(" ").collect();
     if token_part.len() != 2 {
-        return Err(Error::Unauthorized(
-            "Invalid Authorization Format".to_string(),
-        ));
+        tracing::error!("{}", AuthError::InvalidFormat);
+        return Err(Error::unauth_from(AuthError::InvalidFormat));
     }
     if token_part[0] != "Bearer" {
-        return Err(Error::Unauthorized(
-            "Unsupported Authorization Type".to_string(),
-        ));
+        tracing::error!("{}", AuthError::UnsupportedType);
+        return Err(Error::unauth_from(AuthError::UnsupportedType));
     }
 
     let jwt_token = token_part[1];
@@ -30,12 +28,18 @@ pub async fn execute(repo: Arc<dyn DbRepo>, token: &String) -> Result<User, Erro
         &DecodingKey::from_secret(std::env::var("JWT_SECRET").unwrap_or_default().as_bytes()),
         &Validation::new(Algorithm::HS512),
     );
-    let claim = token_data.map_err(|e| Error::Unauthorized(e.to_string()))?;
+    let claim = token_data.map_err(|e| {
+        tracing::error!("{}", e.to_string());
+        Error::Unauthorized(e.to_string())
+    })?;
 
     repo.get_by_username(&claim.claims.sub)
         .await
         .map_err(|e| match e {
-            Error::NotFound(_) => Error::Unauthorized("Invalid Token User".to_string()),
+            Error::NotFound(_) => {
+                tracing::error!("{}", AuthError::InvalidUser);
+                Error::unauth_from(AuthError::InvalidUser)
+            }
             _ => e,
         })
 }

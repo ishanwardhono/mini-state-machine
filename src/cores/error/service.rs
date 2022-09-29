@@ -1,3 +1,6 @@
+use std::fmt::Display;
+
+use super::types::DBERROR_VIOLATE_UNIQUE;
 use crate::cores::http::entity::ErrorResponse;
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
@@ -17,8 +20,6 @@ pub enum Error {
     Unauthorized(String),
 }
 
-const DBERROR_VIOLATE_UNIQUE: &str = "23505";
-
 impl Error {
     pub fn from_db(e: sqlx::Error) -> Self {
         match e {
@@ -31,6 +32,13 @@ impl Error {
         }
     }
 
+    pub fn unauth_from<E>(e: E) -> Error
+    where
+        E: Display,
+    {
+        Error::Unauthorized(e.to_string())
+    }
+
     pub fn get_message(&self) -> String {
         match self {
             Error::InternalError(msg)
@@ -39,14 +47,6 @@ impl Error {
             | Error::Unauthorized(msg) => msg,
         }
         .to_owned()
-    }
-
-    pub fn to_message_display(&self) -> String {
-        let msg = self.get_message();
-        if msg.is_empty() {
-            return format!("{}", self.to_string());
-        }
-        format!("{}: {}", self.to_string(), msg)
     }
 }
 
