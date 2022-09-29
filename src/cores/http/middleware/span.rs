@@ -9,6 +9,10 @@ use std::{
 };
 use tracing::Instrument;
 
+pub fn new() -> Middleware {
+    Middleware {}
+}
+
 pub struct Middleware;
 
 impl<S, B> Transform<S, ServiceRequest> for Middleware

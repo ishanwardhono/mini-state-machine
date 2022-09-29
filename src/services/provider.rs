@@ -11,8 +11,8 @@ use std::sync::Arc;
 
 //Http Handler Registration
 pub fn register(pool: Arc<DbPool>) -> Scope {
-    let service = StateService::new(pool.clone());
     let authority = new_authority(pool.clone());
+    let service = StateService::new(pool.clone());
 
     web::scope("/app").service(service.init_http_service(authority.clone()))
 }
