@@ -9,17 +9,6 @@ pub enum Role {
 }
 
 impl Role {
-    fn default() -> Self {
-        Role::BusinessClient
-    }
-
-    fn valid(&self, role: Self) -> bool {
-        if self.level() <= role.level() {
-            return true;
-        }
-        false
-    }
-
     pub fn level(&self) -> u8 {
         match self {
             Role::Admin => 1,

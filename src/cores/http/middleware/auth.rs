@@ -19,26 +19,26 @@ pub fn new(auth_service: AuthService) -> Authority {
             valid_role: Role::Admin,
             auth_service: auth_service.clone(),
         }),
-        business_client: Arc::new(AuthMiddleware {
-            valid_role: Role::BusinessClient,
-            auth_service: auth_service.clone(),
-        }),
+        // business_client: Arc::new(AuthMiddleware {
+        //     valid_role: Role::BusinessClient,
+        //     auth_service: auth_service.clone(),
+        // }),
     };
     Arc::new(authorizer)
 }
 
 pub struct Authorizer {
     admin: Arc<AuthMiddleware>,
-    business_client: Arc<AuthMiddleware>,
+    // business_client: Arc<AuthMiddleware>,
 }
 
 impl Authorizer {
     pub fn admin(&self) -> Arc<AuthMiddleware> {
         self.admin.clone()
     }
-    pub fn business_client(&self) -> Arc<AuthMiddleware> {
-        self.business_client.clone()
-    }
+    // pub fn business_client(&self) -> Arc<AuthMiddleware> {
+    //     self.business_client.clone()
+    // }
 }
 
 pub struct AuthMiddleware {

@@ -18,10 +18,7 @@ pub fn register_handler(factory: Arc<dyn Business>, auth: Authority) -> Scope {
     web::scope("/states")
         .route("", get().to(get_all).wrap(auth.admin()))
         .route("", post().to(insert).wrap(auth.admin()))
-        .route(
-            "/{code}",
-            get().to(get_by_code).wrap(auth.business_client()),
-        )
+        .route("/{code}", get().to(get_by_code).wrap(auth.admin()))
         .route("/{code}", put().to(update).wrap(auth.admin()))
         .route("/{code}", web::delete().to(delete).wrap(auth.admin()))
         .app_data(web::Data::from(factory))
