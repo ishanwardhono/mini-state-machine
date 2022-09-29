@@ -7,6 +7,6 @@ use std::sync::Arc;
 
 pub type AuthService = Arc<dyn Business>;
 
-pub fn new(pool: Arc<DbPool>) -> Arc<dyn Business> {
+pub fn new(pool: Arc<DbPool>) -> AuthService {
     BusinessFactory::new(DbRepoImpl::new(pool))
 }

@@ -1,13 +1,10 @@
 use crate::{
-    cores::{auth::role::Role, error::Error, http::middleware::auth::AuthMiddleware},
-    services::{
-        auth::init::AuthService,
-        state::{
-            business::factory::Business,
-            model::{
-                request::{StateCreateRequest, StateUpdateRequest},
-                response::{CodeResponse, UpsertResponse},
-            },
+    cores::{error::Error, http::middleware::auth::Authority},
+    services::state::{
+        business::factory::Business,
+        model::{
+            request::{StateCreateRequest, StateUpdateRequest},
+            response::{CodeResponse, UpsertResponse},
         },
     },
 };
@@ -17,19 +14,16 @@ use actix_web::{
 };
 use std::sync::Arc;
 
-pub fn register_handler(factory: Arc<dyn Business>, auth: AuthService) -> Scope {
+pub fn register_handler(factory: Arc<dyn Business>, auth: Authority) -> Scope {
     web::scope("/states")
+        .route("", get().to(get_all).wrap(auth.admin()))
+        .route("", post().to(insert).wrap(auth.admin()))
         .route(
-            "",
-            get().to(get_all).wrap(AuthMiddleware {
-                valid_role: Role::Admin,
-                auth_service: auth,
-            }),
+            "/{code}",
+            get().to(get_by_code).wrap(auth.business_client()),
         )
-        .route("", post().to(insert))
-        .route("/{code}", get().to(get_by_code))
-        .route("/{code}", put().to(update))
-        .route("/{code}", web::delete().to(delete))
+        .route("/{code}", put().to(update).wrap(auth.admin()))
+        .route("/{code}", web::delete().to(delete).wrap(auth.admin()))
         .app_data(web::Data::from(factory))
 }
 

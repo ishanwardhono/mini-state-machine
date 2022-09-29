@@ -1,14 +1,14 @@
 use crate::{
-    cores::error::Error,
+    cores::{auth::role::Role, error::Error},
     services::auth::{
-        business::{get_by_username, insert, login, token_validation},
+        business::{authorize, check_permission, get_by_username, insert, login, token_validation},
         model::{entity::User, request::UserCreateRequest},
         repo::db::DbRepo,
     },
 };
+use async_trait::async_trait;
 use std::sync::Arc;
 
-use async_trait::async_trait;
 pub struct BusinessFactory {
     repo: Arc<dyn DbRepo>,
 }
@@ -18,7 +18,9 @@ pub trait Business {
     async fn get_by_username(&self, username: &String) -> Result<User, Error>;
     async fn insert(&self, req: &UserCreateRequest) -> Result<User, Error>;
     async fn login(&self, username: &String) -> Result<String, Error>;
-    async fn token_validation(&self, token: &String) -> Result<i32, Error>;
+    async fn authorize(&self, token: Option<String>, valid_permission: Role) -> Result<i32, Error>;
+    async fn token_validation(&self, token: &String) -> Result<User, Error>;
+    fn check_permission(&self, valid_permission: Role, user_permission: Role) -> bool;
 }
 
 impl BusinessFactory {
@@ -44,8 +46,18 @@ impl Business for BusinessFactory {
         login::execute(self.repo.clone(), username).await
     }
 
-    async fn token_validation(&self, token: &String) -> Result<i32, Error> {
-        tracing::info!("Auth - Authorizing");
+    async fn authorize(&self, token: Option<String>, valid_permission: Role) -> Result<i32, Error> {
+        tracing::info!("Auth - Authorization");
+        authorize::execute(self, token, valid_permission).await
+    }
+
+    async fn token_validation(&self, token: &String) -> Result<User, Error> {
+        tracing::debug!("Auth - Token Validation");
         token_validation::execute(self.repo.clone(), token).await
+    }
+
+    fn check_permission(&self, valid_permission: Role, user_permission: Role) -> bool {
+        tracing::debug!("Auth - Checking Permission");
+        check_permission::execute(valid_permission, user_permission)
     }
 }

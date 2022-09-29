@@ -20,7 +20,7 @@ impl Role {
         false
     }
 
-    fn level(&self) -> u8 {
+    pub fn level(&self) -> u8 {
         match self {
             Role::Admin => 1,
             Role::BusinessClient => 2,

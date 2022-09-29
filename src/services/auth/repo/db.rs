@@ -40,7 +40,7 @@ impl DbRepoImpl {
 #[async_trait]
 impl DbRepo for DbRepoImpl {
     async fn get_by_username(&self, username: &String) -> Result<User, Error> {
-        tracing::debug!("Database Execute - User GetByUsername Query");
+        tracing::info!("Database Execute - User GetByUsername Query");
         sqlx::query(db_query::GET_BY_USERNAME)
             .bind(username)
             .map(self.user_full_map())
@@ -50,7 +50,7 @@ impl DbRepo for DbRepoImpl {
     }
 
     async fn insert(&self, user: &UserCreateRequest) -> Result<User, Error> {
-        tracing::debug!("Database Execute - User Insert Query");
+        tracing::info!("Database Execute - User Insert Query");
         sqlx::query(db_query::INSERT)
             .bind(user.username.clone())
             .bind(user.role.clone())

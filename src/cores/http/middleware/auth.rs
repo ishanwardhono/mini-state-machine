@@ -1,7 +1,4 @@
-use crate::{
-    cores::{auth::role::Role, error::Error as ServiceError},
-    services::auth::init::AuthService,
-};
+use crate::{cores::auth::role::Role, services::auth::init::AuthService};
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     http::header,
@@ -12,11 +9,41 @@ use std::{
     cell::RefCell,
     future::{ready, Ready},
     rc::Rc,
+    sync::Arc,
 };
 
+pub type Authority = Arc<Authorizer>;
+pub fn new(auth_service: AuthService) -> Authority {
+    let authorizer = Authorizer {
+        admin: Arc::new(AuthMiddleware {
+            valid_role: Role::Admin,
+            auth_service: auth_service.clone(),
+        }),
+        business_client: Arc::new(AuthMiddleware {
+            valid_role: Role::BusinessClient,
+            auth_service: auth_service.clone(),
+        }),
+    };
+    Arc::new(authorizer)
+}
+
+pub struct Authorizer {
+    admin: Arc<AuthMiddleware>,
+    business_client: Arc<AuthMiddleware>,
+}
+
+impl Authorizer {
+    pub fn admin(&self) -> Arc<AuthMiddleware> {
+        self.admin.clone()
+    }
+    pub fn business_client(&self) -> Arc<AuthMiddleware> {
+        self.business_client.clone()
+    }
+}
+
 pub struct AuthMiddleware {
-    pub valid_role: Role,
-    pub auth_service: AuthService,
+    valid_role: Role,
+    auth_service: AuthService,
 }
 
 impl<S, B> Transform<S, ServiceRequest> for AuthMiddleware
@@ -60,20 +87,13 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let auth_header = get_auth_header(&req);
+        let valid_role = self.valid_role;
         let auth_service = self.auth_service.clone();
         let svc = self.service.clone();
 
         Box::pin(async move {
-            let token = auth_header.ok_or_else(|| {
-                tracing::error!("Auth Token not provided");
-                ServiceError::Unauthorized("Auth Token not provided".to_string())
-            })?;
-            let user = auth_service.token_validation(&token).await.map_err(|e| {
-                tracing::error!("{}", e.to_message_display());
-                e
-            });
-
-            req.extensions_mut().insert(user?);
+            let user = auth_service.authorize(auth_header, valid_role).await?;
+            req.extensions_mut().insert(user);
 
             let res = svc.call(req).await?;
             Ok(res)
