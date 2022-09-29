@@ -1,4 +1,4 @@
-use crate::cores::error::Error;
+use crate::cores::error::service::Error;
 
 pub struct Fields {
     invalid_data: Vec<&'static str>,

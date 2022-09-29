@@ -1,5 +1,5 @@
 use crate::{
-    cores::error::Error,
+    cores::error::service::Error,
     services::auth::{model::entity::User, repo::db::DbRepo},
 };
 use std::sync::Arc;

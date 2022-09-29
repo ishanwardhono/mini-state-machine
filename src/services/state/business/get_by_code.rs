@@ -1,5 +1,5 @@
 use crate::{
-    cores::error::Error,
+    cores::error::service::Error,
     services::state::{model::entity::State, repo::db::DbRepo},
     utils::validation,
 };

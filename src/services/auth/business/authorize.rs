@@ -1,5 +1,5 @@
 use super::factory::Business;
-use crate::cores::{auth::role::Role, error::Error};
+use crate::cores::{auth::role::Role, error::service::Error};
 
 pub async fn execute(
     factory: &impl Business,

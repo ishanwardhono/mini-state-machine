@@ -1,5 +1,5 @@
 use crate::{
-    cores::error::Error,
+    cores::error::service::Error,
     services::state::{
         model::{entity::State, request::StateCreateRequest},
         repo::db::DbRepo,
@@ -27,7 +27,7 @@ fn validate(req: &StateCreateRequest) -> Result<(), Error> {
 
 mod tests {
     use crate::{
-        cores::{database::pg::db_time_now, error::Error},
+        cores::{database::pg::db_time_now, error::service::Error},
         services::state::{
             business::insert::execute,
             model::{entity::State, request::StateCreateRequest},

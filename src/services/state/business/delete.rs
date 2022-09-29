@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{cores::error::Error, services::state::repo::db::DbRepo, utils::validation};
+use crate::{cores::error::service::Error, services::state::repo::db::DbRepo, utils::validation};
 
 pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<String, Error> {
     tracing::debug!("executing ...");
@@ -20,7 +20,7 @@ fn validate(req: &String) -> Result<(), Error> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        cores::error::Error,
+        cores::error::service::Error,
         services::state::{business::delete::execute, repo::db::MockDbRepo},
     };
     use mockall::predicate::eq;

@@ -1,5 +1,5 @@
 use crate::{
-    cores::{error::Error, http::middleware::auth::Authority},
+    cores::{error::service::Error, http::middleware::auth::Authority},
     services::state::{
         business::factory::Business,
         model::{

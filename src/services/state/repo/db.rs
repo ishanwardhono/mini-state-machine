@@ -1,6 +1,6 @@
 use super::db_query;
 use crate::cores::database::pg::{db_time_now, DbPool, DbQueryArguments};
-use crate::cores::error::Error;
+use crate::cores::error::service::Error;
 use crate::services::state::model::entity::State;
 use crate::services::state::model::request::{StateCreateRequest, StateUpdateRequest};
 use async_trait::async_trait;
@@ -75,53 +75,39 @@ impl DbRepo for DbRepoImpl {
     async fn get_by_code(&self, code: &String) -> Result<State, Error> {
         tracing::info!("Database Execute - Status GetByCode Query");
 
-        let result = sqlx::query(db_query::SELECT_BY_CODE)
+        sqlx::query(db_query::SELECT_BY_CODE)
             .bind(code)
             .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
-            .await;
-
-        match result {
-            Ok(res) => Ok(res),
-            Err(e) => Err(Error::from_db(e)),
-        }
+            .await
+            .map_err(|e| Error::from_db(e))
     }
 
     async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error> {
         tracing::info!("Database Execute - Status Insert Query");
 
         let query = sqlx::query(db_query::INSERT);
-
-        let result = self
-            .state_default_bind(query, state)
+        self.state_default_bind(query, state)
             //created_time
             .bind(db_time_now())
             .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
-            .await;
-
-        match result {
-            Ok(res) => Ok(res),
-            Err(e) => Err(Error::from_db(e)),
-        }
+            .await
+            .map_err(|e| Error::from_db(e))
     }
 
     async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error> {
         tracing::info!("Database Execute - Status Update Query");
 
-        let result = sqlx::query(db_query::UPDATE)
+        sqlx::query(db_query::UPDATE)
             .bind(code)
             .bind(state.description.clone())
             .bind(state.webhooks.clone())
             .bind(db_time_now())
             .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
-            .await;
-
-        match result {
-            Ok(res) => Ok(res),
-            Err(e) => Err(Error::from_db(e)),
-        }
+            .await
+            .map_err(|e| Error::from_db(e))
     }
 
     async fn delete(&self, code: &String) -> Result<String, Error> {
@@ -130,17 +116,13 @@ impl DbRepo for DbRepoImpl {
         let result = sqlx::query(db_query::DELETE)
             .bind(code)
             .execute(self.pool.as_ref())
-            .await;
+            .await
+            .map_err(|e| Error::from_db(e))?;
 
-        match result {
-            Ok(res) => {
-                if res.rows_affected() > 0 {
-                    Ok(code.clone())
-                } else {
-                    Err(Error::NotFound("State not found".to_string()))
-                }
-            }
-            Err(e) => Err(Error::from_db(e)),
+        if result.rows_affected() > 0 {
+            Ok(code.clone())
+        } else {
+            Err(Error::NotFound("State not found".to_string()))
         }
     }
 }
