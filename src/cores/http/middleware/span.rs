@@ -75,8 +75,8 @@ where
                 Ok(res)
             }
             .instrument(tracing::info_span!(
-                "context",
-                request_id = ?uuid::Uuid::new_v4()
+                "ctx",
+                req_id = ?uuid::Uuid::new_v4()
             )),
         )
     }

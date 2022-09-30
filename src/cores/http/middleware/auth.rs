@@ -11,6 +11,7 @@ use std::{
     rc::Rc,
     sync::Arc,
 };
+use tracing::Instrument;
 
 pub type Authority = Arc<Authorizer>;
 pub fn new(auth_service: AuthService) -> Authority {
@@ -95,7 +96,10 @@ where
             let user = auth_service.authorize(auth_header, valid_role).await?;
             req.extensions_mut().insert(user);
 
-            let res = svc.call(req).await?;
+            let res = svc
+                .call(req)
+                .instrument(tracing::info_span!("ctx", user_id = user))
+                .await?;
             Ok(res)
         })
     }
