@@ -50,7 +50,7 @@ mod tests {
 
         assert!(res.is_err());
         assert_eq!(
-            Error::BadRequest("Code is empty".to_string()),
+            Error::BadRequest("Code is empty".to_owned()),
             res.unwrap_err()
         );
         Ok(())

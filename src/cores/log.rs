@@ -4,7 +4,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, Layer};
 
 pub fn init() -> tracing_appender::non_blocking::WorkerGuard {
-    let env_log_level = var("LOG_LEVEL").unwrap_or("INFO".to_string());
+    let env_log_level = var("LOG_LEVEL").unwrap_or("INFO".to_owned());
 
     let with_file = true;
     let with_line_number = true;
@@ -32,7 +32,7 @@ pub fn init() -> tracing_appender::non_blocking::WorkerGuard {
         ),
     };
 
-    let log_file_dir = var("LOG_FILE").unwrap_or("".to_string());
+    let log_file_dir = var("LOG_FILE").unwrap_or("".to_owned());
     let (non_blocking, guard) = if log_file_dir.is_empty() {
         tracing_appender::non_blocking(std::io::stdout())
     } else {
@@ -42,7 +42,7 @@ pub fn init() -> tracing_appender::non_blocking::WorkerGuard {
 
     if common::string_to_bool(
         var("LOG_IS_JSON")
-            .unwrap_or("false".to_string())
+            .unwrap_or("false".to_owned())
             .to_lowercase(),
     )
     .unwrap_or_default()

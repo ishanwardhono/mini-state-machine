@@ -37,8 +37,8 @@ pub async fn execute(repo: Arc<dyn DbRepo>, token: &String) -> Result<User, Erro
         .await
         .map_err(|e| match e {
             Error::NotFound(_) => {
-                tracing::error!("{}", AuthError::InvalidUser);
-                Error::unauth_from(AuthError::InvalidUser)
+                tracing::error!("{}", AuthError::InvalidUser(claim.claims.sub.clone()));
+                Error::unauth_from(AuthError::InvalidUser(claim.claims.sub.clone()))
             }
             _ => e,
         })

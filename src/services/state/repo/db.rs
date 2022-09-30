@@ -122,7 +122,7 @@ impl DbRepo for DbRepoImpl {
         if result.rows_affected() > 0 {
             Ok(code.clone())
         } else {
-            Err(Error::NotFound("State not found".to_string()))
+            Err(Error::NotFound("State not found".to_owned()))
         }
     }
 }

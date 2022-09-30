@@ -17,8 +17,11 @@ pub async fn execute(
     let user = factory.token_validation(&token).await?;
 
     if !factory.is_permitted(valid_permission, user.role) {
-        tracing::error!("{}", AuthError::NotPermitted);
-        return Err(Error::unauth_from(AuthError::NotPermitted));
+        tracing::error!(
+            "{}",
+            AuthError::NotPermitted(format!("{}({})", user.username, user.id.to_string()))
+        );
+        return Err(Error::unauth_from(AuthError::NotPermitted(user.username)));
     }
 
     Ok(user.id)

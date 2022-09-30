@@ -107,5 +107,5 @@ where
 
 fn get_auth_header(req: &ServiceRequest) -> Option<String> {
     let result = req.headers().get(header::AUTHORIZATION)?.to_str().ok();
-    result.map(|v| v.to_string())
+    result.map(|v| v.to_owned())
 }
