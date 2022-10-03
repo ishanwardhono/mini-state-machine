@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  psql:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=omdb
+      - POSTGRES_USER=rust-omdb
+      - POSTGRES_PASSWORD=rust-omdb
+    ports:
+      - '5432:5432'
+    volumes:
+      - psql:/var/lib/postgresql/data
+      - ./src/cores/database/data/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+      - ./src/cores/database/data/dml.sql:/docker-entrypoint-initdb.d/dml.sql
+
+volumes:
+  psql:
+    driver: local
