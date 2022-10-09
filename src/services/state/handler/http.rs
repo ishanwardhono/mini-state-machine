@@ -1,10 +1,16 @@
 use crate::{
-    cores::{error::service::Error, http::middleware::auth::Authority},
-    services::state::{
-        business::factory::Business,
-        model::{
-            request::{StateCreateRequest, StateUpdateRequest},
-            response::{CodeResponse, UpsertResponse},
+    cores::{
+        error::{service::Error, types::AuthError},
+        http::middleware::auth::Authority,
+    },
+    services::{
+        auth::model::entity::User,
+        state::{
+            business::factory::Business,
+            model::{
+                request::{StateCreateRequest, StateUpdateRequest},
+                response::{CodeResponse, UpsertResponse},
+            },
         },
     },
 };
@@ -24,7 +30,14 @@ pub fn register_handler(factory: Arc<dyn Business>, auth: Authority) -> Scope {
         .app_data(web::Data::from(factory))
 }
 
-async fn get_all(factory: web::Data<dyn Business>) -> Result<HttpResponse, Error> {
+async fn get_all(
+    factory: web::Data<dyn Business>,
+    user: Option<web::ReqData<User>>,
+) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        tracing::error!("{}", AuthError::UserNotProvided);
+        return Err(Error::unauth_from(AuthError::UserNotProvided));
+    }
     let result = factory.get_all().await?;
     Ok(HttpResponse::Ok().json(result))
 }
@@ -32,7 +45,12 @@ async fn get_all(factory: web::Data<dyn Business>) -> Result<HttpResponse, Error
 async fn get_by_code(
     factory: web::Data<dyn Business>,
     path: web::Path<String>,
+    user: Option<web::ReqData<User>>,
 ) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        tracing::error!("{}", AuthError::UserNotProvided);
+        return Err(Error::unauth_from(AuthError::UserNotProvided));
+    }
     let code = path.into_inner();
     let result = factory.get_by_code(&code).await?;
     Ok(HttpResponse::Ok().json(result))
@@ -41,7 +59,12 @@ async fn get_by_code(
 async fn insert(
     factory: web::Data<dyn Business>,
     req: web::Json<StateCreateRequest>,
+    user: Option<web::ReqData<User>>,
 ) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        tracing::error!("{}", AuthError::UserNotProvided);
+        return Err(Error::unauth_from(AuthError::UserNotProvided));
+    }
     let result = factory.insert(&req.into_inner()).await?;
     Ok(HttpResponse::Ok().json(UpsertResponse { state: result }))
 }
@@ -50,7 +73,12 @@ async fn update(
     factory: web::Data<dyn Business>,
     req: web::Json<StateUpdateRequest>,
     path: web::Path<String>,
+    user: Option<web::ReqData<User>>,
 ) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        tracing::error!("{}", AuthError::UserNotProvided);
+        return Err(Error::unauth_from(AuthError::UserNotProvided));
+    }
     let result = factory
         .update(&path.into_inner(), &req.into_inner())
         .await?;
@@ -60,7 +88,12 @@ async fn update(
 async fn delete(
     factory: web::Data<dyn Business>,
     path: web::Path<String>,
+    user: Option<web::ReqData<User>>,
 ) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        tracing::error!("{}", AuthError::UserNotProvided);
+        return Err(Error::unauth_from(AuthError::UserNotProvided));
+    }
     let result = factory.delete(&path.into_inner()).await?;
     Ok(HttpResponse::Ok().json(CodeResponse { code: result }))
 }

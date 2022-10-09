@@ -18,7 +18,8 @@ pub trait Business {
     async fn get_by_username(&self, username: &String) -> Result<User, Error>;
     async fn insert(&self, req: &UserCreateRequest) -> Result<User, Error>;
     async fn login(&self, username: &String) -> Result<String, Error>;
-    async fn authorize(&self, token: Option<String>, valid_permission: Role) -> Result<i32, Error>;
+    async fn authorize(&self, token: Option<String>, valid_permission: Role)
+        -> Result<User, Error>;
     async fn token_validation(&self, token: &String) -> Result<User, Error>;
     fn is_permitted(&self, valid_permission: Role, user_permission: Role) -> bool;
 }
@@ -46,7 +47,11 @@ impl Business for BusinessFactory {
         login::execute(self.repo.clone(), username).await
     }
 
-    async fn authorize(&self, token: Option<String>, valid_permission: Role) -> Result<i32, Error> {
+    async fn authorize(
+        &self,
+        token: Option<String>,
+        valid_permission: Role,
+    ) -> Result<User, Error> {
         tracing::info!("Auth - Authorization");
         authorize::execute(self, token, valid_permission).await
     }

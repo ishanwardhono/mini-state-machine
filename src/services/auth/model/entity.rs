@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::cores::auth::role::Role;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct User {
     pub id: i32,
     pub username: String,

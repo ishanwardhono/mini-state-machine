@@ -94,11 +94,12 @@ where
 
         Box::pin(async move {
             let user = auth_service.authorize(auth_header, valid_role).await?;
+            let user_id = user.id;
             req.extensions_mut().insert(user);
 
             let res = svc
                 .call(req)
-                .instrument(tracing::info_span!("ctx", user_id = user))
+                .instrument(tracing::info_span!("ctx", user_id = user_id))
                 .await?;
             Ok(res)
         })

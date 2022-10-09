@@ -3,7 +3,8 @@ use std::fmt::Display;
 pub const DBERROR_VIOLATE_UNIQUE: &str = "23505";
 
 pub enum AuthError {
-    NotProvided,
+    TokenNotProvided,
+    UserNotProvided,
     InvalidFormat,
     UnsupportedType,
     NotPermitted(String),
@@ -13,7 +14,8 @@ pub enum AuthError {
 impl Display for AuthError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let msg = match self {
-            Self::NotProvided => "Auth Token not provided".to_owned(),
+            Self::TokenNotProvided => "Auth Token not provided".to_owned(),
+            Self::UserNotProvided => "Auth Token not provided".to_owned(),
             Self::InvalidFormat => "Invalid Authorization Format".to_owned(),
             Self::UnsupportedType => "Unsupported Authorization Type".to_owned(),
             Self::NotPermitted(user) => format!("User {} not permitted", user).to_owned(),

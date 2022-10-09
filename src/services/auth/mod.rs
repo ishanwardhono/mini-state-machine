@@ -1,4 +1,4 @@
 mod business;
 pub mod init;
-mod model;
+pub mod model;
 mod repo;
