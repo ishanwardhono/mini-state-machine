@@ -1,5 +1,8 @@
 use crate::{
-    cores::error::{service::Error, types::AuthError},
+    cores::{
+        environment::ConfigJWT,
+        error::{service::Error, types::AuthError},
+    },
     services::auth::{
         model::entity::{Claim, User},
         repo::db::DbRepo,
@@ -8,7 +11,7 @@ use crate::{
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::sync::Arc;
 
-pub async fn execute(repo: Arc<dyn DbRepo>, token: &String) -> Result<User, Error> {
+pub async fn execute(cfg: ConfigJWT, repo: Arc<dyn DbRepo>, token: &String) -> Result<User, Error> {
     tracing::debug!("authorizing...");
 
     let token_part: Vec<&str> = token.split(" ").collect();
@@ -25,7 +28,7 @@ pub async fn execute(repo: Arc<dyn DbRepo>, token: &String) -> Result<User, Erro
 
     let token_data = decode::<Claim>(
         jwt_token,
-        &DecodingKey::from_secret(std::env::var("JWT_SECRET").unwrap_or_default().as_bytes()),
+        &DecodingKey::from_secret(cfg.secret.as_bytes()),
         &Validation::new(Algorithm::HS512),
     );
     let claim = token_data.map_err(|e| {

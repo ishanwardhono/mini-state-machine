@@ -1,5 +1,5 @@
 use crate::{
-    cores::{auth::role::Role, error::service::Error},
+    cores::{auth::role::Role, environment::Config, error::service::Error},
     services::auth::{
         business::{authorize, get_by_username, insert, is_permitted, login, token_validation},
         model::{entity::User, request::UserCreateRequest},
@@ -10,6 +10,7 @@ use async_trait::async_trait;
 use std::sync::Arc;
 
 pub struct BusinessFactory {
+    cfg: Arc<Config>,
     repo: Arc<dyn DbRepo>,
 }
 
@@ -25,8 +26,8 @@ pub trait Business {
 }
 
 impl BusinessFactory {
-    pub fn new(repo: Arc<dyn DbRepo>) -> Arc<dyn Business> {
-        Arc::new(Self { repo })
+    pub fn new(cfg: Arc<Config>, repo: Arc<dyn DbRepo>) -> Arc<dyn Business> {
+        Arc::new(Self { cfg, repo })
     }
 }
 
@@ -44,7 +45,7 @@ impl Business for BusinessFactory {
 
     async fn login(&self, username: &String) -> Result<String, Error> {
         tracing::info!("Auth - Login");
-        login::execute(self.repo.clone(), username).await
+        login::execute(self.cfg.clone(), self.repo.clone(), username).await
     }
 
     async fn authorize(
@@ -58,7 +59,7 @@ impl Business for BusinessFactory {
 
     async fn token_validation(&self, token: &String) -> Result<User, Error> {
         tracing::debug!("Auth - Token Validation");
-        token_validation::execute(self.repo.clone(), token).await
+        token_validation::execute(self.cfg.jwt.clone(), self.repo.clone(), token).await
     }
 
     fn is_permitted(&self, valid_permission: Role, user_permission: Role) -> bool {

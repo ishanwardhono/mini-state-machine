@@ -3,24 +3,21 @@ use sqlx::pool::Pool;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, Postgres};
 
+use crate::cores::environment::ConfigDatabase;
+
 pub type DbPool = Pool<Postgres>;
 
-pub async fn init() -> DbPool {
+pub async fn init(cfg: ConfigDatabase) -> DbPool {
     let mut options = PgConnectOptions::new()
-        .host(&std::env::var("DB_HOST").expect("DB_HOST must be set"))
-        .port(
-            std::env::var("DB_PORT")
-                .expect("DB_PORT must be set")
-                .parse::<u16>()
-                .unwrap(),
-        )
-        .database(&std::env::var("DB_NAME").expect("DB_NAME must be set"));
+        .host(&cfg.host)
+        .port(cfg.port)
+        .database(&cfg.name);
 
-    if let Ok(user) = std::env::var("DB_USER") {
-        options = options.username(&user)
+    if !cfg.user.is_empty() {
+        options = options.username(&cfg.user)
     }
-    if let Ok(password) = std::env::var("DB_PASS") {
-        options = options.password(&password)
+    if !cfg.pass.is_empty() {
+        options = options.password(&cfg.pass)
     }
     options.disable_statement_logging();
 
