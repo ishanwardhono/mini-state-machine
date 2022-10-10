@@ -57,6 +57,11 @@ where
             req.path(),
             req.query_string(),
         );
+        let header_request_id = get_req_id_header(&req);
+        let req_id = match header_request_id {
+            Some(id) => id,
+            None => uuid::Uuid::new_v4().to_string(),
+        };
         let fut = self.service.call(req);
 
         Box::pin(
@@ -74,10 +79,12 @@ where
                 tracing::info!("HTTP Request finished: {}ms", response_time);
                 Ok(res)
             }
-            .instrument(tracing::info_span!(
-                "ctx",
-                req_id = ?uuid::Uuid::new_v4()
-            )),
+            .instrument(tracing::info_span!("ctx", %req_id)),
         )
     }
+}
+
+fn get_req_id_header(req: &ServiceRequest) -> Option<String> {
+    let result = req.headers().get("X-Request-ID")?.to_str().ok();
+    result.map(|v| v.to_owned())
 }

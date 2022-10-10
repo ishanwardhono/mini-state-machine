@@ -99,7 +99,7 @@ where
 
             let res = svc
                 .call(req)
-                .instrument(tracing::info_span!("ctx", user_id = ?user_id))
+                .instrument(tracing::info_span!("ctx", %user_id))
                 .await?;
             Ok(res)
         })
