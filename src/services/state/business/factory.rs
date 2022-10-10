@@ -17,8 +17,13 @@ pub struct BusinessFactory {
 pub trait Business {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &String) -> Result<State, Error>;
-    async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error>;
-    async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error>;
+    async fn insert(&self, state: &StateCreateRequest, actor: &uuid::Uuid) -> Result<State, Error>;
+    async fn update(
+        &self,
+        code: &String,
+        state: &StateUpdateRequest,
+        actor: &uuid::Uuid,
+    ) -> Result<State, Error>;
     async fn delete(&self, code: &String) -> Result<String, Error>;
 }
 
@@ -38,13 +43,18 @@ impl Business for BusinessFactory {
         tracing::info!("Business Execute - Status GetById");
         get_by_code::execute(self.repo.clone(), code).await
     }
-    async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error> {
+    async fn insert(&self, state: &StateCreateRequest, actor: &uuid::Uuid) -> Result<State, Error> {
         tracing::info!("Business Execute - Status Insert");
-        insert::execute(self.repo.clone(), state).await
+        insert::execute(self.repo.clone(), state, actor).await
     }
-    async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error> {
+    async fn update(
+        &self,
+        code: &String,
+        state: &StateUpdateRequest,
+        actor: &uuid::Uuid,
+    ) -> Result<State, Error> {
         tracing::info!("Business Execute - Status Update");
-        update::execute(self.repo.clone(), code, state).await
+        update::execute(self.repo.clone(), code, state, actor).await
     }
     async fn delete(&self, code: &String) -> Result<String, Error> {
         tracing::info!("Business Execute - Status Delete");

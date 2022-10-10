@@ -1,5 +1,5 @@
 use super::db_query;
-use crate::cores::database::pg::{db_time_now, DbPool, DbQueryArguments};
+use crate::cores::database::pg::{db_time_now, DbPool};
 use crate::cores::error::service::Error;
 use crate::services::state::model::entity::State;
 use crate::services::state::model::request::{StateCreateRequest, StateUpdateRequest};
@@ -7,6 +7,7 @@ use async_trait::async_trait;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct DbRepoImpl {
@@ -18,8 +19,13 @@ pub struct DbRepoImpl {
 pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &String) -> Result<State, Error>;
-    async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error>;
-    async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error>;
+    async fn insert(&self, state: &StateCreateRequest, actor: &Uuid) -> Result<State, Error>;
+    async fn update(
+        &self,
+        code: &String,
+        state: &StateUpdateRequest,
+        actor: &Uuid,
+    ) -> Result<State, Error>;
     async fn delete(&self, code: &String) -> Result<String, Error>;
 }
 
@@ -35,24 +41,10 @@ impl DbRepoImpl {
             description: row.get("description"),
             webhooks: row.get("webhooks"),
             create_time: row.get("create_time"),
+            create_by: row.get("create_by"),
             update_time: row.get("update_time"),
+            update_by: row.get("update_by"),
         }
-    }
-
-    fn state_default_bind(
-        &self,
-        query: DbQueryArguments,
-        state: &StateCreateRequest,
-    ) -> DbQueryArguments {
-        query
-            //code
-            .bind(state.code.clone())
-            //description
-            .bind(state.description.clone())
-            //webhooks
-            .bind(state.webhooks.clone())
-            //update_time
-            .bind(db_time_now())
     }
 }
 
@@ -83,20 +75,32 @@ impl DbRepo for DbRepoImpl {
             .map_err(|e| Error::from_db(e))
     }
 
-    async fn insert(&self, state: &StateCreateRequest) -> Result<State, Error> {
+    async fn insert(&self, state: &StateCreateRequest, actor: &Uuid) -> Result<State, Error> {
         tracing::info!("Database Execute - Status Insert Query");
 
-        let query = sqlx::query(db_query::INSERT);
-        self.state_default_bind(query, state)
-            //created_time
-            .bind(db_time_now())
+        let time_now = db_time_now();
+
+        sqlx::query(db_query::INSERT)
+            .bind(uuid::Uuid::new_v4())
+            .bind(state.code.clone()) //code
+            .bind(state.description.clone()) //description
+            .bind(state.webhooks.clone()) //webhooks
+            .bind(time_now) //create_time
+            .bind(actor) //create_by
+            .bind(time_now) //create_time
+            .bind(actor) //update_by
             .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
             .await
             .map_err(|e| Error::from_db(e))
     }
 
-    async fn update(&self, code: &String, state: &StateUpdateRequest) -> Result<State, Error> {
+    async fn update(
+        &self,
+        code: &String,
+        state: &StateUpdateRequest,
+        actor: &Uuid,
+    ) -> Result<State, Error> {
         tracing::info!("Database Execute - Status Update Query");
 
         sqlx::query(db_query::UPDATE)
@@ -104,6 +108,7 @@ impl DbRepo for DbRepoImpl {
             .bind(state.description.clone())
             .bind(state.webhooks.clone())
             .bind(db_time_now())
+            .bind(actor)
             .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
             .await
@@ -120,6 +125,7 @@ impl DbRepo for DbRepoImpl {
             .map_err(|e| Error::from_db(e))?;
 
         if result.rows_affected() > 0 {
+            tracing::info!("states hard delete ({})", code);
             Ok(code.clone())
         } else {
             Err(Error::NotFound("State not found".to_owned()))

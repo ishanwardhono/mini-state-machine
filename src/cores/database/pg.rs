@@ -1,11 +1,9 @@
 use chrono::{NaiveDateTime, Utc};
 use sqlx::pool::Pool;
-use sqlx::postgres::{PgArguments, PgConnectOptions, PgPoolOptions};
-use sqlx::query::Query;
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, Postgres};
 
 pub type DbPool = Pool<Postgres>;
-pub type DbQueryArguments = Query<'static, Postgres, PgArguments>;
 
 pub async fn init() -> DbPool {
     let mut options = PgConnectOptions::new()

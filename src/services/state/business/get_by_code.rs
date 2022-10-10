@@ -23,7 +23,10 @@ fn validate(req: &String) -> Result<(), Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{cores::database::pg::db_time_now, services::state::repo::db::MockDbRepo};
+    use crate::{
+        cores::test::{test_actor, test_time, test_uuid},
+        services::state::repo::db::MockDbRepo,
+    };
     use mockall::predicate::eq;
 
     #[tokio::test]
@@ -44,20 +47,22 @@ mod tests {
     async fn success() -> Result<(), Error> {
         let req = String::from("TEST");
         let mut mock_db_repo = MockDbRepo::new();
+
         mock_db_repo
             .expect_get_by_code()
             .with(eq(req.clone()))
             .once()
-            .returning(move |code| {
-                let cloned_code = code.clone();
+            .returning(move |_| {
                 Box::pin(async {
                     Ok(State {
-                        id: 1,
-                        code: cloned_code,
+                        id: test_uuid(),
+                        code: String::from("TEST"),
                         description: Some(String::from("test")),
                         webhooks: Some(vec![String::from("test_app")]),
-                        create_time: db_time_now(),
-                        update_time: db_time_now(),
+                        create_time: test_time(),
+                        create_by: test_actor(),
+                        update_time: test_time(),
+                        update_by: test_actor(),
                     })
                 })
             });
@@ -65,7 +70,7 @@ mod tests {
         let res = execute(Arc::new(mock_db_repo), &req).await;
 
         let return_result = res?.clone();
-        assert_eq!(return_result.id, 1);
+        assert_eq!(return_result.id, test_uuid());
         assert_eq!(return_result.code, req);
         assert_eq!(return_result.description, Some(String::from("test")));
         assert_eq!(return_result.webhooks.as_ref().unwrap().len(), 1);
@@ -73,8 +78,10 @@ mod tests {
             return_result.webhooks.as_ref().unwrap()[0],
             String::from("test_app")
         );
-        assert_ne!(return_result.create_time, chrono::NaiveDateTime::MIN);
-        assert_ne!(return_result.update_time, chrono::NaiveDateTime::MIN);
+        assert_eq!(return_result.create_time, test_time());
+        assert_eq!(return_result.create_by, test_actor());
+        assert_eq!(return_result.update_time, test_time());
+        assert_eq!(return_result.create_by, test_actor());
         Ok(())
     }
 }

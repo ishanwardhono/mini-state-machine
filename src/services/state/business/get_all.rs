@@ -12,7 +12,7 @@ pub async fn execute(repo: Arc<dyn DbRepo>) -> Result<Vec<State>, Error> {
 mod tests {
     use super::*;
     use crate::{
-        cores::database::pg::db_time_now,
+        cores::test::{test_actor, test_time, test_uuid},
         services::state::{model::entity::State, repo::db::MockDbRepo},
     };
     use std::sync::Arc;
@@ -20,15 +20,18 @@ mod tests {
     #[tokio::test]
     async fn success() -> Result<(), Error> {
         let mut mock_db_repo = MockDbRepo::new();
+
         mock_db_repo.expect_get_all().once().returning(move || {
             Box::pin(async {
                 Ok(vec![State {
-                    id: 1,
+                    id: test_uuid(),
                     code: String::from("TEST"),
                     description: Some(String::from("test")),
                     webhooks: Some(vec![String::from("test_app")]),
-                    create_time: db_time_now(),
-                    update_time: db_time_now(),
+                    create_time: test_time(),
+                    create_by: test_actor(),
+                    update_time: test_time(),
+                    update_by: test_actor(),
                 }])
             })
         });
@@ -37,7 +40,7 @@ mod tests {
 
         let return_result = res?.clone();
         assert_eq!(return_result.len(), 1);
-        assert_eq!(return_result[0].id, 1);
+        assert_eq!(return_result[0].id, test_uuid());
         assert_eq!(return_result[0].code, "TEST");
         assert_eq!(return_result[0].description, Some(String::from("test")));
         assert_eq!(return_result[0].webhooks.as_ref().unwrap().len(), 1);
@@ -45,8 +48,10 @@ mod tests {
             return_result[0].webhooks.as_ref().unwrap()[0],
             String::from("test_app")
         );
-        assert_ne!(return_result[0].create_time, chrono::NaiveDateTime::MIN);
-        assert_ne!(return_result[0].update_time, chrono::NaiveDateTime::MIN);
+        assert_eq!(return_result[0].create_time, test_time());
+        assert_eq!(return_result[0].create_by, test_actor());
+        assert_eq!(return_result[0].update_time, test_time());
+        assert_eq!(return_result[0].create_by, test_actor());
         Ok(())
     }
 }

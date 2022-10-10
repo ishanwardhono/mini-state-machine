@@ -1,6 +1,5 @@
-use std::sync::Arc;
-
 use crate::{cores::error::service::Error, services::state::repo::db::DbRepo, utils::validation};
+use std::sync::Arc;
 
 pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<String, Error> {
     tracing::debug!("executing ...");

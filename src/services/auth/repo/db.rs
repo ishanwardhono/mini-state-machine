@@ -32,7 +32,9 @@ impl DbRepoImpl {
             username: row.get("username"),
             role: row.get("role"),
             create_time: row.get("create_time"),
+            create_by: row.get("create_by"),
             update_time: row.get("update_time"),
+            update_by: row.get("update_by"),
         }
     }
 }
