@@ -4,11 +4,11 @@ services:
     image: postgres
     restart: always
     environment:
-      - POSTGRES_DB=omdb
-      - POSTGRES_USER=rust-omdb
-      - POSTGRES_PASSWORD=rust-omdb
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
     ports:
-      - '5432:5432'
+      - '${DB_PORT}:${DB_PORT}'
     volumes:
       - psql:/var/lib/postgresql/data
       - ./src/cores/database/data/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
