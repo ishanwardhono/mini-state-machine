@@ -56,6 +56,7 @@ impl error::ResponseError for Error {
             error: self.status_code().to_string(),
             message: self.get_message(),
         };
+        tracing::error!("{}: {}", error_response.error, error_response.message);
         HttpResponse::build(self.status_code()).json(error_response)
     }
 
