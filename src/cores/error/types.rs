@@ -15,7 +15,7 @@ impl Display for AuthError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let msg = match self {
             Self::TokenNotProvided => "Auth Token not provided".to_owned(),
-            Self::UserNotProvided => "Auth Token not provided".to_owned(),
+            Self::UserNotProvided => "User Token not provided".to_owned(),
             Self::InvalidFormat => "Invalid Authorization Format".to_owned(),
             Self::UnsupportedType => "Unsupported Authorization Type".to_owned(),
             Self::NotPermitted(user) => format!("User {} not permitted", user).to_owned(),

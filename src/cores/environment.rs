@@ -76,3 +76,43 @@ impl Config {
         })
     }
 }
+
+#[cfg(test)]
+impl Config {
+    pub fn default() -> Self {
+        Self {
+            app: Config::app_default(),
+            db: Config::db_default(),
+            log: Config::log_default(),
+            jwt: Config::jwt_default(),
+        }
+    }
+    pub fn app_default() -> ConfigApp {
+        ConfigApp {
+            url: String::new(),
+            name: String::new(),
+        }
+    }
+    pub fn db_default() -> ConfigDatabase {
+        ConfigDatabase {
+            host: String::new(),
+            name: String::new(),
+            user: String::new(),
+            pass: String::new(),
+            port: 0,
+        }
+    }
+    pub fn log_default() -> ConfigLog {
+        ConfigLog {
+            level: String::new(),
+            is_json: false,
+            file: String::new(),
+        }
+    }
+    pub fn jwt_default() -> ConfigJWT {
+        ConfigJWT {
+            secret: String::new(),
+            audience: String::new(),
+        }
+    }
+}

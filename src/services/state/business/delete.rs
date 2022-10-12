@@ -57,7 +57,7 @@ mod tests {
 
         let res = execute(Arc::new(mock_db_repo), &req).await;
 
-        let return_result = res?.clone();
+        let return_result = res?;
         assert_eq!(return_result, req);
         Ok(())
     }

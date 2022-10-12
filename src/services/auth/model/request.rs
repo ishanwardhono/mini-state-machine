@@ -1,6 +1,6 @@
 use crate::cores::auth::role::Role;
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UserCreateRequest {
     pub username: String,
     pub role: Role,

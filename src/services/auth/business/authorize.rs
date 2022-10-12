@@ -27,3 +27,97 @@ pub async fn execute(
 
     Ok(user)
 }
+
+#[cfg(test)]
+mod tests {
+    use mockall::predicate::eq;
+
+    use crate::{
+        cores::{
+            auth::role::Role,
+            error::service::Error,
+            test::{test_actor, test_time, test_uuid},
+        },
+        services::auth::{
+            business::{authorize::execute, factory::MockBusiness},
+            model::entity::User,
+        },
+    };
+
+    fn test_mock_factory() -> MockBusiness {
+        let mut mock_factory = MockBusiness::new();
+        mock_factory
+            .expect_token_validation()
+            .with(eq("test".to_owned()))
+            .once()
+            .returning(move |token| {
+                let token = token.clone();
+                Box::pin(async {
+                    Ok(User {
+                        id: test_uuid(),
+                        username: token,
+                        role: Role::Admin,
+                        create_time: test_time(),
+                        create_by: test_actor(),
+                        update_time: test_time(),
+                        update_by: test_actor(),
+                    })
+                })
+            });
+
+        mock_factory
+    }
+
+    #[tokio::test]
+    async fn fail_not_provided() -> Result<(), Error> {
+        let res = execute(&MockBusiness::new(), None, Role::Admin).await;
+
+        let err = res.unwrap_err();
+        assert_eq!(
+            err,
+            Error::Unauthorized("Auth Token not provided".to_owned())
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn fail_not_permitted() -> Result<(), Error> {
+        let mut mock = test_mock_factory();
+
+        mock.expect_is_permitted()
+            .with(eq(Role::Admin), eq(Role::Admin))
+            .once()
+            .returning(move |_, _| false);
+
+        let res = execute(&mock, Some("test".to_owned()), Role::Admin).await;
+
+        let err = res.unwrap_err();
+        assert_eq!(
+            err,
+            Error::Unauthorized("User test not permitted".to_owned())
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn success() -> Result<(), Error> {
+        let mut mock = test_mock_factory();
+
+        mock.expect_is_permitted()
+            .with(eq(Role::Admin), eq(Role::Admin))
+            .once()
+            .returning(move |_, _| true);
+
+        let res = execute(&mock, Some("test".to_owned()), Role::Admin).await;
+
+        let return_result = res?;
+        assert_eq!(return_result.id, test_uuid());
+        assert_eq!(return_result.username, "test".to_owned());
+        assert_eq!(return_result.role, Role::Admin);
+        assert_eq!(return_result.create_time, test_time());
+        assert_eq!(return_result.create_by, test_actor());
+        assert_eq!(return_result.update_time, test_time());
+        assert_eq!(return_result.create_by, test_actor());
+        Ok(())
+    }
+}

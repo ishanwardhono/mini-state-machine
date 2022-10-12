@@ -69,7 +69,7 @@ mod tests {
 
         let res = execute(Arc::new(mock_db_repo), &req).await;
 
-        let return_result = res?.clone();
+        let return_result = res?;
         assert_eq!(return_result.id, test_uuid());
         assert_eq!(return_result.code, req);
         assert_eq!(return_result.description, Some(String::from("test")));

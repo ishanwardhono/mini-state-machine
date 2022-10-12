@@ -12,7 +12,7 @@ pub async fn execute(
 ) -> Result<String, Error> {
     tracing::debug!("executing...");
 
-    let user = repo.get_by_username(username).await.unwrap();
+    let user = repo.get_by_username(username).await?;
 
     let expiration = chrono::Utc::now()
         .checked_add_signed(chrono::Duration::seconds(60))
@@ -38,4 +38,99 @@ pub async fn execute(
         &EncodingKey::from_secret(cfg.jwt.secret.as_bytes()),
     )
     .map_err(|e| Error::InternalError(e.to_string()))
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        cores::{
+            auth::role::Role,
+            environment::{Config, ConfigApp, ConfigJWT},
+            error::service::Error,
+            test::{test_actor, test_time, test_uuid},
+        },
+        services::auth::{
+            business::login::execute,
+            model::entity::{Claim, User},
+            repo::db::MockDbRepo,
+        },
+    };
+    use chrono::{Duration, Utc};
+    use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+    use mockall::predicate::eq;
+    use std::sync::Arc;
+
+    #[tokio::test]
+    async fn success() -> Result<(), Error> {
+        let username = String::from("test");
+
+        let cfg = Config {
+            app: ConfigApp {
+                name: String::from("test app"),
+                ..Config::app_default()
+            },
+            jwt: ConfigJWT {
+                secret: String::from("test jwt secret"),
+                audience: String::from("test jwt audience"),
+            },
+            ..Config::default()
+        };
+
+        let mut mock_db_repo = MockDbRepo::new();
+        mock_db_repo
+            .expect_get_by_username()
+            .with(eq(username.clone()))
+            .once()
+            .returning(move |username| {
+                let username = username.clone();
+                Box::pin(async {
+                    Ok(User {
+                        id: test_uuid(),
+                        username,
+                        role: Role::Admin,
+                        create_time: test_time(),
+                        create_by: test_actor(),
+                        update_time: test_time(),
+                        update_by: test_actor(),
+                    })
+                })
+            });
+
+        let init_time = Utc::now();
+        let expected_valid_time = Duration::seconds(60);
+
+        let res = execute(Arc::new(cfg.clone()), Arc::new(mock_db_repo), &username).await;
+        let token = res?;
+        let token_data = decode::<Claim>(
+            &token,
+            &DecodingKey::from_secret(cfg.jwt.secret.as_bytes()),
+            &Validation::new(Algorithm::HS512),
+        );
+        let claim = token_data.map_err(|e| {
+            tracing::error!("{}", e.to_string());
+            Error::Unauthorized(e.to_string())
+        })?;
+
+        assert_eq!(claim.claims.sub, username);
+        assert_eq!(claim.claims.aud.unwrap(), cfg.jwt.audience);
+        assert_eq!(claim.claims.iss.unwrap(), cfg.app.name);
+        assert_eq!(
+            true,
+            (init_time
+                .checked_add_signed(expected_valid_time)
+                .unwrap()
+                .timestamp() as usize)
+                <= claim.claims.exp
+        );
+        assert_eq!(
+            true,
+            claim.claims.exp
+                <= (init_time
+                    .checked_add_signed(expected_valid_time)
+                    .unwrap()
+                    .timestamp() as usize)
+        );
+
+        Ok(())
+    }
 }
