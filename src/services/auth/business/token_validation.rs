@@ -1,6 +1,6 @@
 use crate::{
     cores::{
-        environment::ConfigJWT,
+        env::ConfigJWT,
         error::{service::Error, types::AuthError},
     },
     services::auth::{
@@ -52,7 +52,7 @@ mod tests {
     use crate::{
         cores::{
             auth::role::Role,
-            environment::{Config, ConfigApp, ConfigJWT},
+            env::{Config, ConfigApp, ConfigJWT},
             error::service::Error,
         },
         services::auth::{

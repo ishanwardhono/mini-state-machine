@@ -1,5 +1,5 @@
 use crate::{
-    cores::{environment::Config, error::service::Error},
+    cores::{env::Config, error::service::Error},
     services::auth::{model::entity::Claim, repo::db::DbRepo},
 };
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
@@ -45,7 +45,7 @@ mod tests {
     use crate::{
         cores::{
             auth::role::Role,
-            environment::{Config, ConfigApp, ConfigJWT},
+            env::{Config, ConfigApp, ConfigJWT},
             error::service::Error,
         },
         services::auth::{

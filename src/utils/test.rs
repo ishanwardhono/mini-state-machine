@@ -1,6 +1,6 @@
 use chrono::{DateTime, NaiveDateTime};
 
-use crate::cores::environment::{Config, ConfigApp, ConfigDatabase, ConfigJWT, ConfigLog};
+use crate::cores::env::{Config, ConfigApp, ConfigDatabase, ConfigJWT, ConfigLog};
 
 pub fn test_uuid() -> uuid::Uuid {
     uuid::Uuid::parse_str("7fb305c1-9cb2-4cd9-a57a-7508ec07ecce").unwrap()

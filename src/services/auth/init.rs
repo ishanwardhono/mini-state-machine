@@ -2,7 +2,7 @@ use super::{
     business::factory::{Business, BusinessFactory},
     repo::db::DbRepoImpl,
 };
-use crate::cores::{database::pg::DbPool, environment::Config};
+use crate::cores::{database::pg::DbPool, env::Config};
 use std::sync::Arc;
 
 pub type AuthService = Arc<dyn Business>;

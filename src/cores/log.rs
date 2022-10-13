@@ -1,8 +1,7 @@
+use super::env::ConfigLog;
 use std::collections::BTreeMap;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, Layer};
-
-use super::environment::ConfigLog;
 
 pub fn init(cfg: ConfigLog) -> tracing_appender::non_blocking::WorkerGuard {
     let env_log_level = cfg.level;

@@ -1,9 +1,8 @@
+use crate::cores::env::ConfigDatabase;
 use chrono::{NaiveDateTime, Utc};
 use sqlx::pool::Pool;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, Postgres};
-
-use crate::cores::environment::ConfigDatabase;
 
 pub type DbPool = Pool<Postgres>;
 

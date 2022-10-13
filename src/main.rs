@@ -8,7 +8,7 @@ mod utils;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     //environment
-    let config = cores::environment::Config::set();
+    let config = cores::env::Config::set();
 
     //log
     let _log_guard = cores::log::init(config.log.clone());

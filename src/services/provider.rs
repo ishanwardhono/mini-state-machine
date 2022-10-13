@@ -1,7 +1,7 @@
 use super::{auth as auth_service, state::init::StateService};
 use crate::cores::{
     database::pg::DbPool,
-    environment::Config,
+    env::Config,
     http::{self, middleware::auth::Authority},
 };
 use actix_web::{
