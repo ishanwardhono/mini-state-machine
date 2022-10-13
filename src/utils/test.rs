@@ -38,6 +38,7 @@ impl Config {
             user: String::new(),
             pass: String::new(),
             port: 0,
+            max_pool: 0,
         }
     }
     pub fn log_default() -> ConfigLog {
@@ -51,6 +52,7 @@ impl Config {
         ConfigJWT {
             secret: String::new(),
             audience: String::new(),
+            exp_dur: 0,
         }
     }
 }

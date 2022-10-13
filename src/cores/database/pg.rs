@@ -23,7 +23,7 @@ pub async fn init(cfg: ConfigDatabase) -> DbPool {
     tracing::info!("Database initialization");
 
     PgPoolOptions::new()
-        .max_connections(5)
+        .max_connections(cfg.max_pool)
         .connect_with(options)
         .await
         .expect("Failed to create pool")

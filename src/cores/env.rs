@@ -24,6 +24,7 @@ pub struct ConfigDatabase {
     pub name: String,
     pub user: String,
     pub pass: String,
+    pub max_pool: u32,
 }
 
 #[derive(Clone)]
@@ -37,6 +38,7 @@ pub struct ConfigLog {
 pub struct ConfigJWT {
     pub secret: String,
     pub audience: String,
+    pub exp_dur: i64,
 }
 
 impl Config {
@@ -58,6 +60,10 @@ impl Config {
                 name: var("DB_NAME").expect("DB_NAME must be set"),
                 user: var("DB_USER").unwrap_or_default(),
                 pass: var("DB_PASS").unwrap_or_default(),
+                max_pool: var("DB_POOL")
+                    .unwrap_or_default()
+                    .parse::<u32>()
+                    .unwrap_or(5),
             },
             log: ConfigLog {
                 level: var("LOG_LEVEL").unwrap_or("INFO".to_owned()),
@@ -72,6 +78,10 @@ impl Config {
             jwt: ConfigJWT {
                 secret: var("JWT_SECRET").unwrap_or_default(),
                 audience: var("JWT_AUDIENCE").unwrap_or_default(),
+                exp_dur: var("JWT_EXP")
+                    .unwrap_or_default()
+                    .parse::<i64>()
+                    .unwrap_or(1),
             },
         })
     }

@@ -76,6 +76,7 @@ mod tests {
             jwt: ConfigJWT {
                 secret: String::from("test jwt secret"),
                 audience: String::from("test jwt audience"),
+                exp_dur: 0,
             },
             ..Config::default()
         }

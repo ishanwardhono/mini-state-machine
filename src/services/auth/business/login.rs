@@ -15,7 +15,7 @@ pub async fn execute(
     let user = repo.get_by_username(username).await?;
 
     let expiration = chrono::Utc::now()
-        .checked_add_signed(chrono::Duration::seconds(60))
+        .checked_add_signed(chrono::Duration::days(cfg.jwt.exp_dur))
         .expect("valid timestamp")
         .timestamp();
 
@@ -72,6 +72,7 @@ mod tests {
             jwt: ConfigJWT {
                 secret: String::from("test jwt secret"),
                 audience: String::from("test jwt audience"),
+                exp_dur: 7,
             },
             ..Config::default()
         };
@@ -97,7 +98,7 @@ mod tests {
             });
 
         let init_time = Utc::now();
-        let expected_valid_time = Duration::seconds(60);
+        let expected_valid_time = Duration::days(7);
 
         let res = execute(Arc::new(cfg.clone()), Arc::new(mock_db_repo), &username).await;
         let token = res?;
