@@ -54,11 +54,11 @@ mod tests {
             auth::role::Role,
             environment::{Config, ConfigApp, ConfigJWT},
             error::service::Error,
-            test::{test_actor, test_time, test_uuid},
         },
         services::auth::{
             business::token_validation::execute, model::entity::User, repo::db::MockDbRepo,
         },
+        utils::test::{test_actor, test_time, test_uuid},
     };
     use mockall::predicate::eq;
     use std::sync::Arc;

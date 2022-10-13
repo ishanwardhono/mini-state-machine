@@ -31,15 +31,13 @@ fn validate(req: &StateCreateRequest) -> Result<(), Error> {
 
 mod tests {
     use crate::{
-        cores::{
-            error::service::Error,
-            test::{test_actor, test_time, test_uuid},
-        },
+        cores::error::service::Error,
         services::state::{
             business::insert::execute,
             model::{entity::State, request::StateCreateRequest},
             repo::db::MockDbRepo,
         },
+        utils::test::{test_actor, test_time, test_uuid},
     };
     use mockall::predicate::eq;
     use std::sync::Arc;

@@ -31,15 +31,13 @@ fn validate(req: &String) -> Result<(), Error> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        cores::{
-            error::service::Error,
-            test::{test_actor, test_time, test_uuid},
-        },
+        cores::error::service::Error,
         services::state::{
             business::update::execute,
             model::{entity::State, request::StateUpdateRequest},
             repo::db::MockDbRepo,
         },
+        utils::test::{test_actor, test_time, test_uuid},
     };
     use mockall::predicate::eq;
     use std::sync::Arc;

@@ -12,8 +12,8 @@ pub async fn execute(repo: Arc<dyn DbRepo>) -> Result<Vec<State>, Error> {
 mod tests {
     use super::*;
     use crate::{
-        cores::test::{test_actor, test_time, test_uuid},
         services::state::{model::entity::State, repo::db::MockDbRepo},
+        utils::test::{test_actor, test_time, test_uuid},
     };
     use std::sync::Arc;
 

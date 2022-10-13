@@ -33,15 +33,12 @@ mod tests {
     use mockall::predicate::eq;
 
     use crate::{
-        cores::{
-            auth::role::Role,
-            error::service::Error,
-            test::{test_actor, test_time, test_uuid},
-        },
+        cores::{auth::role::Role, error::service::Error},
         services::auth::{
             business::{authorize::execute, factory::MockBusiness},
             model::entity::User,
         },
+        utils::test::{test_actor, test_time, test_uuid},
     };
 
     fn test_mock_factory() -> MockBusiness {

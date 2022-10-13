@@ -24,8 +24,8 @@ fn validate(req: &String) -> Result<(), Error> {
 mod tests {
     use super::*;
     use crate::{
-        cores::test::{test_actor, test_time, test_uuid},
         services::state::repo::db::MockDbRepo,
+        utils::test::{test_actor, test_time, test_uuid},
     };
     use mockall::predicate::eq;
 

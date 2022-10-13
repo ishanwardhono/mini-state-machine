@@ -47,13 +47,13 @@ mod tests {
             auth::role::Role,
             environment::{Config, ConfigApp, ConfigJWT},
             error::service::Error,
-            test::{test_actor, test_time, test_uuid},
         },
         services::auth::{
             business::login::execute,
             model::entity::{Claim, User},
             repo::db::MockDbRepo,
         },
+        utils::test::{test_actor, test_time, test_uuid},
     };
     use chrono::{Duration, Utc};
     use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};

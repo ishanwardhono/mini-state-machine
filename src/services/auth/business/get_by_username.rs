@@ -12,14 +12,11 @@ pub async fn execute(repo: Arc<dyn DbRepo>, username: &String) -> Result<User, E
 #[cfg(test)]
 mod tests {
     use crate::{
-        cores::{
-            auth::role::Role,
-            error::service::Error,
-            test::{test_actor, test_time, test_uuid},
-        },
+        cores::{auth::role::Role, error::service::Error},
         services::auth::{
             business::get_by_username::execute, model::entity::User, repo::db::MockDbRepo,
         },
+        utils::test::{test_actor, test_time, test_uuid},
     };
     use mockall::predicate::eq;
     use std::sync::Arc;
