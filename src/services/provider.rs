@@ -1,4 +1,4 @@
-use super::{auth as auth_service, state::init::StateService};
+use super::{auth as auth_service, diagram::init::DiagramService, state::init::StateService};
 use crate::cores::{
     database::pg::DbPool,
     env::Config,
@@ -12,10 +12,13 @@ use std::sync::Arc;
 
 //Http Handler Registration
 pub fn register(cfg: Arc<Config>, pool: Arc<DbPool>) -> Scope {
-    let authority = new_authority(cfg, pool.clone());
-    let service = StateService::new(pool.clone());
+    let auth = new_authority(cfg, pool.clone());
+    let states = StateService::new(pool.clone());
+    let diagrams = DiagramService::new();
 
-    web::scope("/app").service(service.init_http_service(authority.clone()))
+    web::scope("/app")
+        .service(states.init_http_service(auth.clone()))
+        .service(diagrams.init_http_service(auth.clone()))
 }
 
 fn new_authority(cfg: Arc<Config>, pool: Arc<DbPool>) -> Authority {

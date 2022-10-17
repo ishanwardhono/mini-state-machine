@@ -13,6 +13,12 @@ pub struct BusinessFactory {
     repo: Arc<dyn DbRepo>,
 }
 
+impl BusinessFactory {
+    pub fn new(repo: Arc<dyn DbRepo>) -> Arc<dyn Business> {
+        Arc::new(Self { repo })
+    }
+}
+
 #[async_trait]
 pub trait Business {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
@@ -25,12 +31,6 @@ pub trait Business {
         actor: &uuid::Uuid,
     ) -> Result<State, Error>;
     async fn delete(&self, code: &String) -> Result<String, Error>;
-}
-
-impl BusinessFactory {
-    pub fn new(repo: Arc<dyn DbRepo>) -> Arc<dyn Business> {
-        Arc::new(Self { repo })
-    }
 }
 
 #[async_trait]
