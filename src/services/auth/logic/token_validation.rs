@@ -56,7 +56,7 @@ mod tests {
             error::service::Error,
         },
         services::auth::{
-            business::token_validation::execute, model::entity::User, repo::db::MockDbRepo,
+            logic::token_validation::execute, model::entity::User, repo::db::MockDbRepo,
         },
         utils::test::{test_actor, test_time, test_uuid},
     };

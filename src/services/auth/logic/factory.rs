@@ -1,7 +1,7 @@
 use crate::{
     cores::{auth::role::Role, env::Config, error::service::Error},
     services::auth::{
-        business::{authorize, get_by_username, insert, is_permitted, login, token_validation},
+        logic::{authorize, get_by_username, insert, is_permitted, login, token_validation},
         model::{entity::User, request::UserCreateRequest},
         repo::db::DbRepo,
     },
@@ -9,14 +9,14 @@ use crate::{
 use async_trait::async_trait;
 use std::sync::Arc;
 
-pub struct BusinessFactory {
+pub struct LogicFactory {
     cfg: Arc<Config>,
     repo: Arc<dyn DbRepo>,
 }
 
 #[async_trait]
 #[cfg_attr(test, mockall::automock)]
-pub trait Business {
+pub trait Logic {
     async fn get_by_username(&self, username: &String) -> Result<User, Error>;
     async fn insert(&self, req: &UserCreateRequest) -> Result<User, Error>;
     async fn login(&self, username: &String) -> Result<String, Error>;
@@ -26,14 +26,14 @@ pub trait Business {
     fn is_permitted(&self, valid_permission: Role, user_permission: Role) -> bool;
 }
 
-impl BusinessFactory {
-    pub fn new(cfg: Arc<Config>, repo: Arc<dyn DbRepo>) -> Arc<dyn Business> {
+impl LogicFactory {
+    pub fn new(cfg: Arc<Config>, repo: Arc<dyn DbRepo>) -> Arc<dyn Logic> {
         Arc::new(Self { cfg, repo })
     }
 }
 
 #[async_trait]
-impl Business for BusinessFactory {
+impl Logic for LogicFactory {
     async fn get_by_username(&self, username: &String) -> Result<User, Error> {
         tracing::info!("Auth - Get by Username");
         get_by_username::execute(self.repo.clone(), username).await

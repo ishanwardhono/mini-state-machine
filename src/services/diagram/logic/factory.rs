@@ -5,21 +5,21 @@ use async_trait::async_trait;
 
 use super::insert;
 
-pub struct BusinessFactory {}
+pub struct LogicFactory {}
 
-impl BusinessFactory {
-    pub fn new() -> Arc<dyn Business> {
+impl LogicFactory {
+    pub fn new() -> Arc<dyn Logic> {
         Arc::new(Self {})
     }
 }
 
 #[async_trait]
-pub trait Business {
+pub trait Logic {
     async fn insert(&self) -> Result<(), Error>;
 }
 
 #[async_trait]
-impl Business for BusinessFactory {
+impl Logic for LogicFactory {
     async fn insert(&self) -> Result<(), Error> {
         insert::execute().await
     }

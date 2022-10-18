@@ -6,7 +6,7 @@ use crate::{
     services::{
         auth::model::entity::User,
         state::{
-            business::factory::Business,
+            logic::factory::Logic,
             model::{
                 request::{StateCreateRequest, StateUpdateRequest},
                 response::{CodeResponse, UpsertResponse},
@@ -20,7 +20,7 @@ use actix_web::{
 };
 use std::sync::Arc;
 
-pub fn register_handler(factory: Arc<dyn Business>, auth: Authority) -> Scope {
+pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
     web::scope("/states")
         .route("", get().to(get_all).wrap(auth.admin()))
         .route("", post().to(insert).wrap(auth.admin()))
@@ -30,13 +30,13 @@ pub fn register_handler(factory: Arc<dyn Business>, auth: Authority) -> Scope {
         .app_data(web::Data::from(factory))
 }
 
-async fn get_all(factory: web::Data<dyn Business>) -> Result<HttpResponse, Error> {
+async fn get_all(factory: web::Data<dyn Logic>) -> Result<HttpResponse, Error> {
     let result = factory.get_all().await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
 async fn get_by_code(
-    factory: web::Data<dyn Business>,
+    factory: web::Data<dyn Logic>,
     path: web::Path<String>,
 ) -> Result<HttpResponse, Error> {
     let code = path.into_inner();
@@ -45,7 +45,7 @@ async fn get_by_code(
 }
 
 async fn insert(
-    factory: web::Data<dyn Business>,
+    factory: web::Data<dyn Logic>,
     req: web::Json<StateCreateRequest>,
     user: Option<web::ReqData<User>>,
 ) -> Result<HttpResponse, Error> {
@@ -58,7 +58,7 @@ async fn insert(
 }
 
 async fn update(
-    factory: web::Data<dyn Business>,
+    factory: web::Data<dyn Logic>,
     req: web::Json<StateUpdateRequest>,
     path: web::Path<String>,
     user: Option<web::ReqData<User>>,
@@ -74,7 +74,7 @@ async fn update(
 }
 
 async fn delete(
-    factory: web::Data<dyn Business>,
+    factory: web::Data<dyn Logic>,
     path: web::Path<String>,
 ) -> Result<HttpResponse, Error> {
     let result = factory.delete(&path.into_inner()).await?;

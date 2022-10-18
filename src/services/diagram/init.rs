@@ -3,19 +3,19 @@ use actix_web::Scope;
 use crate::cores::http::middleware::auth::Authority;
 
 use super::{
-    business::factory::{Business, BusinessFactory},
     handler::http::register_handler,
+    logic::factory::{Logic, LogicFactory},
 };
 use std::sync::Arc;
 
 pub struct DiagramService {
-    pub factory: Arc<dyn Business>,
+    pub factory: Arc<dyn Logic>,
 }
 
 impl DiagramService {
     pub fn new() -> Self {
         Self {
-            factory: BusinessFactory::new(),
+            factory: LogicFactory::new(),
         }
     }
 

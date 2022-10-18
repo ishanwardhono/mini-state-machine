@@ -20,7 +20,7 @@ fn validate(req: &String) -> Result<(), Error> {
 mod tests {
     use crate::{
         cores::error::service::Error,
-        services::state::{business::delete::execute, repo::db::MockDbRepo},
+        services::state::{logic::delete::execute, repo::db::MockDbRepo},
     };
     use mockall::predicate::eq;
     use std::sync::Arc;

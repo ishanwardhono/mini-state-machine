@@ -1,4 +1,4 @@
-use super::factory::Business;
+use super::factory::Logic;
 use crate::cores::{
     auth::role::Role,
     error::{service::Error, types::AuthError},
@@ -6,7 +6,7 @@ use crate::cores::{
 use crate::services::auth::model::entity::User;
 
 pub async fn execute(
-    factory: &impl Business,
+    factory: &impl Logic,
     token_opt: Option<String>,
     valid_permission: Role,
 ) -> Result<User, Error> {
@@ -35,14 +35,14 @@ mod tests {
     use crate::{
         cores::{auth::role::Role, error::service::Error},
         services::auth::{
-            business::{authorize::execute, factory::MockBusiness},
+            logic::{authorize::execute, factory::MockLogic},
             model::entity::User,
         },
         utils::test::{test_actor, test_time, test_uuid},
     };
 
-    fn test_mock_factory() -> MockBusiness {
-        let mut mock_factory = MockBusiness::new();
+    fn test_mock_factory() -> MockLogic {
+        let mut mock_factory = MockLogic::new();
         mock_factory
             .expect_token_validation()
             .with(eq("test".to_owned()))
@@ -67,7 +67,7 @@ mod tests {
 
     #[tokio::test]
     async fn fail_not_provided() -> Result<(), Error> {
-        let res = execute(&MockBusiness::new(), None, Role::Admin).await;
+        let res = execute(&MockLogic::new(), None, Role::Admin).await;
 
         let err = res.unwrap_err();
         assert_eq!(

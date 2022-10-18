@@ -11,7 +11,7 @@ pub fn execute(valid_permission: Role, user_permission: Role) -> bool {
 mod tests {
     use crate::{
         cores::{auth::role::Role, error::service::Error},
-        services::auth::business::is_permitted::execute,
+        services::auth::logic::is_permitted::execute,
     };
 
     #[tokio::test]

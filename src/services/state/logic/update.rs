@@ -1,7 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::state::{
-        model::{entity::State, request::StateCreateRequest},
+        model::{entity::State, request::StateUpdateRequest},
         repo::db::DbRepo,
     },
     utils::validation,
@@ -10,17 +10,18 @@ use std::sync::Arc;
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
-    req: &'a StateCreateRequest,
+    code: &'a String,
+    state: &'a StateUpdateRequest,
     actor: &'a uuid::Uuid,
 ) -> Result<State, Error> {
     tracing::debug!("executing ...");
-    validate(&req)?;
-    repo.insert(req, actor).await
+    validate(code)?;
+    repo.update(code, state, actor).await
 }
 
-fn validate(req: &StateCreateRequest) -> Result<(), Error> {
+fn validate(req: &String) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
-    if req.code == "" {
+    if req == "" {
         validation.add("Code is empty");
     }
 
@@ -28,13 +29,12 @@ fn validate(req: &StateCreateRequest) -> Result<(), Error> {
 }
 
 #[cfg(test)]
-
 mod tests {
     use crate::{
         cores::error::service::Error,
         services::state::{
-            business::insert::execute,
-            model::{entity::State, request::StateCreateRequest},
+            logic::update::execute,
+            model::{entity::State, request::StateUpdateRequest},
             repo::db::MockDbRepo,
         },
         utils::test::{test_actor, test_time, test_uuid},
@@ -45,15 +45,14 @@ mod tests {
     #[tokio::test]
     async fn validation_error_code_empty() -> Result<(), Error> {
         let mock_db_repo = MockDbRepo::new();
-
-        let req = StateCreateRequest {
-            code: String::from(""),
+        let req_code = String::from("");
+        let req = StateUpdateRequest {
             description: None,
             webhooks: None,
         };
         let actor = uuid::Uuid::new_v4();
 
-        let res = execute(Arc::new(mock_db_repo), &req, &actor).await;
+        let res = execute(Arc::new(mock_db_repo), &req_code, &req, &actor).await;
 
         assert!(res.is_err());
         assert_eq!(
@@ -65,24 +64,25 @@ mod tests {
 
     #[tokio::test]
     async fn success() -> Result<(), Error> {
-        let req = StateCreateRequest {
-            code: String::from("TEST"),
+        let mut mock_db_repo = MockDbRepo::new();
+        let req_code = String::from("TEST");
+        let req = StateUpdateRequest {
             description: None,
             webhooks: None,
         };
         let actor = test_actor();
 
-        let mut mock_db_repo = MockDbRepo::new();
         mock_db_repo
-            .expect_insert()
-            .with(eq(req.clone()), eq(actor.clone()))
+            .expect_update()
+            .with(eq(req_code.clone()), eq(req.clone()), eq(actor.clone()))
             .once()
-            .returning(move |req, _| {
+            .returning(move |code, req, _| {
+                let cloned_code = code.clone();
                 let cloned_req = req.clone();
                 Box::pin(async {
                     Ok(State {
                         id: test_uuid(),
-                        code: cloned_req.code,
+                        code: cloned_code,
                         description: cloned_req.description,
                         webhooks: cloned_req.webhooks,
                         create_time: test_time(),
@@ -93,11 +93,11 @@ mod tests {
                 })
             });
 
-        let res = execute(Arc::new(mock_db_repo), &req, &actor).await;
+        let res = execute(Arc::new(mock_db_repo), &req_code, &req, &actor).await;
 
         let return_result = res?;
         assert_eq!(return_result.id, test_uuid());
-        assert_eq!(return_result.code, req.code);
+        assert_eq!(return_result.code, req_code);
         assert_eq!(return_result.description, req.description);
         assert_eq!(return_result.webhooks, req.webhooks);
         assert_eq!(return_result.create_time, test_time());
