@@ -22,7 +22,7 @@ pub async fn execute<'a>(
 fn validate(req: &String) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
     if req == "" {
-        validation.add("Code is empty");
+        validation.add_str("Code is empty");
     }
 
     validation.check()

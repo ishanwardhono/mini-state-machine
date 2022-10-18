@@ -21,14 +21,13 @@ pub async fn execute<'a>(
 fn validate(req: &StateCreateRequest) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
     if req.code == "" {
-        validation.add("Code is empty");
+        validation.add_str("Code is empty");
     }
 
     validation.check()
 }
 
 #[cfg(test)]
-
 mod tests {
     use crate::{
         cores::error::service::Error,

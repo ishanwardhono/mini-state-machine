@@ -27,6 +27,7 @@ pub trait Logic {
 #[async_trait]
 impl Logic for LogicFactory {
     async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<(), Error> {
+        tracing::info!("Logic Execute - Insert Diagram");
         insert::execute(self.repo.clone(), req, actor).await
     }
 }
