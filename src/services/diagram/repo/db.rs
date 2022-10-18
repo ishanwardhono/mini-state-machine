@@ -31,20 +31,37 @@ impl DbRepo for DbRepoImpl {
         tracing::info!("Database Execute - Diagram Insert Query");
 
         let time_now = db_time_now();
-        let result = sqlx::query(db_query::INSERT_BULK)
+
+        let result = sqlx::query(db_query::BUSINESS_INSERT)
             .bind(Uuid::new_v4())
-            .bind(diagram.flows[0].business.clone())
-            .bind(diagram.flows[0].state.clone())
-            .bind(diagram.flows[0].is_initial_state.clone())
-            .bind(diagram.flows[0].next_states.clone())
-            .bind(time_now) //create_time
-            .bind(actor) //create_by
-            .bind(time_now) //create_time
-            .bind(actor) //update_by
+            .bind(diagram.business.code.clone())
+            .bind(diagram.business.description.clone())
+            .bind(diagram.business.is_active.clone())
+            .bind(time_now)
+            .bind(actor)
+            .bind(time_now)
+            .bind(actor)
             .execute(self.pool.as_ref())
             .await
             .map_err(|e| Error::from_db(e));
+        result.map(|_| {})?;
 
-        result.map(|_| {})
+        for flow in diagram.flows.iter() {
+            let result = sqlx::query(db_query::FLOW_INSERT_BULK)
+                .bind(Uuid::new_v4())
+                .bind(flow.business.clone())
+                .bind(flow.state.clone())
+                .bind(flow.is_initial_state.clone())
+                .bind(flow.next_states.clone())
+                .bind(time_now)
+                .bind(actor)
+                .bind(time_now)
+                .bind(actor)
+                .execute(self.pool.as_ref())
+                .await
+                .map_err(|e| Error::from_db(e));
+            result.map(|_| {})?
+        }
+        Ok(())
     }
 }
