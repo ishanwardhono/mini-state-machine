@@ -1,10 +1,11 @@
 use actix_web::Scope;
 
-use crate::cores::http::middleware::auth::Authority;
+use crate::cores::{database::pg::DbPool, http::middleware::auth::Authority};
 
 use super::{
     handler::http::register_handler,
     logic::factory::{Logic, LogicFactory},
+    repo::db::DbRepoImpl,
 };
 use std::sync::Arc;
 
@@ -13,9 +14,9 @@ pub struct DiagramService {
 }
 
 impl DiagramService {
-    pub fn new() -> Self {
+    pub fn new(pool: Arc<DbPool>) -> Self {
         Self {
-            factory: LogicFactory::new(),
+            factory: LogicFactory::new(DbRepoImpl::new(pool)),
         }
     }
 

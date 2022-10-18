@@ -1,6 +1,17 @@
-use crate::cores::error::service::Error;
+use std::sync::Arc;
 
-pub async fn execute() -> Result<(), Error> {
+use uuid::Uuid;
+
+use crate::{
+    cores::error::service::Error,
+    services::diagram::{model::model::Diagram, repo::db::DbRepo},
+};
+
+pub async fn execute<'a>(
+    repo: Arc<dyn DbRepo>,
+    diagram: &'a Diagram,
+    actor: &'a Uuid,
+) -> Result<(), Error> {
     tracing::debug!("executing ...");
-    Ok(())
+    repo.insert(diagram, actor).await
 }

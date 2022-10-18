@@ -14,7 +14,7 @@ use std::sync::Arc;
 pub fn register(cfg: Arc<Config>, pool: Arc<DbPool>) -> Scope {
     let auth = new_authority(cfg, pool.clone());
     let states = StateService::new(pool.clone());
-    let diagrams = DiagramService::new();
+    let diagrams = DiagramService::new(pool.clone());
 
     web::scope("/app")
         .service(states.init_http_service(auth.clone()))
