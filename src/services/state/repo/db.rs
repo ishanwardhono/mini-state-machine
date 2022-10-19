@@ -90,9 +90,9 @@ impl DbRepo for DbRepository {
 
         sqlx::query(db_query::INSERT)
             .bind(uuid::Uuid::new_v4())
-            .bind(state.code.clone()) //code
-            .bind(state.description.clone()) //description
-            .bind(state.webhooks.clone()) //webhooks
+            .bind(&state.code) //code
+            .bind(&state.description) //description
+            .bind(&state.webhooks) //webhooks
             .bind(time_now) //create_time
             .bind(actor) //create_by
             .bind(time_now) //create_time
@@ -113,8 +113,8 @@ impl DbRepo for DbRepository {
 
         sqlx::query(db_query::UPDATE)
             .bind(code)
-            .bind(state.description.clone())
-            .bind(state.webhooks.clone())
+            .bind(&state.description)
+            .bind(&state.webhooks)
             .bind(db_time_now())
             .bind(actor)
             .map(self.state_full_map())

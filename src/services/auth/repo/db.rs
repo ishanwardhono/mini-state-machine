@@ -55,8 +55,8 @@ impl DbRepo for DbRepository {
     async fn insert(&self, user: &UserCreateRequest) -> Result<User, Error> {
         tracing::info!("Database Execute - User Insert Query");
         sqlx::query(db_query::INSERT)
-            .bind(user.username.clone())
-            .bind(user.role.clone())
+            .bind(&user.username)
+            .bind(&user.role)
             .bind(db_time_now())
             .bind(db_time_now())
             .map(self.user_full_map())
