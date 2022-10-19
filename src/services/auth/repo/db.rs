@@ -11,8 +11,12 @@ use sqlx::{postgres::PgRow, Row};
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct DbRepoImpl {
+struct DbRepository {
     pool: Arc<DbPool>,
+}
+
+pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
+    Arc::new(DbRepository { pool })
 }
 
 #[async_trait]
@@ -22,11 +26,7 @@ pub trait DbRepo: Sync + Send {
     async fn insert(&self, user: &UserCreateRequest) -> Result<User, Error>;
 }
 
-impl DbRepoImpl {
-    pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
-        Arc::new(Self { pool })
-    }
-
+impl DbRepository {
     fn user_full_map(&self) -> fn(PgRow) -> User {
         |row: PgRow| User {
             id: row.get("id"),
@@ -41,7 +41,7 @@ impl DbRepoImpl {
 }
 
 #[async_trait]
-impl DbRepo for DbRepoImpl {
+impl DbRepo for DbRepository {
     async fn get_by_username(&self, username: &String) -> Result<User, Error> {
         tracing::info!("Database Execute - User GetByUsername Query");
         sqlx::query(db_query::GET_BY_USERNAME)

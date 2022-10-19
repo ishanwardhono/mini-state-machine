@@ -1,7 +1,7 @@
 use super::{
     handler::http::register_handler,
     logic::factory::{Logic, LogicFactory},
-    repo::db::DbRepoImpl,
+    repo::db,
 };
 use crate::{
     cores::{database::pg::DbPool, http::middleware::auth::Authority},
@@ -17,7 +17,7 @@ pub struct DiagramService {
 impl DiagramService {
     pub fn new(pool: Arc<DbPool>, state_factory: Arc<dyn StateFactory::Logic>) -> Self {
         Self {
-            factory: LogicFactory::new(DbRepoImpl::new(pool), state_factory),
+            factory: LogicFactory::new(db::new(pool), state_factory),
         }
     }
 

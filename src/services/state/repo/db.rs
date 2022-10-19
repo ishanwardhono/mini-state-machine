@@ -10,8 +10,12 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 #[derive(Clone)]
-pub struct DbRepoImpl {
+struct DbRepository {
     pool: Arc<DbPool>,
+}
+
+pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
+    Arc::new(DbRepository { pool })
 }
 
 #[async_trait]
@@ -30,11 +34,7 @@ pub trait DbRepo: Sync + Send {
     async fn delete(&self, code: &String) -> Result<String, Error>;
 }
 
-impl DbRepoImpl {
-    pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
-        Arc::new(Self { pool })
-    }
-
+impl DbRepository {
     fn state_full_map(&self) -> fn(PgRow) -> State {
         |row: PgRow| State {
             id: row.get("id"),
@@ -50,7 +50,7 @@ impl DbRepoImpl {
 }
 
 #[async_trait]
-impl DbRepo for DbRepoImpl {
+impl DbRepo for DbRepository {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
         tracing::info!("Database Execute - Status GetAll Query");
 

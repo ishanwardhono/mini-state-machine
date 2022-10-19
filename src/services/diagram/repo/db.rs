@@ -12,8 +12,12 @@ use sqlx::Row;
 use std::sync::Arc;
 use uuid::Uuid;
 
-pub struct DbRepoImpl {
+struct DbRepository {
     pool: Arc<DbPool>,
+}
+
+pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
+    Arc::new(DbRepository { pool })
 }
 
 #[async_trait]
@@ -22,14 +26,8 @@ pub trait DbRepo: Sync + Send {
     async fn get(&self, code: &String) -> Result<Diagram, Error>;
 }
 
-impl DbRepoImpl {
-    pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
-        Arc::new(Self { pool })
-    }
-}
-
 #[async_trait]
-impl DbRepo for DbRepoImpl {
+impl DbRepo for DbRepository {
     async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<(), Error> {
         tracing::info!("Database Execute - Diagram Insert Query");
 
