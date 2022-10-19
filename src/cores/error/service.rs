@@ -1,9 +1,8 @@
-use std::fmt::Display;
-
 use super::types::DBERROR_VIOLATE_UNIQUE;
 use crate::cores::http::entity::ErrorResponse;
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
+use std::fmt::Display;
 
 #[derive(Debug, Display, PartialEq)]
 pub enum Error {
@@ -47,6 +46,12 @@ impl Error {
             | Error::Unauthorized(msg) => msg,
         }
         .to_owned()
+    }
+}
+
+impl From<sqlx::Error> for Error {
+    fn from(e: sqlx::Error) -> Self {
+        Self::from_db(e)
     }
 }
 

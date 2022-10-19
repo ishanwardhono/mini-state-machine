@@ -30,9 +30,10 @@ impl DbRepo for DbRepoImpl {
     async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<(), Error> {
         tracing::info!("Database Execute - Diagram Insert Query");
 
+        let mut tx = self.pool.begin().await?;
         let time_now = db_time_now();
 
-        let result = sqlx::query(db_query::BUSINESS_INSERT)
+        sqlx::query(db_query::BUSINESS_INSERT)
             .bind(Uuid::new_v4())
             .bind(diagram.code.clone())
             .bind(diagram.description.clone())
@@ -41,13 +42,11 @@ impl DbRepo for DbRepoImpl {
             .bind(actor)
             .bind(time_now)
             .bind(actor)
-            .execute(self.pool.as_ref())
-            .await
-            .map_err(|e| Error::from_db(e));
-        result.map(|_| {})?;
+            .execute(&mut tx)
+            .await?;
 
         for flow in diagram.flows.iter() {
-            let result = sqlx::query(db_query::FLOW_INSERT)
+            sqlx::query(db_query::FLOW_INSERT)
                 .bind(Uuid::new_v4())
                 .bind(diagram.code.clone())
                 .bind(flow.state.clone())
@@ -57,11 +56,11 @@ impl DbRepo for DbRepoImpl {
                 .bind(actor)
                 .bind(time_now)
                 .bind(actor)
-                .execute(self.pool.as_ref())
-                .await
-                .map_err(|e| Error::from_db(e));
-            result.map(|_| {})?
+                .execute(&mut tx)
+                .await?;
         }
+
+        tx.commit().await?;
         Ok(())
     }
 }

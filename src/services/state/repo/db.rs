@@ -54,15 +54,11 @@ impl DbRepo for DbRepoImpl {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
         tracing::info!("Database Execute - Status GetAll Query");
 
-        let result = sqlx::query(db_query::SELECT_ALL)
+        sqlx::query(db_query::SELECT_ALL)
             .map(self.state_full_map())
             .fetch_all(self.pool.as_ref())
-            .await;
-
-        match result {
-            Ok(res) => Ok(res),
-            Err(e) => Err(Error::from_db(e)),
-        }
+            .await
+            .map_err(|e| Error::from_db(e))
     }
 
     async fn get_by_code(&self, code: &String) -> Result<State, Error> {
