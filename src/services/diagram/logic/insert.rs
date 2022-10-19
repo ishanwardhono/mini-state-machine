@@ -6,7 +6,7 @@ use crate::{
     cores::error::service::Error,
     services::{
         diagram::{
-            model::{entity::Flow, model::Diagram},
+            model::model::{Diagram, FlowModel},
             repo::db::DbRepo,
         },
         state::logic::factory as StateFactory,
@@ -26,12 +26,12 @@ pub async fn execute<'a>(
     repo.insert(diagram, actor).await
 }
 
-fn validate(req: &Diagram) -> Result<(), Error> {
+fn validate(diagram: &Diagram) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
-    if req.business.code.is_empty() {
+    if diagram.code.is_empty() {
         validation.add_str("Business Code is empty");
     }
-    if req.flows.len() <= 0 {
+    if diagram.flows.len() <= 0 {
         validation.add_str("State flows is empty");
     }
 
@@ -40,7 +40,7 @@ fn validate(req: &Diagram) -> Result<(), Error> {
 
 async fn validate_state(
     state_factory: Arc<dyn StateFactory::Logic>,
-    flows: &Vec<Flow>,
+    flows: &Vec<FlowModel>,
 ) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
     let mut states_set = HashSet::new();

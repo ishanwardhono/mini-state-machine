@@ -1,3 +1,2 @@
-//TODO:: jangan pake public di entity
-pub mod entity;
+mod entity;
 pub mod model;

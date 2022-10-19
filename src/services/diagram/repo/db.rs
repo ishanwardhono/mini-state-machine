@@ -34,9 +34,9 @@ impl DbRepo for DbRepoImpl {
 
         let result = sqlx::query(db_query::BUSINESS_INSERT)
             .bind(Uuid::new_v4())
-            .bind(diagram.business.code.clone())
-            .bind(diagram.business.description.clone())
-            .bind(diagram.business.is_active.clone())
+            .bind(diagram.code.clone())
+            .bind(diagram.description.clone())
+            .bind(diagram.is_active.clone())
             .bind(time_now)
             .bind(actor)
             .bind(time_now)
@@ -47,9 +47,9 @@ impl DbRepo for DbRepoImpl {
         result.map(|_| {})?;
 
         for flow in diagram.flows.iter() {
-            let result = sqlx::query(db_query::FLOW_INSERT_BULK)
+            let result = sqlx::query(db_query::FLOW_INSERT)
                 .bind(Uuid::new_v4())
-                .bind(flow.business.clone())
+                .bind(diagram.code.clone())
                 .bind(flow.state.clone())
                 .bind(flow.is_initial_state.clone())
                 .bind(flow.next_states.clone())
