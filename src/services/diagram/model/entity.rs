@@ -1,5 +1,6 @@
 use uuid::Uuid;
 
+#[allow(dead_code)]
 pub struct Business {
     pub id: Uuid,
     pub code: String,
@@ -11,6 +12,7 @@ pub struct Business {
     pub update_by: Uuid,
 }
 
+#[allow(dead_code)]
 pub struct Flow {
     pub id: Uuid,
     pub business: String,

@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Diagram {
     pub code: String,
     pub description: Option<String>,
@@ -8,7 +8,7 @@ pub struct Diagram {
     pub flows: Vec<FlowModel>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct FlowModel {
     pub state: String,
     pub is_initial_state: bool,

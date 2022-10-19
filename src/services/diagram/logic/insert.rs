@@ -1,7 +1,3 @@
-use std::{collections::HashSet, sync::Arc};
-
-use uuid::Uuid;
-
 use crate::{
     cores::error::service::Error,
     services::{
@@ -13,6 +9,8 @@ use crate::{
     },
     utils::validation,
 };
+use std::{collections::HashSet, sync::Arc};
+use uuid::Uuid;
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,

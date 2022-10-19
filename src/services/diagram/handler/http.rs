@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use actix_web::{
-    web::{self, post},
+    web::{self, get, post},
     HttpResponse, Scope,
 };
 use std::sync::Arc;
@@ -17,6 +17,10 @@ use std::sync::Arc;
 pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
     web::scope("/diagrams")
         .route("", post().to(insert).wrap(auth.admin()))
+        .route(
+            "/{code}",
+            get().to(get_diagram).wrap(auth.business_client()),
+        )
         .app_data(web::Data::from(factory))
 }
 
@@ -29,6 +33,15 @@ async fn insert(
         tracing::error!("{}", AuthError::UserNotProvided);
         return Err(Error::unauth_from(AuthError::UserNotProvided));
     }
-    let _ = factory.insert(&req.into_inner(), &user.unwrap().id).await?;
-    Ok(HttpResponse::Ok().json(true))
+    factory.insert(&req.into_inner(), &user.unwrap().id).await?;
+    Ok(HttpResponse::Ok().finish())
+}
+
+async fn get_diagram(
+    factory: web::Data<dyn Logic>,
+    path: web::Path<String>,
+) -> Result<HttpResponse, Error> {
+    let code = path.into_inner();
+    let result = factory.get(&code).await?;
+    Ok(HttpResponse::Ok().json(result))
 }
