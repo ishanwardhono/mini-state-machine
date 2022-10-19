@@ -9,9 +9,15 @@ pub const SELECT_ALL: &str = "
 
 pub const SELECT_BY_CODE: &str = "
     SELECT 
-    id, code, description, webhooks, create_time, create_by, update_time, update_by 
+        id, code, description, webhooks, create_time, create_by, update_time, update_by 
     FROM states
     WHERE code = $1
+";
+
+pub const SELECT_BY_CODES: &str = "
+    SELECT code
+    FROM states
+    WHERE code = ANY($1)
 ";
 
 pub const INSERT: &str = "

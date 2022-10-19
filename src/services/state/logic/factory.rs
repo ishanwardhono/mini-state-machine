@@ -1,7 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::state::{
-        logic::{delete, get_all, get_by_code, insert, update},
+        logic::{delete, get_all, get_by_code, get_by_codes, insert, update},
         model::{entity::State, request::StateCreateRequest, request::StateUpdateRequest},
         repo::db::DbRepo,
     },
@@ -20,9 +20,10 @@ impl LogicFactory {
 }
 
 #[async_trait]
-pub trait Logic {
+pub trait Logic: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &String) -> Result<State, Error>;
+    async fn get_by_codes(&self, code: &Vec<String>) -> Result<Vec<String>, Error>;
     async fn insert(&self, state: &StateCreateRequest, actor: &uuid::Uuid) -> Result<State, Error>;
     async fn update(
         &self,
@@ -40,8 +41,12 @@ impl Logic for LogicFactory {
         get_all::execute(self.repo.clone()).await
     }
     async fn get_by_code(&self, code: &String) -> Result<State, Error> {
-        tracing::info!("Logic Execute - Status GetById");
+        tracing::info!("Logic Execute - Status GetByCode");
         get_by_code::execute(self.repo.clone(), code).await
+    }
+    async fn get_by_codes(&self, code: &Vec<String>) -> Result<Vec<String>, Error> {
+        tracing::info!("Logic Execute - Status GetByCodes");
+        get_by_codes::execute(self.repo.clone(), code).await
     }
     async fn insert(&self, state: &StateCreateRequest, actor: &uuid::Uuid) -> Result<State, Error> {
         tracing::info!("Logic Execute - Status Insert");

@@ -4,21 +4,25 @@ use uuid::Uuid;
 
 use crate::{
     cores::error::service::Error,
-    services::diagram::{
-        model::{entity::Flow, model::Diagram},
-        repo::db::DbRepo,
+    services::{
+        diagram::{
+            model::{entity::Flow, model::Diagram},
+            repo::db::DbRepo,
+        },
+        state::logic::factory as StateFactory,
     },
     utils::validation,
 };
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
+    state_factory: Arc<dyn StateFactory::Logic>,
     diagram: &'a Diagram,
     actor: &'a Uuid,
 ) -> Result<(), Error> {
     tracing::debug!("executing ...");
     validate(&diagram)?;
-    validate_state(&diagram.flows)?;
+    validate_state(state_factory, &diagram.flows).await?;
     repo.insert(diagram, actor).await
 }
 
@@ -27,21 +31,30 @@ fn validate(req: &Diagram) -> Result<(), Error> {
     if req.business.code.is_empty() {
         validation.add_str("Business Code is empty");
     }
+    if req.flows.len() <= 0 {
+        validation.add_str("State flows is empty");
+    }
 
     validation.check()
 }
 
-fn validate_state(flows: &Vec<Flow>) -> Result<(), Error> {
+async fn validate_state(
+    state_factory: Arc<dyn StateFactory::Logic>,
+    flows: &Vec<Flow>,
+) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
-    let mut states = HashSet::new();
+    let mut states_set = HashSet::new();
     let mut initial_state_flag = false;
+    let mut states = vec![];
+
     for flow in flows {
-        if !states.insert(&flow.state) {
+        if !states_set.insert(&flow.state) {
             validation.add(format!("Duplicate State {}", flow.state));
         }
         if flow.is_initial_state {
             initial_state_flag = true;
         }
+        states.push(flow.state.to_string());
     }
     if !initial_state_flag {
         validation.add_str("There is no initial state in Diagram");
@@ -56,7 +69,7 @@ fn validate_state(flows: &Vec<Flow>) -> Result<(), Error> {
             .unwrap()
             .iter()
             .for_each(|next_state| {
-                if states.insert(next_state) {
+                if states_set.insert(next_state) {
                     validation.add(format!(
                         "next_state {} on State {} not registered in diagram",
                         next_state, flow.state
@@ -66,5 +79,10 @@ fn validate_state(flows: &Vec<Flow>) -> Result<(), Error> {
     }
     validation.check()?;
 
-    Ok(())
+    let db_states = state_factory.get_by_codes(&states).await?;
+    states.retain(|s| !db_states.contains(&s));
+    if states.len() > 0 {
+        validation.add(format!("States {} not found in database", states.join(",")));
+    }
+    validation.check()
 }

@@ -19,6 +19,7 @@ pub struct DbRepoImpl {
 pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &String) -> Result<State, Error>;
+    async fn get_by_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error>;
     async fn insert(&self, state: &StateCreateRequest, actor: &Uuid) -> Result<State, Error>;
     async fn update(
         &self,
@@ -71,6 +72,17 @@ impl DbRepo for DbRepoImpl {
             .bind(code)
             .map(self.state_full_map())
             .fetch_one(self.pool.as_ref())
+            .await
+            .map_err(|e| Error::from_db(e))
+    }
+
+    async fn get_by_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error> {
+        tracing::info!("Database Execute - Status GetByCodes Query");
+
+        sqlx::query(db_query::SELECT_BY_CODES)
+            .bind(codes.as_slice())
+            .map(|row: PgRow| row.get("code"))
+            .fetch_all(self.pool.as_ref())
             .await
             .map_err(|e| Error::from_db(e))
     }
