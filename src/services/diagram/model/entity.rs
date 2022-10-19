@@ -18,7 +18,7 @@ pub struct Flow {
     pub business: String,
     pub state: String,
     pub is_initial_state: bool,
-    pub next_states: Option<Vec<String>>,
+    pub transitions: Option<Vec<String>>,
     pub create_time: chrono::NaiveDateTime,
     pub create_by: Uuid,
     pub update_time: chrono::NaiveDateTime,

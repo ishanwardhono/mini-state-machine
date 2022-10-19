@@ -59,18 +59,18 @@ async fn validate_state(
     }
 
     for flow in flows {
-        if flow.next_states.is_none() {
+        if flow.transitions.is_none() {
             continue;
         }
-        flow.next_states
+        flow.transitions
             .as_ref()
             .unwrap()
             .iter()
-            .for_each(|next_state| {
-                if states_set.insert(next_state) {
+            .for_each(|transition| {
+                if states_set.insert(transition) {
                     validation.add(format!(
-                        "next_state {} on State {} not registered in diagram",
-                        next_state, flow.state
+                        "transition {} on State {} not registered in diagram",
+                        transition, flow.state
                     ));
                 }
             });

@@ -52,7 +52,7 @@ impl DbRepo for DbRepository {
                 .bind(&diagram.code)
                 .bind(&flow.state)
                 .bind(&flow.is_initial_state)
-                .bind(&flow.next_states)
+                .bind(&flow.transitions)
                 .bind(time_now)
                 .bind(actor)
                 .bind(time_now)
@@ -84,7 +84,7 @@ impl DbRepo for DbRepository {
             .map(|row: PgRow| FlowModel {
                 state: row.get("state"),
                 is_initial_state: row.get("is_initial_state"),
-                next_states: row.get("next_states"),
+                transitions: row.get("transitions"),
             })
             .fetch_all(self.pool.as_ref())
             .await?;

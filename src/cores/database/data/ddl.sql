@@ -39,7 +39,7 @@ CREATE TABLE flows (
     business VARCHAR(25) NOT NULL,
     state VARCHAR(50) NOT NULL,
     is_initial_state boolean NOT NULL,
-    next_states VARCHAR(50)[],
+    transitions VARCHAR(50)[],
     create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     create_by uuid NOT NULL,
     update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
