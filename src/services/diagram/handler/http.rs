@@ -22,6 +22,10 @@ pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
             get().to(get_diagram).wrap(auth.business_client()),
         )
         .route("/{code}", delete().to(delete_diagram).wrap(auth.admin()))
+        .route(
+            "/{code}/{from}/{to}",
+            get().to(valid_transition).wrap(auth.business_client()),
+        )
         .app_data(web::Data::from(factory))
 }
 
@@ -53,5 +57,15 @@ async fn delete_diagram(
 ) -> Result<HttpResponse, Error> {
     let code = path.into_inner();
     factory.delete(&code).await?;
+    Ok(HttpResponse::Ok().finish())
+}
+
+async fn valid_transition(
+    factory: web::Data<dyn Logic>,
+    params: web::Path<(String, String, String)>,
+) -> Result<HttpResponse, Error> {
+    factory
+        .valid_transition(&params.0, &params.1, &params.2)
+        .await?;
     Ok(HttpResponse::Ok().finish())
 }

@@ -9,7 +9,7 @@ use crate::{
 use async_trait::async_trait;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 use uuid::Uuid;
 
 struct DbRepository {
@@ -47,11 +47,11 @@ impl DbRepo for DbRepository {
             .execute(&mut tx)
             .await?;
 
-        for flow in diagram.flows.iter() {
+        for (state, flow) in &diagram.flows {
             sqlx::query(db_query::FLOW_INSERT)
                 .bind(Uuid::new_v4())
                 .bind(&diagram.code)
-                .bind(&flow.state)
+                .bind(&state)
                 .bind(&flow.is_initial_state)
                 .bind(&flow.transitions)
                 .bind(time_now)
@@ -75,22 +75,25 @@ impl DbRepo for DbRepository {
                 code: row.get("code"),
                 description: row.get("description"),
                 is_active: row.get("is_active"),
-                flows: vec![],
+                flows: HashMap::new(),
             })
             .fetch_one(self.pool.as_ref())
             .await?;
 
-        let flows = sqlx::query(db_query::FLOW_SELECT)
+        sqlx::query(db_query::FLOW_SELECT)
             .bind(&code)
-            .map(|row: PgRow| FlowModel {
-                state: row.get("state"),
-                is_initial_state: row.get("is_initial_state"),
-                transitions: row.get("transitions"),
+            .map(|row: PgRow| {
+                business.flows.insert(
+                    row.get("state"),
+                    FlowModel {
+                        is_initial_state: row.get("is_initial_state"),
+                        transitions: row.get("transitions"),
+                    },
+                )
             })
             .fetch_all(self.pool.as_ref())
             .await?;
 
-        business.flows = flows;
         Ok(business)
     }
 

@@ -9,7 +9,10 @@ use crate::{
     },
     utils::validation,
 };
-use std::{collections::HashSet, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 use uuid::Uuid;
 
 pub async fn execute<'a>(
@@ -38,27 +41,27 @@ fn validate(diagram: &Diagram) -> Result<(), Error> {
 
 async fn validate_state(
     state_factory: Arc<dyn StateFactory::Logic>,
-    flows: &Vec<FlowModel>,
+    flows: &HashMap<String, FlowModel>,
 ) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
     let mut states_set = HashSet::new();
     let mut initial_state_flag = false;
     let mut states = vec![];
 
-    for flow in flows {
-        if !states_set.insert(&flow.state) {
-            validation.add(format!("Duplicate State {}", flow.state));
+    for (state, flow) in flows {
+        if !states_set.insert(state) {
+            validation.add(format!("Duplicate State {}", state));
         }
         if flow.is_initial_state {
             initial_state_flag = true;
         }
-        states.push(flow.state.to_string());
+        states.push(state.to_string());
     }
     if !initial_state_flag {
         validation.add_str("There is no initial state in Diagram");
     }
 
-    for flow in flows {
+    for (state, flow) in flows {
         if flow.transitions.is_none() {
             continue;
         }
@@ -70,7 +73,7 @@ async fn validate_state(
                 if states_set.insert(transition) {
                     validation.add(format!(
                         "transition {} on State {} not registered in diagram",
-                        transition, flow.state
+                        transition, state
                     ));
                 }
             });
