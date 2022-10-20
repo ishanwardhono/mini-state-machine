@@ -15,7 +15,7 @@ mod tests {
     };
 
     #[tokio::test]
-    async fn not_permitted() -> Result<(), Error> {
+    async fn fail_not_permitted() -> Result<(), Error> {
         let valid_permission = Role::Admin;
         let user_permission = Role::BusinessClient;
 

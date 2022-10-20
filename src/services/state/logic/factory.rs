@@ -20,6 +20,7 @@ impl LogicFactory {
 }
 
 #[async_trait]
+#[cfg_attr(test, mockall::automock, allow(dead_code))]
 pub trait Logic: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &String) -> Result<State, Error>;

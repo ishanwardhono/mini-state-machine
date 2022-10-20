@@ -26,7 +26,7 @@ mod tests {
     use std::sync::Arc;
 
     #[tokio::test]
-    async fn validation_error_code_empty() -> Result<(), Error> {
+    async fn fail_validate_code_empty() -> Result<(), Error> {
         let mock_db_repo = MockDbRepo::new();
 
         let req = String::from("");

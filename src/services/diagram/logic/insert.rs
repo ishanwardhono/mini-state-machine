@@ -58,7 +58,7 @@ async fn validate_state(
         states.push(state.to_string());
     }
     if !initial_state_flag {
-        validation.add_str("There is no initial state in Diagram");
+        validation.add_str("Diagram has no initial state");
     }
 
     for (state, flow) in flows {
@@ -72,7 +72,7 @@ async fn validate_state(
             .for_each(|transition| {
                 if states_set.insert(transition) {
                     validation.add(format!(
-                        "transition {} on State {} not registered in diagram",
+                        "transition {} on state {} not registered in diagram",
                         transition, state
                     ));
                 }
@@ -86,4 +86,195 @@ async fn validate_state(
         validation.add(format!("States {} not found in database", states.join(",")));
     }
     validation.check()
+}
+
+#[cfg(test)]
+mod tests {
+    use mockall::predicate::eq;
+
+    use super::*;
+    use crate::{
+        services::{diagram::repo::db::MockDbRepo, state::logic::factory::MockLogic},
+        utils::test::test_uuid,
+    };
+
+    #[tokio::test]
+    async fn fail_validation_code_empty() -> Result<(), Error> {
+        let mock_db_repo = MockDbRepo::new();
+        let mock_state_factory = MockLogic::new();
+        let diagram = Diagram {
+            code: String::from(""),
+            description: Some(String::from("")),
+            is_active: true,
+            flows: HashMap::from([(
+                String::from("TEST_STATE"),
+                FlowModel {
+                    is_initial_state: true,
+                    transitions: Some(vec!["TEST_STATE".to_owned()]),
+                },
+            )]),
+        };
+
+        let res = execute(
+            Arc::new(mock_db_repo),
+            Arc::new(mock_state_factory),
+            &diagram,
+            &test_uuid(),
+        )
+        .await;
+
+        assert!(res.is_err());
+        assert_eq!(
+            Error::BadRequest("Business Code is empty".to_owned()),
+            res.unwrap_err()
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn fail_validation_state() -> Result<(), Error> {
+        let mock_db_repo = MockDbRepo::new();
+        let mock_state_factory = MockLogic::new();
+        let diagram = Diagram {
+            code: String::from("BUSINESS_CODE_TEST"),
+            description: Some(String::from("")),
+            is_active: true,
+            flows: HashMap::from([
+                (
+                    String::from("TEST_STATE"),
+                    FlowModel {
+                        is_initial_state: false,
+                        transitions: Some(vec!["TEST_STATE_2".to_owned()]),
+                    },
+                ),
+                (
+                    String::from("TEST_STATE_1"),
+                    FlowModel {
+                        is_initial_state: false,
+                        transitions: Some(vec!["TEST_STATE".to_owned()]),
+                    },
+                ),
+            ]),
+        };
+
+        let res = execute(
+            Arc::new(mock_db_repo),
+            Arc::new(mock_state_factory),
+            &diagram,
+            &test_uuid(),
+        )
+        .await;
+
+        assert!(res.is_err());
+        assert_eq!(
+            Error::BadRequest("Diagram has no initial state, transition TEST_STATE_2 on state TEST_STATE not registered in diagram".to_owned()),
+            res.unwrap_err()
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn fail_validation_state_not_in_db() -> Result<(), Error> {
+        let diagram = Diagram {
+            code: String::from("BUSINESS_CODE_TEST"),
+            description: Some(String::from("")),
+            is_active: true,
+            flows: HashMap::from([
+                (
+                    String::from("TEST_STATE"),
+                    FlowModel {
+                        is_initial_state: true,
+                        transitions: Some(vec!["TEST_STATE_1".to_owned()]),
+                    },
+                ),
+                (
+                    String::from("TEST_STATE_1"),
+                    FlowModel {
+                        is_initial_state: false,
+                        transitions: Some(vec!["TEST_STATE".to_owned()]),
+                    },
+                ),
+            ]),
+        };
+
+        let mock_db_repo = MockDbRepo::new();
+        let mut mock_state_factory = MockLogic::new();
+        mock_state_factory
+            .expect_get_by_codes()
+            .withf(|transition| {
+                let matcher = vec!["TEST_STATE".to_owned(), "TEST_STATE_1".to_owned()];
+                transition.len() == matcher.len()
+                    && matcher.iter().all(|state| transition.contains(state))
+            })
+            .once()
+            .returning(move |_| Box::pin(async { Ok(vec!["TEST_STATE".to_owned()]) }));
+
+        let res = execute(
+            Arc::new(mock_db_repo),
+            Arc::new(mock_state_factory),
+            &diagram,
+            &test_uuid(),
+        )
+        .await;
+
+        assert!(res.is_err());
+        assert_eq!(
+            Error::BadRequest("States TEST_STATE_1 not found in database".to_owned()),
+            res.unwrap_err()
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn success() -> Result<(), Error> {
+        let diagram = Diagram {
+            code: String::from("BUSINESS_CODE_TEST"),
+            description: Some(String::from("")),
+            is_active: true,
+            flows: HashMap::from([
+                (
+                    String::from("TEST_STATE"),
+                    FlowModel {
+                        is_initial_state: true,
+                        transitions: Some(vec!["TEST_STATE_1".to_owned()]),
+                    },
+                ),
+                (
+                    String::from("TEST_STATE_1"),
+                    FlowModel {
+                        is_initial_state: false,
+                        transitions: Some(vec!["TEST_STATE".to_owned()]),
+                    },
+                ),
+            ]),
+        };
+
+        let mut mock_db_repo = MockDbRepo::new();
+        mock_db_repo
+            .expect_insert()
+            .with(eq(diagram.clone()), eq(test_uuid()))
+            .once()
+            .returning(move |_, _| Box::pin(async { Ok(()) }));
+
+        let mut mock_state_factory = MockLogic::new();
+        mock_state_factory
+            .expect_get_by_codes()
+            .withf(|transition| {
+                let matcher = vec!["TEST_STATE".to_owned(), "TEST_STATE_1".to_owned()];
+                transition.len() == matcher.len()
+                    && matcher.iter().all(|state| transition.contains(state))
+            })
+            .once()
+            .returning(move |_| {
+                Box::pin(async { Ok(vec!["TEST_STATE".to_owned(), "TEST_STATE_1".to_owned()]) })
+            });
+
+        execute(
+            Arc::new(mock_db_repo),
+            Arc::new(mock_state_factory),
+            &diagram,
+            &test_uuid(),
+        )
+        .await
+    }
 }

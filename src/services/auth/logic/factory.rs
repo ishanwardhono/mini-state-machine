@@ -15,7 +15,7 @@ pub struct LogicFactory {
 }
 
 #[async_trait]
-#[cfg_attr(test, mockall::automock)]
+#[cfg_attr(test, mockall::automock, allow(dead_code))]
 pub trait Logic {
     async fn get_by_username(&self, username: &String) -> Result<User, Error>;
     async fn insert(&self, req: &UserCreateRequest) -> Result<User, Error>;

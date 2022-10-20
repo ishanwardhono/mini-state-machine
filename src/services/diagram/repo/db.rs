@@ -21,6 +21,7 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 }
 
 #[async_trait]
+#[cfg_attr(test, mockall::automock)]
 pub trait DbRepo: Sync + Send {
     async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<(), Error>;
     async fn get(&self, code: &String) -> Result<Diagram, Error>;
