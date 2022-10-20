@@ -24,6 +24,7 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 pub trait DbRepo: Sync + Send {
     async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<(), Error>;
     async fn get(&self, code: &String) -> Result<Diagram, Error>;
+    async fn delete(&self, code: &String) -> Result<(), Error>;
 }
 
 #[async_trait]
@@ -66,9 +67,9 @@ impl DbRepo for DbRepository {
     }
 
     async fn get(&self, code: &String) -> Result<Diagram, Error> {
-        tracing::info!("Database Execute - Diagram Get");
+        tracing::info!("Database Execute - Diagram Get Query");
 
-        let mut business = sqlx::query(db_query::SELECT_BUSINESS)
+        let mut business = sqlx::query(db_query::BUSINESS_SELECT)
             .bind(&code)
             .map(|row: PgRow| Diagram {
                 code: row.get("code"),
@@ -79,7 +80,7 @@ impl DbRepo for DbRepository {
             .fetch_one(self.pool.as_ref())
             .await?;
 
-        let flows = sqlx::query(db_query::SELECT_FLOW)
+        let flows = sqlx::query(db_query::FLOW_SELECT)
             .bind(&code)
             .map(|row: PgRow| FlowModel {
                 state: row.get("state"),
@@ -91,5 +92,23 @@ impl DbRepo for DbRepository {
 
         business.flows = flows;
         Ok(business)
+    }
+
+    async fn delete(&self, code: &String) -> Result<(), Error> {
+        tracing::info!("Database Execute - Diagram Delete Query");
+
+        let mut tx = self.pool.begin().await?;
+
+        sqlx::query(db_query::BUSINESS_DELETE)
+            .bind(&code)
+            .execute(&mut tx)
+            .await?;
+        sqlx::query(db_query::FLOW_DELETE)
+            .bind(&code)
+            .execute(&mut tx)
+            .await?;
+
+        tx.commit().await?;
+        Ok(())
     }
 }

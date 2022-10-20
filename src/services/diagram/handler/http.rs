@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use actix_web::{
-    web::{self, get, post},
+    web::{self, delete, get, post},
     HttpResponse, Scope,
 };
 use std::sync::Arc;
@@ -21,6 +21,7 @@ pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
             "/{code}",
             get().to(get_diagram).wrap(auth.business_client()),
         )
+        .route("/{code}", delete().to(delete_diagram).wrap(auth.admin()))
         .app_data(web::Data::from(factory))
 }
 
@@ -44,4 +45,13 @@ async fn get_diagram(
     let code = path.into_inner();
     let result = factory.get(&code).await?;
     Ok(HttpResponse::Ok().json(result))
+}
+
+async fn delete_diagram(
+    factory: web::Data<dyn Logic>,
+    path: web::Path<String>,
+) -> Result<HttpResponse, Error> {
+    let code = path.into_inner();
+    factory.delete(&code).await?;
+    Ok(HttpResponse::Ok().finish())
 }

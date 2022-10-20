@@ -1,4 +1,4 @@
-use super::{get, insert};
+use super::{delete, get, insert};
 use crate::{
     cores::error::service::Error,
     services::{
@@ -31,6 +31,7 @@ impl LogicFactory {
 pub trait Logic {
     async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<(), Error>;
     async fn get(&self, code: &String) -> Result<Diagram, Error>;
+    async fn delete(&self, code: &String) -> Result<(), Error>;
 }
 
 #[async_trait]
@@ -43,5 +44,10 @@ impl Logic for LogicFactory {
     async fn get(&self, code: &String) -> Result<Diagram, Error> {
         tracing::info!("Logic Execute - Get Diagram");
         get::execute(self.repo.clone(), code).await
+    }
+
+    async fn delete(&self, code: &String) -> Result<(), Error> {
+        tracing::info!("Logic Execute - Delete Diagram");
+        delete::execute(self.repo.clone(), code).await
     }
 }

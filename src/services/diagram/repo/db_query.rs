@@ -5,10 +5,15 @@ pub const BUSINESS_INSERT: &str = "
         ($1,$2,$3,$4,$5,$6,$7,$8)
 ";
 
-pub const SELECT_BUSINESS: &str = "
+pub const BUSINESS_SELECT: &str = "
     SELECT 
         code, description, is_active
     FROM business
+    WHERE code = $1
+";
+
+pub const BUSINESS_DELETE: &str = "
+    DELETE FROM business
     WHERE code = $1
 ";
 
@@ -19,9 +24,14 @@ pub const FLOW_INSERT: &str = "
         ($1,$2,$3,$4,$5,$6,$7,$8,$9)
 ";
 
-pub const SELECT_FLOW: &str = "
+pub const FLOW_SELECT: &str = "
     SELECT 
         state, is_initial_state, transitions
     FROM flows
+    WHERE business = $1
+";
+
+pub const FLOW_DELETE: &str = "
+    DELETE FROM flows
     WHERE business = $1
 ";
