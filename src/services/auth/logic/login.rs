@@ -8,7 +8,7 @@ use std::sync::Arc;
 pub async fn execute(
     cfg: Arc<Config>,
     repo: Arc<dyn DbRepo>,
-    username: &String,
+    username: &str,
 ) -> Result<String, Error> {
     tracing::debug!("executing...");
 
@@ -62,7 +62,7 @@ mod tests {
 
     #[tokio::test]
     async fn success() -> Result<(), Error> {
-        let username = String::from("test");
+        let username = "test";
 
         let cfg = Config {
             app: ConfigApp {
@@ -83,7 +83,7 @@ mod tests {
             .with(eq(username.clone()))
             .once()
             .returning(move |username| {
-                let username = username.clone();
+                let username = username.to_owned();
                 Box::pin(async {
                     Ok(User {
                         id: test_uuid(),

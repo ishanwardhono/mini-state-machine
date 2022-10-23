@@ -4,9 +4,9 @@ use crate::{cores::error::service::Error, services::diagram::repo::db::DbRepo, u
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
-    code: &'a String,
-    from: &'a String,
-    to: &'a String,
+    code: &'a str,
+    from: &'a str,
+    to: &'a str,
 ) -> Result<(), Error> {
     tracing::debug!("executing ...");
     validate(code, from, to)?;
@@ -22,7 +22,7 @@ pub async fn execute<'a>(
         .transitions
         .ok_or(Error::BadRequest(format!("State {} is final state", from)))?;
 
-    if !transition.contains(to) {
+    if !transition.contains(&to.to_owned()) {
         return Err(Error::BadRequest(format!(
             "Transition invalid from {} to {}",
             from, to
@@ -32,7 +32,7 @@ pub async fn execute<'a>(
     Ok(())
 }
 
-fn validate(code: &String, from: &String, to: &String) -> Result<(), Error> {
+fn validate(code: &str, from: &str, to: &str) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
     if code.is_empty() {
         validation.add_str("Code is empty");
@@ -62,13 +62,7 @@ mod tests {
     async fn fail_validate() -> Result<(), Error> {
         let mock_db_repo = MockDbRepo::new();
 
-        let res = execute(
-            Arc::new(mock_db_repo),
-            &String::from(""),
-            &String::from(""),
-            &String::from(""),
-        )
-        .await;
+        let res = execute(Arc::new(mock_db_repo), "", "", "").await;
 
         assert!(res.is_err());
         assert_eq!(
@@ -83,7 +77,7 @@ mod tests {
         let mut mock_db_repo = MockDbRepo::new();
         mock_db_repo
             .expect_get()
-            .with(eq(String::from("BUSINESS_CODE_TEST")))
+            .with(eq("BUSINESS_CODE_TEST"))
             .once()
             .returning(move |_| {
                 Box::pin(async {
@@ -111,13 +105,7 @@ mod tests {
                 })
             });
 
-        let res = execute(
-            Arc::new(mock_db_repo),
-            &String::from("BUSINESS_CODE_TEST"),
-            &String::from("test"),
-            &String::from("test"),
-        )
-        .await;
+        let res = execute(Arc::new(mock_db_repo), "BUSINESS_CODE_TEST", "test", "test").await;
 
         assert!(res.is_err());
         assert_eq!(
@@ -132,7 +120,7 @@ mod tests {
         let mut mock_db_repo = MockDbRepo::new();
         mock_db_repo
             .expect_get()
-            .with(eq(String::from("BUSINESS_CODE_TEST")))
+            .with(eq("BUSINESS_CODE_TEST"))
             .once()
             .returning(move |_| {
                 Box::pin(async {
@@ -162,9 +150,9 @@ mod tests {
 
         let res = execute(
             Arc::new(mock_db_repo),
-            &String::from("BUSINESS_CODE_TEST"),
-            &String::from("TEST_STATE"),
-            &String::from("test"),
+            "BUSINESS_CODE_TEST",
+            "TEST_STATE",
+            "test",
         )
         .await;
 
@@ -181,7 +169,7 @@ mod tests {
         let mut mock_db_repo = MockDbRepo::new();
         mock_db_repo
             .expect_get()
-            .with(eq(String::from("BUSINESS_CODE_TEST")))
+            .with(eq("BUSINESS_CODE_TEST"))
             .once()
             .returning(move |_| {
                 Box::pin(async {
@@ -211,9 +199,9 @@ mod tests {
 
         let res = execute(
             Arc::new(mock_db_repo),
-            &String::from("BUSINESS_CODE_TEST"),
-            &String::from("TEST_STATE"),
-            &String::from("TEST_STATE_2"),
+            "BUSINESS_CODE_TEST",
+            "TEST_STATE",
+            "TEST_STATE_2",
         )
         .await;
 
@@ -230,7 +218,7 @@ mod tests {
         let mut mock_db_repo = MockDbRepo::new();
         mock_db_repo
             .expect_get()
-            .with(eq(String::from("BUSINESS_CODE_TEST")))
+            .with(eq("BUSINESS_CODE_TEST"))
             .once()
             .returning(move |_| {
                 Box::pin(async {
@@ -260,9 +248,9 @@ mod tests {
 
         execute(
             Arc::new(mock_db_repo),
-            &String::from("BUSINESS_CODE_TEST"),
-            &String::from("TEST_STATE"),
-            &String::from("TEST_STATE_1"),
+            "BUSINESS_CODE_TEST",
+            "TEST_STATE",
+            "TEST_STATE_1",
         )
         .await
     }

@@ -11,7 +11,7 @@ use crate::{
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::sync::Arc;
 
-pub async fn execute(cfg: ConfigJWT, repo: Arc<dyn DbRepo>, token: &String) -> Result<User, Error> {
+pub async fn execute(cfg: ConfigJWT, repo: Arc<dyn DbRepo>, token: &str) -> Result<User, Error> {
     tracing::debug!("authorizing...");
 
     let token_part: Vec<&str> = token.split(" ").collect();
@@ -63,8 +63,8 @@ mod tests {
     use mockall::predicate::eq;
     use std::sync::Arc;
 
-    fn test_username() -> String {
-        String::from("test")
+    fn test_username() -> &'static str {
+        "test"
     }
 
     fn test_config() -> Config {
@@ -89,7 +89,7 @@ mod tests {
             .with(eq(test_username()))
             .once()
             .returning(move |username| {
-                let username = username.clone();
+                let username = username.to_owned();
                 Box::pin(async {
                     Ok(User {
                         id: test_uuid(),

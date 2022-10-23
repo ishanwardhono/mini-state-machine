@@ -30,14 +30,9 @@ impl LogicFactory {
 #[async_trait]
 pub trait Logic {
     async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<(), Error>;
-    async fn get(&self, code: &String) -> Result<Diagram, Error>;
-    async fn delete(&self, code: &String) -> Result<(), Error>;
-    async fn valid_transition(
-        &self,
-        code: &String,
-        from: &String,
-        to: &String,
-    ) -> Result<(), Error>;
+    async fn get(&self, code: &str) -> Result<Diagram, Error>;
+    async fn delete(&self, code: &str) -> Result<(), Error>;
+    async fn valid_transition(&self, code: &str, from: &str, to: &str) -> Result<(), Error>;
 }
 
 #[async_trait]
@@ -47,22 +42,17 @@ impl Logic for LogicFactory {
         insert::execute(self.repo.clone(), self.state_factory.clone(), req, actor).await
     }
 
-    async fn get(&self, code: &String) -> Result<Diagram, Error> {
+    async fn get(&self, code: &str) -> Result<Diagram, Error> {
         tracing::info!("Logic Execute - Get Diagram");
         get::execute(self.repo.clone(), code).await
     }
 
-    async fn delete(&self, code: &String) -> Result<(), Error> {
+    async fn delete(&self, code: &str) -> Result<(), Error> {
         tracing::info!("Logic Execute - Delete Diagram");
         delete::execute(self.repo.clone(), code).await
     }
 
-    async fn valid_transition(
-        &self,
-        code: &String,
-        from: &String,
-        to: &String,
-    ) -> Result<(), Error> {
+    async fn valid_transition(&self, code: &str, from: &str, to: &str) -> Result<(), Error> {
         tracing::info!("Logic Execute - Valid Transition in Diagram");
         valid_transition::execute(self.repo.clone(), code, from, to).await
     }

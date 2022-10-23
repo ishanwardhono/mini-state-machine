@@ -5,13 +5,13 @@ use crate::{
 };
 use std::sync::Arc;
 
-pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<State, Error> {
+pub async fn execute(repo: Arc<dyn DbRepo>, code: &str) -> Result<State, Error> {
     tracing::debug!("executing ...");
     validate(code)?;
     repo.get_by_code(code).await
 }
 
-fn validate(req: &String) -> Result<(), Error> {
+fn validate(req: &str) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
     if req == "" {
         validation.add_str("Code is empty");
@@ -33,7 +33,7 @@ mod tests {
     async fn fail_validate_code_empty() -> Result<(), Error> {
         let mock_db_repo = MockDbRepo::new();
 
-        let res = execute(Arc::new(mock_db_repo), &String::from("")).await;
+        let res = execute(Arc::new(mock_db_repo), "").await;
 
         assert!(res.is_err());
         assert_eq!(
@@ -45,7 +45,7 @@ mod tests {
 
     #[tokio::test]
     async fn success() -> Result<(), Error> {
-        let req = String::from("TEST");
+        let req = "TEST";
         let mut mock_db_repo = MockDbRepo::new();
 
         mock_db_repo

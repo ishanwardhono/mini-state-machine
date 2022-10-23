@@ -1,13 +1,13 @@
 use crate::{cores::error::service::Error, services::state::repo::db::DbRepo, utils::validation};
 use std::sync::Arc;
 
-pub async fn execute(repo: Arc<dyn DbRepo>, code: &String) -> Result<String, Error> {
+pub async fn execute(repo: Arc<dyn DbRepo>, code: &str) -> Result<String, Error> {
     tracing::debug!("executing ...");
     validate(code)?;
     repo.delete(code).await
 }
 
-fn validate(req: &String) -> Result<(), Error> {
+fn validate(req: &str) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
     if req == "" {
         validation.add_str("Code is empty");
@@ -43,7 +43,7 @@ mod tests {
 
     #[tokio::test]
     async fn success() -> Result<(), Error> {
-        let req = String::from("TEST");
+        let req = "TEST";
 
         let mut mock_db_repo = MockDbRepo::new();
         mock_db_repo
@@ -51,7 +51,7 @@ mod tests {
             .with(eq(req.clone()))
             .once()
             .returning(move |req| {
-                let cloned_req = req.clone();
+                let cloned_req = req.to_string();
                 Box::pin(async { Ok(cloned_req) })
             });
 

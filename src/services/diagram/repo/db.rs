@@ -24,8 +24,8 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 #[cfg_attr(test, mockall::automock)]
 pub trait DbRepo: Sync + Send {
     async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<(), Error>;
-    async fn get(&self, code: &String) -> Result<Diagram, Error>;
-    async fn delete(&self, code: &String) -> Result<(), Error>;
+    async fn get(&self, code: &str) -> Result<Diagram, Error>;
+    async fn delete(&self, code: &str) -> Result<(), Error>;
 }
 
 #[async_trait]
@@ -67,7 +67,7 @@ impl DbRepo for DbRepository {
         Ok(())
     }
 
-    async fn get(&self, code: &String) -> Result<Diagram, Error> {
+    async fn get(&self, code: &str) -> Result<Diagram, Error> {
         tracing::info!("Database Execute - Diagram Get Query");
 
         let mut business = sqlx::query(db_query::BUSINESS_SELECT)
@@ -98,7 +98,7 @@ impl DbRepo for DbRepository {
         Ok(business)
     }
 
-    async fn delete(&self, code: &String) -> Result<(), Error> {
+    async fn delete(&self, code: &str) -> Result<(), Error> {
         tracing::info!("Database Execute - Diagram Delete Query");
 
         let mut tx = self.pool.begin().await?;

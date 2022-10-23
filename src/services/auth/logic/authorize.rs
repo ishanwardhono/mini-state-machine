@@ -45,10 +45,10 @@ mod tests {
         let mut mock_factory = MockLogic::new();
         mock_factory
             .expect_token_validation()
-            .with(eq("test".to_owned()))
+            .with(eq("test"))
             .once()
             .returning(move |token| {
-                let token = token.clone();
+                let token = token.to_owned();
                 Box::pin(async {
                     Ok(User {
                         id: test_uuid(),

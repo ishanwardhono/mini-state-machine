@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
-    code: &'a String,
+    code: &'a str,
     state: &'a StateUpdateRequest,
     actor: &'a uuid::Uuid,
 ) -> Result<State, Error> {
@@ -19,7 +19,7 @@ pub async fn execute<'a>(
     repo.update(code, state, actor).await
 }
 
-fn validate(req: &String) -> Result<(), Error> {
+fn validate(req: &str) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
     if req == "" {
         validation.add_str("Code is empty");
@@ -65,7 +65,7 @@ mod tests {
     #[tokio::test]
     async fn success() -> Result<(), Error> {
         let mut mock_db_repo = MockDbRepo::new();
-        let req_code = String::from("TEST");
+        let req_code = "TEST";
         let req = StateUpdateRequest {
             description: None,
             webhooks: None,
@@ -77,7 +77,7 @@ mod tests {
             .with(eq(req_code.clone()), eq(req.clone()), eq(actor.clone()))
             .once()
             .returning(move |code, req, _| {
-                let cloned_code = code.clone();
+                let cloned_code = code.to_string();
                 let cloned_req = req.clone();
                 Box::pin(async {
                     Ok(State {

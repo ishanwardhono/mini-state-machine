@@ -22,16 +22,16 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 #[cfg_attr(test, mockall::automock)]
 pub trait DbRepo: Sync + Send {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
-    async fn get_by_code(&self, code: &String) -> Result<State, Error>;
+    async fn get_by_code(&self, code: &str) -> Result<State, Error>;
     async fn get_by_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error>;
     async fn insert(&self, state: &StateCreateRequest, actor: &Uuid) -> Result<State, Error>;
     async fn update(
         &self,
-        code: &String,
+        code: &str,
         state: &StateUpdateRequest,
         actor: &Uuid,
     ) -> Result<State, Error>;
-    async fn delete(&self, code: &String) -> Result<String, Error>;
+    async fn delete(&self, code: &str) -> Result<String, Error>;
 }
 
 impl DbRepository {
@@ -61,7 +61,7 @@ impl DbRepo for DbRepository {
             .map_err(|e| Error::from_db(e))
     }
 
-    async fn get_by_code(&self, code: &String) -> Result<State, Error> {
+    async fn get_by_code(&self, code: &str) -> Result<State, Error> {
         tracing::info!("Database Execute - Status GetByCode Query");
 
         sqlx::query(db_query::SELECT_BY_CODE)
@@ -105,7 +105,7 @@ impl DbRepo for DbRepository {
 
     async fn update(
         &self,
-        code: &String,
+        code: &str,
         state: &StateUpdateRequest,
         actor: &Uuid,
     ) -> Result<State, Error> {
@@ -123,7 +123,7 @@ impl DbRepo for DbRepository {
             .map_err(|e| Error::from_db(e))
     }
 
-    async fn delete(&self, code: &String) -> Result<String, Error> {
+    async fn delete(&self, code: &str) -> Result<String, Error> {
         tracing::info!("Database Execute - Status Delete Query");
 
         let result = sqlx::query(db_query::DELETE)
@@ -134,7 +134,7 @@ impl DbRepo for DbRepository {
 
         if result.rows_affected() > 0 {
             tracing::info!("states hard delete ({})", code);
-            Ok(code.clone())
+            Ok(code.to_owned())
         } else {
             Err(Error::NotFound("State not found".to_owned()))
         }
