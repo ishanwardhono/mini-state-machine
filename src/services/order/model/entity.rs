@@ -1,6 +1,7 @@
+use serde::Serialize;
 use uuid::Uuid;
 
-#[allow(dead_code)]
+#[derive(Serialize)]
 pub struct Order {
     pub id: Uuid,
     pub order_id: String,

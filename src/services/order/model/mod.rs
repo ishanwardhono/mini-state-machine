@@ -1,2 +1,2 @@
-mod entity;
+pub mod entity;
 pub mod request;

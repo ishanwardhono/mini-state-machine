@@ -55,6 +55,12 @@ impl From<sqlx::Error> for Error {
     }
 }
 
+impl From<uuid::Error> for Error {
+    fn from(e: uuid::Error) -> Self {
+        Self::BadRequest(format!("Invalid uuid: {}", e))
+    }
+}
+
 impl error::ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         let error_response = ErrorResponse {

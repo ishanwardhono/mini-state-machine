@@ -4,9 +4,11 @@ use crate::{
         database::pg::{db_time_now, DbPool},
         error::service::Error,
     },
-    services::order::model::request::OrderRequest,
+    services::order::model::{entity::Order, request::OrderRequest},
 };
 use async_trait::async_trait;
+use sqlx::postgres::PgRow;
+use sqlx::Row;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -21,6 +23,7 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 #[async_trait]
 pub trait DbRepo: Sync + Send {
     async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<(), Error>;
+    async fn get(&self, id: &Uuid) -> Result<Order, Error>;
 }
 
 #[async_trait]
@@ -47,5 +50,25 @@ impl DbRepo for DbRepository {
             .execute(self.pool.as_ref())
             .await?;
         Ok(())
+    }
+
+    async fn get(&self, id: &Uuid) -> Result<Order, Error> {
+        tracing::info!("Database Execute - Order Get Query");
+
+        let res = sqlx::query(db_query::ORDER_GET)
+            .bind(id)
+            .map(|row: PgRow| Order {
+                id: row.get("id"),
+                order_id: row.get("order_id"),
+                business: row.get("business"),
+                state: row.get("state"),
+                create_time: row.get("create_time"),
+                create_by: row.get("create_by"),
+                update_time: row.get("update_time"),
+                update_by: row.get("update_by"),
+            })
+            .fetch_one(self.pool.as_ref())
+            .await?;
+        Ok(res)
     }
 }
