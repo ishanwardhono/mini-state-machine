@@ -21,11 +21,10 @@ fn validate(code: &str) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
     use super::*;
     use crate::services::diagram::repo::db::MockDbRepo;
     use mockall::predicate::eq;
+    use std::collections::HashMap;
 
     #[tokio::test]
     async fn fail_validate_code_empty() -> Result<(), Error> {

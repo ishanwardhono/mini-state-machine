@@ -5,7 +5,10 @@ use crate::{
     },
     services::{
         auth::model::entity::User,
-        diagram::{logic::factory::Logic, model::model::Diagram},
+        diagram::{
+            logic::factory::{DiagramLogic, Logic},
+            model::model::Diagram,
+        },
     },
 };
 use actix_web::{
@@ -61,7 +64,7 @@ async fn delete_diagram(
 }
 
 async fn valid_transition(
-    factory: web::Data<dyn Logic>,
+    factory: web::Data<dyn DiagramLogic>,
     params: web::Path<(String, String, String)>,
 ) -> Result<HttpResponse, Error> {
     factory
