@@ -9,6 +9,10 @@ use crate::{
 use async_trait::async_trait;
 use std::sync::Arc;
 
+pub fn new(cfg: Arc<Config>, repo: Arc<dyn DbRepo>) -> Arc<dyn Logic> {
+    Arc::new(LogicFactory { cfg, repo })
+}
+
 pub struct LogicFactory {
     cfg: Arc<Config>,
     repo: Arc<dyn DbRepo>,
@@ -24,12 +28,6 @@ pub trait Logic {
         -> Result<User, Error>;
     async fn token_validation(&self, token: &str) -> Result<User, Error>;
     fn is_permitted(&self, valid_permission: Role, user_permission: Role) -> bool;
-}
-
-impl LogicFactory {
-    pub fn new(cfg: Arc<Config>, repo: Arc<dyn DbRepo>) -> Arc<dyn Logic> {
-        Arc::new(Self { cfg, repo })
-    }
 }
 
 #[async_trait]

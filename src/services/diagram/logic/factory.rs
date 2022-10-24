@@ -11,20 +11,8 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct LogicFactory {
-    repo: Arc<dyn DbRepo>,
-    state_factory: Arc<dyn StateFactory::Logic>,
-}
-
-impl LogicFactory {
-    pub fn new(
-        repo: Arc<dyn DbRepo>,
-        state_factory: Arc<dyn StateFactory::Logic>,
-    ) -> Arc<dyn Logic> {
-        Arc::new(Self {
-            repo,
-            state_factory,
-        })
-    }
+    pub repo: Arc<dyn DbRepo>,
+    pub state_factory: Arc<dyn StateFactory::Logic>,
 }
 
 pub trait Logic: OperationLogic + DiagramLogic {}

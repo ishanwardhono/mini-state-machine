@@ -12,12 +12,8 @@ use sqlx::Row;
 use std::{collections::HashMap, sync::Arc};
 use uuid::Uuid;
 
-struct DbRepository {
-    pool: Arc<DbPool>,
-}
-
-pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
-    Arc::new(DbRepository { pool })
+pub struct DbRepository {
+    pub pool: Arc<DbPool>,
 }
 
 #[async_trait]

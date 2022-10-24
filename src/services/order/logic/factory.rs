@@ -13,21 +13,9 @@ use async_trait::async_trait;
 use std::sync::Arc;
 use uuid::Uuid;
 
-impl LogicFactory {
-    pub fn new(
-        repo: Arc<dyn DbRepo>,
-        diagram_factory: Arc<dyn diagram_factory::Logic>,
-    ) -> Arc<dyn Logic> {
-        Arc::new(Self {
-            repo,
-            diagram_factory,
-        })
-    }
-}
-
 pub struct LogicFactory {
-    repo: Arc<dyn DbRepo>,
-    diagram_factory: Arc<dyn diagram_factory::Logic>,
+    pub repo: Arc<dyn DbRepo>,
+    pub diagram_factory: Arc<dyn diagram_factory::Logic>,
 }
 
 #[async_trait]

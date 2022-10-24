@@ -11,12 +11,8 @@ use sqlx::{postgres::PgRow, Row};
 use std::sync::Arc;
 
 #[derive(Clone)]
-struct DbRepository {
-    pool: Arc<DbPool>,
-}
-
-pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
-    Arc::new(DbRepository { pool })
+pub struct DbRepository {
+    pub pool: Arc<DbPool>,
 }
 
 #[async_trait]

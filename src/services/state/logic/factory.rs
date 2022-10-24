@@ -9,14 +9,12 @@ use crate::{
 use async_trait::async_trait;
 use std::sync::Arc;
 
-pub struct LogicFactory {
-    repo: Arc<dyn DbRepo>,
+pub fn new(repo: Arc<dyn DbRepo>) -> Arc<dyn Logic> {
+    Arc::new(LogicFactory { repo })
 }
 
-impl LogicFactory {
-    pub fn new(repo: Arc<dyn DbRepo>) -> Arc<dyn Logic> {
-        Arc::new(Self { repo })
-    }
+pub struct LogicFactory {
+    repo: Arc<dyn DbRepo>,
 }
 
 #[async_trait]
