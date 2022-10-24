@@ -23,14 +23,14 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 #[async_trait]
 #[cfg_attr(test, mockall::automock)]
 pub trait DbRepo: Sync + Send {
-    async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<(), Error>;
+    async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<String, Error>;
     async fn get(&self, code: &str) -> Result<Diagram, Error>;
     async fn delete(&self, code: &str) -> Result<(), Error>;
 }
 
 #[async_trait]
 impl DbRepo for DbRepository {
-    async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<(), Error> {
+    async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<String, Error> {
         tracing::info!("Database Execute - Diagram Insert Query");
 
         let mut tx = self.pool.begin().await?;
@@ -64,7 +64,7 @@ impl DbRepo for DbRepository {
         }
 
         tx.commit().await?;
-        Ok(())
+        Ok(diagram.code.clone())
     }
 
     async fn get(&self, code: &str) -> Result<Diagram, Error> {

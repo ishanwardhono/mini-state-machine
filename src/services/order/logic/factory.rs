@@ -4,7 +4,7 @@ use crate::{
         diagram::logic::factory as diagram_factory,
         order::{
             logic::{get, insert},
-            model::{entity::Order, request::OrderRequest},
+            model::{entity::Order, request::OrderRequest, response::OrderResponse},
             repo::db::DbRepo,
         },
     },
@@ -32,13 +32,13 @@ pub struct LogicFactory {
 
 #[async_trait]
 pub trait Logic {
-    async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<(), Error>;
+    async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
     async fn get(&self, id: &Uuid) -> Result<Order, Error>;
 }
 
 #[async_trait]
 impl Logic for LogicFactory {
-    async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<(), Error> {
+    async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error> {
         tracing::info!("Logic Execute - Insert Order");
         insert::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
     }

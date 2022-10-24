@@ -4,7 +4,7 @@ use crate::{
         database::pg::{db_time_now, DbPool},
         error::service::Error,
     },
-    services::order::model::{entity::Order, request::OrderRequest},
+    services::order::model::{entity::Order, request::OrderRequest, response::OrderResponse},
 };
 use async_trait::async_trait;
 use sqlx::postgres::PgRow;
@@ -22,7 +22,7 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 
 #[async_trait]
 pub trait DbRepo: Sync + Send {
-    async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<(), Error>;
+    async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
     async fn get(&self, id: &Uuid) -> Result<Order, Error>;
     async fn get_by_order_id(&self, business: &str, order_id: &str) -> Result<Order, Error>;
     async fn exists_order_id(&self, business: &str, order_id: &str) -> Result<bool, Error>;
@@ -30,7 +30,7 @@ pub trait DbRepo: Sync + Send {
 
 #[async_trait]
 impl DbRepo for DbRepository {
-    async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<(), Error> {
+    async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error> {
         tracing::info!("Database Execute - Order Creation Query");
 
         let time_now = db_time_now();
@@ -51,7 +51,12 @@ impl DbRepo for DbRepository {
             .bind(actor)
             .execute(self.pool.as_ref())
             .await?;
-        Ok(())
+
+        Ok(OrderResponse {
+            order_id,
+            business: order.business.clone(),
+            state: order.state.clone(),
+        })
     }
 
     async fn get(&self, id: &Uuid) -> Result<Order, Error> {

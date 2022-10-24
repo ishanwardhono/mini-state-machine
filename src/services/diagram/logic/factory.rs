@@ -32,7 +32,7 @@ impl Logic for LogicFactory {}
 
 #[async_trait]
 pub trait OperationLogic {
-    async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<(), Error>;
+    async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<String, Error>;
     async fn get(&self, code: &str) -> Result<Diagram, Error>;
     async fn get_active(&self, code: &str) -> Result<Diagram, Error>;
     async fn delete(&self, code: &str) -> Result<(), Error>;
@@ -46,7 +46,7 @@ pub trait DiagramLogic: Send + Sync {
 
 #[async_trait]
 impl OperationLogic for LogicFactory {
-    async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<(), Error> {
+    async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<String, Error> {
         tracing::info!("Logic Execute - Insert Diagram");
         insert::execute(self.repo.clone(), self.state_factory.clone(), req, actor).await
     }

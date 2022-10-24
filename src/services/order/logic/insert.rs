@@ -2,7 +2,10 @@ use crate::{
     cores::error::service::Error,
     services::{
         diagram::logic::factory as diagram_factory,
-        order::{model::request::OrderRequest, repo::db::DbRepo},
+        order::{
+            model::{request::OrderRequest, response::OrderResponse},
+            repo::db::DbRepo,
+        },
     },
     utils::validation,
 };
@@ -14,7 +17,7 @@ pub async fn execute<'a>(
     diagram_factory: Arc<dyn diagram_factory::Logic>,
     order: &'a OrderRequest,
     actor: &'a Uuid,
-) -> Result<(), Error> {
+) -> Result<OrderResponse, Error> {
     tracing::debug!("executing ...");
     validate(order)?;
     validate_order_data(repo.clone(), order).await?;

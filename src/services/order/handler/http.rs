@@ -33,8 +33,8 @@ async fn insert(
         tracing::error!("{}", AuthError::UserNotProvided);
         return Err(Error::unauth_from(AuthError::UserNotProvided));
     }
-    factory.insert(&req.into_inner(), &user.unwrap().id).await?;
-    Ok(HttpResponse::Ok().finish())
+    let result = factory.insert(&req.into_inner(), &user.unwrap().id).await?;
+    Ok(HttpResponse::Ok().json(result))
 }
 
 async fn get_order(

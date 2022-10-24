@@ -20,7 +20,7 @@ pub async fn execute<'a>(
     state_factory: Arc<dyn StateFactory::Logic>,
     diagram: &'a Diagram,
     actor: &'a Uuid,
-) -> Result<(), Error> {
+) -> Result<String, Error> {
     tracing::debug!("executing ...");
     validate(&diagram)?;
     validate_state(state_factory, &diagram.flows).await?;
@@ -254,7 +254,7 @@ mod tests {
             .expect_insert()
             .with(eq(diagram.clone()), eq(test_uuid()))
             .once()
-            .returning(move |_, _| Box::pin(async { Ok(()) }));
+            .returning(move |_, _| Box::pin(async { Ok(String::from("BUSINESS_CODE_TEST")) }));
 
         let mut mock_state_factory = MockLogic::new();
         mock_state_factory
@@ -269,12 +269,15 @@ mod tests {
                 Box::pin(async { Ok(vec!["TEST_STATE".to_owned(), "TEST_STATE_1".to_owned()]) })
             });
 
-        execute(
+        let res = execute(
             Arc::new(mock_db_repo),
             Arc::new(mock_state_factory),
             &diagram,
             &test_uuid(),
         )
-        .await
+        .await?;
+
+        assert_eq!(res, String::from("BUSINESS_CODE_TEST"));
+        Ok(())
     }
 }

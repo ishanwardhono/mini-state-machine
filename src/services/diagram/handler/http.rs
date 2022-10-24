@@ -7,7 +7,7 @@ use crate::{
         auth::model::entity::User,
         diagram::{
             logic::factory::{DiagramLogic, Logic},
-            model::model::Diagram,
+            model::{model::Diagram, reponse::CreatedResponse},
         },
     },
 };
@@ -41,8 +41,8 @@ async fn insert(
         tracing::error!("{}", AuthError::UserNotProvided);
         return Err(Error::unauth_from(AuthError::UserNotProvided));
     }
-    factory.insert(&req.into_inner(), &user.unwrap().id).await?;
-    Ok(HttpResponse::Ok().finish())
+    let res = factory.insert(&req.into_inner(), &user.unwrap().id).await?;
+    Ok(HttpResponse::Ok().json(CreatedResponse { business: res }))
 }
 
 async fn get_diagram(
