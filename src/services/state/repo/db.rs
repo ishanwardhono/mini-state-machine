@@ -20,7 +20,7 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 
 #[async_trait]
 #[cfg_attr(test, mockall::automock)]
-pub trait DbRepo: Sync + Send {
+pub trait DbRepo: Send + Sync {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &str) -> Result<State, Error>;
     async fn get_by_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error>;

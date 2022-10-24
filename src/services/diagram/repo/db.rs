@@ -22,7 +22,7 @@ struct DbRepository {
 
 #[async_trait]
 #[cfg_attr(test, mockall::automock)]
-pub trait DbRepo: Sync + Send {
+pub trait DbRepo: Send + Sync {
     async fn insert(&self, diagram: &Diagram, actor: &Uuid) -> Result<String, Error>;
     async fn get(&self, code: &str) -> Result<Diagram, Error>;
     async fn delete(&self, code: &str) -> Result<(), Error>;

@@ -21,7 +21,7 @@ struct DbRepository {
 }
 
 #[async_trait]
-pub trait DbRepo: Sync + Send {
+pub trait DbRepo: Send + Sync {
     async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
     async fn get(&self, id: &Uuid) -> Result<Order, Error>;
     async fn get_by_order_id(&self, business: &str, order_id: &str) -> Result<Order, Error>;

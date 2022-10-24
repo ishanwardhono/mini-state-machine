@@ -15,7 +15,7 @@ pub struct Factory {
 
 #[async_trait]
 #[cfg_attr(test, mockall::automock, allow(dead_code))]
-pub trait Logic: Sync + Send {
+pub trait Logic: Send + Sync {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &str) -> Result<State, Error>;
     async fn get_by_codes(&self, code: &Vec<String>) -> Result<Vec<String>, Error>;

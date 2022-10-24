@@ -21,7 +21,7 @@ struct DbRepository {
 
 #[async_trait]
 #[cfg_attr(test, mockall::automock)]
-pub trait DbRepo: Sync + Send {
+pub trait DbRepo: Send + Sync {
     async fn get_by_username(&self, username: &str) -> Result<User, Error>;
     async fn insert(&self, user: &UserCreateRequest) -> Result<User, Error>;
 }
