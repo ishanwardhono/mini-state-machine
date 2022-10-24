@@ -1,11 +1,3 @@
-use std::{str::FromStr, sync::Arc};
-
-use actix_web::{
-    web::{self, get, post},
-    HttpResponse, Scope,
-};
-use uuid::Uuid;
-
 use crate::{
     cores::{
         error::{service::Error, types::AuthError},
@@ -16,6 +8,12 @@ use crate::{
         order::{logic::factory::Logic, model::request::OrderRequest},
     },
 };
+use actix_web::{
+    web::{self, get, post},
+    HttpResponse, Scope,
+};
+use std::{str::FromStr, sync::Arc};
+use uuid::Uuid;
 
 pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
     web::scope("/orders")
