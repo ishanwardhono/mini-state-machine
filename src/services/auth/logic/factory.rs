@@ -9,13 +9,9 @@ use crate::{
 use async_trait::async_trait;
 use std::sync::Arc;
 
-pub fn new(cfg: Arc<Config>, repo: Arc<dyn DbRepo>) -> Arc<dyn Logic> {
-    Arc::new(LogicFactory { cfg, repo })
-}
-
-pub struct LogicFactory {
-    cfg: Arc<Config>,
-    repo: Arc<dyn DbRepo>,
+pub struct Factory {
+    pub cfg: Arc<Config>,
+    pub repo: Arc<dyn DbRepo>,
 }
 
 #[async_trait]
@@ -31,7 +27,7 @@ pub trait Logic {
 }
 
 #[async_trait]
-impl Logic for LogicFactory {
+impl Logic for Factory {
     async fn get_by_username(&self, username: &str) -> Result<User, Error> {
         tracing::info!("Auth - Get by Username");
         get_by_username::execute(self.repo.clone(), username).await

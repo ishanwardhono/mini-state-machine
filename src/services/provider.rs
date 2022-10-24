@@ -4,10 +4,7 @@ use crate::cores::{
     env::Config,
     http::{self, middleware::auth::Authority},
 };
-use actix_web::{
-    web::{self},
-    Scope,
-};
+use actix_web::{web, Scope};
 use std::sync::Arc;
 
 //Http Handler Registration

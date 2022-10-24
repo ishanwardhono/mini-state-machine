@@ -10,13 +10,13 @@ use async_trait::async_trait;
 use std::sync::Arc;
 use uuid::Uuid;
 
-pub struct LogicFactory {
+pub struct Factory {
     pub repo: Arc<dyn DbRepo>,
     pub state_factory: Arc<dyn StateFactory::Logic>,
 }
 
 pub trait Logic: OperationLogic + DiagramLogic {}
-impl Logic for LogicFactory {}
+impl Logic for Factory {}
 
 #[async_trait]
 pub trait OperationLogic {
@@ -33,7 +33,7 @@ pub trait DiagramLogic: Send + Sync {
 }
 
 #[async_trait]
-impl OperationLogic for LogicFactory {
+impl OperationLogic for Factory {
     async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<String, Error> {
         tracing::info!("Logic Execute - Insert Diagram");
         insert::execute(self.repo.clone(), self.state_factory.clone(), req, actor).await
@@ -56,7 +56,7 @@ impl OperationLogic for LogicFactory {
 }
 
 #[async_trait]
-impl DiagramLogic for LogicFactory {
+impl DiagramLogic for Factory {
     async fn valid_transition(&self, code: &str, from: &str, to: &str) -> Result<(), Error> {
         tracing::info!("Logic Execute - Valid Transition in Diagram");
         valid_transition::execute(self, code, from, to).await

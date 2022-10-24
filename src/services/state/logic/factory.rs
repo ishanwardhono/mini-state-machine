@@ -9,12 +9,8 @@ use crate::{
 use async_trait::async_trait;
 use std::sync::Arc;
 
-pub fn new(repo: Arc<dyn DbRepo>) -> Arc<dyn Logic> {
-    Arc::new(LogicFactory { repo })
-}
-
-pub struct LogicFactory {
-    repo: Arc<dyn DbRepo>,
+pub struct Factory {
+    pub repo: Arc<dyn DbRepo>,
 }
 
 #[async_trait]
@@ -34,7 +30,7 @@ pub trait Logic: Sync + Send {
 }
 
 #[async_trait]
-impl Logic for LogicFactory {
+impl Logic for Factory {
     async fn get_all(&self) -> Result<Vec<State>, Error> {
         tracing::info!("Logic Execute - Status GetAll");
         get_all::execute(self.repo.clone()).await

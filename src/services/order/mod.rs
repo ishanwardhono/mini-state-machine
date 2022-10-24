@@ -13,7 +13,7 @@ use std::sync::Arc;
 
 pub fn new(pool: Arc<DbPool>, diagram_factory: Arc<dyn diagram_factory::Logic>) -> OrderService {
     OrderService {
-        factory: logic::new(repo::new(pool), diagram_factory),
+        factory: logic::new(repo::db::new(pool), diagram_factory),
     }
 }
 

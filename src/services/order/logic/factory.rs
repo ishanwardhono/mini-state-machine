@@ -13,7 +13,7 @@ use async_trait::async_trait;
 use std::sync::Arc;
 use uuid::Uuid;
 
-pub struct LogicFactory {
+pub struct Factory {
     pub repo: Arc<dyn DbRepo>,
     pub diagram_factory: Arc<dyn diagram_factory::Logic>,
 }
@@ -25,7 +25,7 @@ pub trait Logic {
 }
 
 #[async_trait]
-impl Logic for LogicFactory {
+impl Logic for Factory {
     async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error> {
         tracing::info!("Logic Execute - Insert Order");
         insert::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
