@@ -17,6 +17,7 @@ pub async fn execute<'a>(
 ) -> Result<(), Error> {
     tracing::debug!("executing ...");
     validate(order)?;
+    validate_order_data(repo.clone(), order).await?;
     diagram_factory
         .valid_creation(&order.business, &order.state)
         .await?;
@@ -33,4 +34,13 @@ fn validate(order: &OrderRequest) -> Result<(), Error> {
     }
 
     validation.check()
+}
+
+async fn validate_order_data(repo: Arc<dyn DbRepo>, order: &OrderRequest) -> Result<(), Error> {
+    if let Some(order_id) = order.order_id.as_ref() {
+        if repo.exists_order_id(&order.business, order_id).await? {
+            return Err(Error::BadRequest("Order already exists".to_owned()));
+        }
+    }
+    Ok(())
 }

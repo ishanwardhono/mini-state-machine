@@ -24,6 +24,8 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 pub trait DbRepo: Sync + Send {
     async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<(), Error>;
     async fn get(&self, id: &Uuid) -> Result<Order, Error>;
+    async fn get_by_order_id(&self, business: &str, order_id: &str) -> Result<Order, Error>;
+    async fn exists_order_id(&self, business: &str, order_id: &str) -> Result<bool, Error>;
 }
 
 #[async_trait]
@@ -67,6 +69,39 @@ impl DbRepo for DbRepository {
                 update_time: row.get("update_time"),
                 update_by: row.get("update_by"),
             })
+            .fetch_one(self.pool.as_ref())
+            .await?;
+        Ok(res)
+    }
+
+    async fn get_by_order_id(&self, business: &str, order_id: &str) -> Result<Order, Error> {
+        tracing::info!("Database Execute - Order Get By Order Id Query");
+
+        let res = sqlx::query(db_query::ORDER_GET_BY_ORDER_ID)
+            .bind(business)
+            .bind(order_id)
+            .map(|row: PgRow| Order {
+                id: row.get("id"),
+                order_id: row.get("order_id"),
+                business: row.get("business"),
+                state: row.get("state"),
+                create_time: row.get("create_time"),
+                create_by: row.get("create_by"),
+                update_time: row.get("update_time"),
+                update_by: row.get("update_by"),
+            })
+            .fetch_one(self.pool.as_ref())
+            .await?;
+        Ok(res)
+    }
+
+    async fn exists_order_id(&self, business: &str, order_id: &str) -> Result<bool, Error> {
+        tracing::info!("Database Execute - Order Exists Order Id Query");
+
+        let res = sqlx::query(db_query::ORDER_EXISTS_BY_ORDER_ID)
+            .bind(business)
+            .bind(order_id)
+            .map(|row: PgRow| row.get("exists"))
             .fetch_one(self.pool.as_ref())
             .await?;
         Ok(res)

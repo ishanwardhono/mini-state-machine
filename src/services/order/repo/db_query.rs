@@ -12,3 +12,21 @@ pub const ORDER_GET: &str = "
     WHERE
         id = $1
 ";
+
+pub const ORDER_GET_BY_ORDER_ID: &str = "
+    SELECT
+        id, order_id, business, state, create_time, create_by, update_time, update_by
+    FROM orders
+    WHERE
+        business = $1 AND order_id = $2
+";
+
+pub const ORDER_EXISTS_BY_ORDER_ID: &str = "
+    SELECT EXISTS (
+        SELECT
+            id, order_id, business, state, create_time, create_by, update_time, update_by
+        FROM orders
+        WHERE
+            business = $1 AND order_id = $2
+    )
+";
