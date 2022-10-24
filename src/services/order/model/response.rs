@@ -1,7 +1,7 @@
 use serde::Serialize;
 use uuid::Uuid;
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct OrderResponse {
     pub id: Uuid,
     pub order_id: String,

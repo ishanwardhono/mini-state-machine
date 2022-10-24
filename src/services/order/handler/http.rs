@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use actix_web::{
-    web::{self, get, post},
+    web::{self, get, post, put},
     HttpResponse, Scope,
 };
 use std::{str::FromStr, sync::Arc};
@@ -21,6 +21,7 @@ use uuid::Uuid;
 pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
     web::scope("/orders")
         .route("", post().to(insert).wrap(auth.business_client()))
+        .route("", put().to(upsert).wrap(auth.business_client()))
         .route(
             "state-update",
             post().to(state_update).wrap(auth.business_client()),
@@ -42,6 +43,19 @@ async fn insert(
     Ok(HttpResponse::Ok().json(result))
 }
 
+async fn upsert(
+    factory: web::Data<dyn Logic>,
+    req: web::Json<OrderRequest>,
+    user: Option<web::ReqData<User>>,
+) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        tracing::error!("{}", AuthError::UserNotProvided);
+        return Err(Error::unauth_from(AuthError::UserNotProvided));
+    }
+    let result = factory.upsert(&req.into_inner(), &user.unwrap().id).await?;
+    Ok(HttpResponse::Ok().json(result))
+}
+
 async fn state_update(
     factory: web::Data<dyn Logic>,
     req: web::Json<OrderStateUpdateRequest>,
@@ -51,10 +65,10 @@ async fn state_update(
         tracing::error!("{}", AuthError::UserNotProvided);
         return Err(Error::unauth_from(AuthError::UserNotProvided));
     }
-    factory
+    let result = factory
         .state_update(&req.into_inner(), &user.unwrap().id)
         .await?;
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::Ok().json(result))
 }
 
 async fn get_order(

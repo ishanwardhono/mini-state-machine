@@ -2,6 +2,7 @@ pub mod factory;
 mod get;
 mod insert;
 mod state_update;
+mod upsert;
 
 use self::factory::{Factory, Logic};
 use super::repo::db::DbRepo;

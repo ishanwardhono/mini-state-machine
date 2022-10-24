@@ -3,7 +3,7 @@ use crate::{
     services::{
         diagram::logic::factory as diagram_factory,
         order::{
-            logic::{get, insert, state_update},
+            logic::{get, insert, state_update, upsert},
             model::{
                 entity::Order,
                 request::{OrderRequest, OrderStateUpdateRequest},
@@ -25,7 +25,12 @@ pub struct Factory {
 #[async_trait]
 pub trait Logic {
     async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
-    async fn state_update(&self, req: &OrderStateUpdateRequest, actor: &Uuid) -> Result<(), Error>;
+    async fn upsert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
+    async fn state_update(
+        &self,
+        req: &OrderStateUpdateRequest,
+        actor: &Uuid,
+    ) -> Result<OrderResponse, Error>;
     async fn get(&self, id: &Uuid) -> Result<Order, Error>;
 }
 
@@ -36,7 +41,16 @@ impl Logic for Factory {
         insert::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
     }
 
-    async fn state_update(&self, req: &OrderStateUpdateRequest, actor: &Uuid) -> Result<(), Error> {
+    async fn upsert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error> {
+        tracing::info!("Logic Execute - Insert Order");
+        upsert::execute(self, req, actor).await
+    }
+
+    async fn state_update(
+        &self,
+        req: &OrderStateUpdateRequest,
+        actor: &Uuid,
+    ) -> Result<OrderResponse, Error> {
         tracing::info!("Logic Execute - State Update Order");
         state_update::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
     }
