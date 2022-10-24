@@ -3,8 +3,12 @@ use crate::{
     services::{
         diagram::logic::factory as diagram_factory,
         order::{
-            logic::{get, insert},
-            model::{entity::Order, request::OrderRequest, response::OrderResponse},
+            logic::{get, insert, state_update},
+            model::{
+                entity::Order,
+                request::{OrderRequest, OrderStateUpdateRequest},
+                response::OrderResponse,
+            },
             repo::db::DbRepo,
         },
     },
@@ -21,6 +25,7 @@ pub struct Factory {
 #[async_trait]
 pub trait Logic {
     async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
+    async fn state_update(&self, req: &OrderStateUpdateRequest, actor: &Uuid) -> Result<(), Error>;
     async fn get(&self, id: &Uuid) -> Result<Order, Error>;
 }
 
@@ -31,8 +36,13 @@ impl Logic for Factory {
         insert::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
     }
 
+    async fn state_update(&self, req: &OrderStateUpdateRequest, actor: &Uuid) -> Result<(), Error> {
+        tracing::info!("Logic Execute - State Update Order");
+        state_update::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
+    }
+
     async fn get(&self, id: &Uuid) -> Result<Order, Error> {
-        tracing::info!("Logic Execute - Insert Order");
+        tracing::info!("Logic Execute - Get Order");
         get::execute(self.repo.clone(), id).await
     }
 }

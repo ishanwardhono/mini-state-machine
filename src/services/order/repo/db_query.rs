@@ -5,6 +5,14 @@ pub const ORDER_INSERT: &str = "
         ($1,$2,$3,$4,$5,$6,$7,$8)
 ";
 
+pub const ORDER_STATE_UPDATE: &str = "
+    UPDATE orders
+    SET 
+        (state, update_time, update_by)
+        = ($2,$3,$4)
+    WHERE id = $1
+";
+
 pub const ORDER_GET: &str = "
     SELECT
         id, order_id, business, state, create_time, create_by, update_time, update_by

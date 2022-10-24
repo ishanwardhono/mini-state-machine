@@ -23,6 +23,7 @@ struct DbRepository {
 #[async_trait]
 pub trait DbRepo: Send + Sync {
     async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
+    async fn state_update(&self, id: &Uuid, state: &String, actor: &Uuid) -> Result<(), Error>;
     async fn get(&self, id: &Uuid) -> Result<Order, Error>;
     async fn get_by_order_id(&self, business: &str, order_id: &str) -> Result<Order, Error>;
     async fn exists_order_id(&self, business: &str, order_id: &str) -> Result<bool, Error>;
@@ -53,10 +54,25 @@ impl DbRepo for DbRepository {
             .await?;
 
         Ok(OrderResponse {
+            id,
             order_id,
             business: order.business.clone(),
             state: order.state.clone(),
         })
+    }
+
+    async fn state_update(&self, id: &Uuid, state: &String, actor: &Uuid) -> Result<(), Error> {
+        tracing::info!("Database Execute - Order Status Update Query");
+
+        let time_now = db_time_now();
+        sqlx::query(db_query::ORDER_STATE_UPDATE)
+            .bind(&id)
+            .bind(&state)
+            .bind(time_now)
+            .bind(actor)
+            .execute(self.pool.as_ref())
+            .await?;
+        Ok(())
     }
 
     async fn get(&self, id: &Uuid) -> Result<Order, Error> {
