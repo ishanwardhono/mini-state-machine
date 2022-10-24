@@ -4,7 +4,7 @@ use uuid::Uuid;
 #[derive(Serialize)]
 pub struct Order {
     pub id: Uuid,
-    pub order_id: String,
+    pub client_order_id: String,
     pub business: String,
     pub state: String,
     pub create_time: chrono::NaiveDateTime,

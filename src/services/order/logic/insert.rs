@@ -40,8 +40,11 @@ fn validate(order: &OrderRequest) -> Result<(), Error> {
 }
 
 async fn validate_order_data(repo: Arc<dyn DbRepo>, order: &OrderRequest) -> Result<(), Error> {
-    if let Some(order_id) = order.order_id.as_ref() {
-        if repo.exists_order_id(&order.business, order_id).await? {
+    if let Some(client_order_id) = order.client_order_id.as_ref() {
+        if repo
+            .exists_client_order_id(&order.business, client_order_id)
+            .await?
+        {
             return Err(Error::BadRequest("Order already exists".to_owned()));
         }
     }

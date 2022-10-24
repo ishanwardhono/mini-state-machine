@@ -28,7 +28,7 @@ pub async fn execute<'a>(
         .await?;
     Ok(OrderResponse {
         id: curr_order.id,
-        order_id: curr_order.order_id,
+        client_order_id: curr_order.client_order_id,
         business: curr_order.business,
         state: order.state.clone(),
     })
@@ -49,15 +49,15 @@ async fn validate_order(
 ) -> Result<Order, Error> {
     if order.id.is_none() {
         let mut validation = validation::Fields::new();
-        if order.business.is_none() || order.order_id.is_none() {
-            validation.add_str("id is empty, then business and order_id are required");
+        if order.business.is_none() || order.client_order_id.is_none() {
+            validation.add_str("id is empty, then business and client_order_id are required");
         }
         validation.check()?;
 
         return Ok(repo
-            .get_by_order_id(
+            .get_by_client_order_id(
                 &order.business.as_ref().unwrap(),
-                &order.order_id.as_ref().unwrap(),
+                &order.client_order_id.as_ref().unwrap(),
             )
             .await?);
     }

@@ -25,8 +25,16 @@ pub trait DbRepo: Send + Sync {
     async fn insert(&self, order: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
     async fn state_update(&self, id: &Uuid, state: &String, actor: &Uuid) -> Result<(), Error>;
     async fn get(&self, id: &Uuid) -> Result<Order, Error>;
-    async fn get_by_order_id(&self, business: &str, order_id: &str) -> Result<Order, Error>;
-    async fn exists_order_id(&self, business: &str, order_id: &str) -> Result<bool, Error>;
+    async fn get_by_client_order_id(
+        &self,
+        business: &str,
+        client_order_id: &str,
+    ) -> Result<Order, Error>;
+    async fn exists_client_order_id(
+        &self,
+        business: &str,
+        client_order_id: &str,
+    ) -> Result<bool, Error>;
 }
 
 #[async_trait]
@@ -36,14 +44,14 @@ impl DbRepo for DbRepository {
 
         let time_now = db_time_now();
         let id = Uuid::new_v4();
-        let order_id = match &order.order_id {
-            Some(order_id) => order_id.clone(),
+        let client_order_id = match &order.client_order_id {
+            Some(client_order_id) => client_order_id.clone(),
             None => id.to_string(),
         };
 
         sqlx::query(db_query::ORDER_INSERT)
             .bind(&id)
-            .bind(&order_id)
+            .bind(&client_order_id)
             .bind(&order.business)
             .bind(&order.state)
             .bind(time_now)
@@ -55,7 +63,7 @@ impl DbRepo for DbRepository {
 
         Ok(OrderResponse {
             id,
-            order_id,
+            client_order_id,
             business: order.business.clone(),
             state: order.state.clone(),
         })
@@ -82,7 +90,7 @@ impl DbRepo for DbRepository {
             .bind(id)
             .map(|row: PgRow| Order {
                 id: row.get("id"),
-                order_id: row.get("order_id"),
+                client_order_id: row.get("client_order_id"),
                 business: row.get("business"),
                 state: row.get("state"),
                 create_time: row.get("create_time"),
@@ -95,15 +103,19 @@ impl DbRepo for DbRepository {
         Ok(res)
     }
 
-    async fn get_by_order_id(&self, business: &str, order_id: &str) -> Result<Order, Error> {
+    async fn get_by_client_order_id(
+        &self,
+        business: &str,
+        client_order_id: &str,
+    ) -> Result<Order, Error> {
         tracing::info!("Database Execute - Order Get By Order Id Query");
 
-        let res = sqlx::query(db_query::ORDER_GET_BY_ORDER_ID)
+        let res = sqlx::query(db_query::ORDER_GET_BY_CLIENT_ORDER_ID)
             .bind(business)
-            .bind(order_id)
+            .bind(client_order_id)
             .map(|row: PgRow| Order {
                 id: row.get("id"),
-                order_id: row.get("order_id"),
+                client_order_id: row.get("client_order_id"),
                 business: row.get("business"),
                 state: row.get("state"),
                 create_time: row.get("create_time"),
@@ -116,12 +128,16 @@ impl DbRepo for DbRepository {
         Ok(res)
     }
 
-    async fn exists_order_id(&self, business: &str, order_id: &str) -> Result<bool, Error> {
+    async fn exists_client_order_id(
+        &self,
+        business: &str,
+        client_order_id: &str,
+    ) -> Result<bool, Error> {
         tracing::info!("Database Execute - Order Exists Order Id Query");
 
-        let res = sqlx::query(db_query::ORDER_EXISTS_BY_ORDER_ID)
+        let res = sqlx::query(db_query::ORDER_EXISTS_BY_CLIENT_ORDER_ID)
             .bind(business)
-            .bind(order_id)
+            .bind(client_order_id)
             .map(|row: PgRow| row.get("exists"))
             .fetch_one(self.pool.as_ref())
             .await?;

@@ -27,7 +27,7 @@ pub async fn execute<'a>(
         .state_update(
             &OrderStateUpdateRequest {
                 id: None,
-                order_id: order.order_id.clone(),
+                client_order_id: order.client_order_id.clone(),
                 business: Some(order.business.clone()),
                 state: order.state.clone(),
             },
