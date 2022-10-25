@@ -44,7 +44,12 @@ fn validate(order: &OrderStateUpdateRequest) -> Result<(), Error> {
     if order.state.is_empty() {
         validation.add_str("State is empty");
     }
-
+    if order.business.is_empty() {
+        validation.add_str("business is empty");
+    }
+    if order.client_order_id.is_empty() {
+        validation.add_str("Order ID is empty");
+    }
     validation.check()
 }
 
@@ -52,20 +57,7 @@ async fn validate_order(
     repo: Arc<dyn DbRepo>,
     order: &OrderStateUpdateRequest,
 ) -> Result<Order, Error> {
-    if order.id.is_none() {
-        let mut validation = validation::Fields::new();
-        if order.business.is_none() || order.client_order_id.is_none() {
-            validation.add_str("id is empty, then business and client_order_id are required");
-        }
-        validation.check()?;
-
-        return Ok(repo
-            .get_by_client_order_id(
-                &order.business.as_ref().unwrap(),
-                &order.client_order_id.as_ref().unwrap(),
-            )
-            .await?);
-    }
-
-    Ok(repo.get(order.id.as_ref().unwrap()).await?)
+    Ok(repo
+        .get_by_client_order_id(&order.business, &order.client_order_id)
+        .await?)
 }

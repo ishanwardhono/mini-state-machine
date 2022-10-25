@@ -15,8 +15,7 @@ use actix_web::{
     web::{self, get, post, put},
     HttpResponse, Scope,
 };
-use std::{str::FromStr, sync::Arc};
-use uuid::Uuid;
+use std::sync::Arc;
 
 pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
     web::scope("/orders")
@@ -26,7 +25,10 @@ pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
             "state-update",
             post().to(state_update).wrap(auth.business_client()),
         )
-        .route("{id}", get().to(get_order).wrap(auth.business_client()))
+        .route(
+            "{business}/{client_order_id}",
+            get().to(get_order).wrap(auth.business_client()),
+        )
         .app_data(web::Data::from(factory))
 }
 
@@ -45,7 +47,7 @@ async fn insert(
 
 async fn upsert(
     factory: web::Data<dyn Logic>,
-    req: web::Json<OrderRequest>,
+    req: web::Json<OrderStateUpdateRequest>,
     user: Option<web::ReqData<User>>,
 ) -> Result<HttpResponse, Error> {
     if user.is_none() {
@@ -73,9 +75,8 @@ async fn state_update(
 
 async fn get_order(
     factory: web::Data<dyn Logic>,
-    path: web::Path<String>,
+    path: web::Path<(String, String)>,
 ) -> Result<HttpResponse, Error> {
-    let id = Uuid::from_str(&path)?;
-    let result = factory.get_detail(&id).await?;
+    let result = factory.get_detail(&path.0, &path.1).await?;
     Ok(HttpResponse::Ok().json(result))
 }

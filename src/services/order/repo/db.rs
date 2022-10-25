@@ -41,7 +41,7 @@ pub trait DbRepo: Send + Sync {
         business: &str,
         client_order_id: &str,
     ) -> Result<Order, Error>;
-    async fn get_detail(&self, id: &Uuid) -> Result<OrderModel, Error>;
+    async fn get_detail(&self, business: &str, client_order_id: &str) -> Result<OrderModel, Error>;
     async fn exists_client_order_id(
         &self,
         business: &str,
@@ -167,11 +167,12 @@ impl DbRepo for DbRepository {
         Ok(res)
     }
 
-    async fn get_detail(&self, id: &Uuid) -> Result<OrderModel, Error> {
+    async fn get_detail(&self, business: &str, client_order_id: &str) -> Result<OrderModel, Error> {
         tracing::info!("Database Execute - Order Get Detail Query");
 
-        let mut order = sqlx::query(db_query::ORDER_GET)
-            .bind(&id)
+        let mut order = sqlx::query(db_query::ORDER_GET_BY_CLIENT_ORDER_ID)
+            .bind(&business)
+            .bind(&client_order_id)
             .map(|row: PgRow| OrderModel {
                 id: row.get("id"),
                 client_order_id: row.get("client_order_id"),
@@ -185,7 +186,7 @@ impl DbRepo for DbRepository {
             .await?;
 
         sqlx::query(db_query::HISTORY_GET)
-            .bind(&id)
+            .bind(&order.id)
             .map(|row: PgRow| {
                 order.histories.push(HistoryModel {
                     from_state: row.get("from_state"),

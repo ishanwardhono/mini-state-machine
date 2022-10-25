@@ -4,18 +4,24 @@ use crate::{
     utils::validation,
 };
 use std::sync::Arc;
-use uuid::Uuid;
 
-pub async fn execute(repo: Arc<dyn DbRepo>, id: &Uuid) -> Result<OrderModel, Error> {
+pub async fn execute<'a>(
+    repo: Arc<dyn DbRepo>,
+    business: &'a str,
+    client_order_id: &'a str,
+) -> Result<OrderModel, Error> {
     tracing::debug!("executing ...");
-    validate(id)?;
-    repo.get_detail(id).await
+    validate(business, client_order_id)?;
+    repo.get_detail(business, client_order_id).await
 }
 
-fn validate(id: &Uuid) -> Result<(), Error> {
+fn validate(business: &str, client_order_id: &str) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
-    if id.is_nil() {
-        validation.add_str("id is empty");
+    if business.is_empty() {
+        validation.add_str("business is empty");
+    }
+    if client_order_id.is_empty() {
+        validation.add_str("Order ID is empty");
     }
     validation.check()
 }

@@ -10,10 +10,19 @@ use uuid::Uuid;
 
 pub async fn execute<'a>(
     logic: &'a impl Logic,
-    order: &'a OrderRequest,
+    order: &'a OrderStateUpdateRequest,
     actor: &'a Uuid,
 ) -> Result<OrderResponse, Error> {
-    let result = logic.insert(order, actor).await;
+    let result = logic
+        .insert(
+            &OrderRequest {
+                client_order_id: Some(order.client_order_id.clone()),
+                business: order.business.clone(),
+                state: order.state.clone(),
+            },
+            actor,
+        )
+        .await;
     if result.is_ok() {
         return Ok(result?);
     }
@@ -23,17 +32,7 @@ pub async fn execute<'a>(
         return Err(err);
     }
 
-    let result = logic
-        .state_update(
-            &OrderStateUpdateRequest {
-                id: None,
-                client_order_id: order.client_order_id.clone(),
-                business: Some(order.business.clone()),
-                state: order.state.clone(),
-            },
-            actor,
-        )
-        .await?;
+    let result = logic.state_update(order, actor).await?;
 
     Ok(result)
 }

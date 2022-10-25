@@ -25,13 +25,17 @@ pub struct Factory {
 #[async_trait]
 pub trait Logic {
     async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
-    async fn upsert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error>;
+    async fn upsert(
+        &self,
+        req: &OrderStateUpdateRequest,
+        actor: &Uuid,
+    ) -> Result<OrderResponse, Error>;
     async fn state_update(
         &self,
         req: &OrderStateUpdateRequest,
         actor: &Uuid,
     ) -> Result<OrderResponse, Error>;
-    async fn get_detail(&self, id: &Uuid) -> Result<OrderModel, Error>;
+    async fn get_detail(&self, business: &str, client_order_id: &str) -> Result<OrderModel, Error>;
 }
 
 #[async_trait]
@@ -41,7 +45,11 @@ impl Logic for Factory {
         insert::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
     }
 
-    async fn upsert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error> {
+    async fn upsert(
+        &self,
+        req: &OrderStateUpdateRequest,
+        actor: &Uuid,
+    ) -> Result<OrderResponse, Error> {
         tracing::info!("Logic Execute - Insert Order");
         upsert::execute(self, req, actor).await
     }
@@ -55,8 +63,8 @@ impl Logic for Factory {
         state_update::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
     }
 
-    async fn get_detail(&self, id: &Uuid) -> Result<OrderModel, Error> {
+    async fn get_detail(&self, business: &str, client_order_id: &str) -> Result<OrderModel, Error> {
         tracing::info!("Logic Execute - Get Order");
-        get::execute(self.repo.clone(), id).await
+        get::execute(self.repo.clone(), business, client_order_id).await
     }
 }
