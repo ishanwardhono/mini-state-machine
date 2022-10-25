@@ -52,5 +52,6 @@ pub const HISTORY_GET: &str = "
     FROM histories
     WHERE
         order_id = $1
-    ORDER BY create_time ASC
+    ORDER BY 
+        create_time ASC
 ";
