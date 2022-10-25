@@ -11,5 +11,5 @@ cargo tarpaulin \
 shopt -u extglob
 
 REST_PATH="$(pwd)/target/tarpaulin/tarpaulin-report.html"
-echo $ENV
+echo 
 echo $REST_PATH
