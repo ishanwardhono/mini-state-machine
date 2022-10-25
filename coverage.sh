@@ -1,10 +1,15 @@
 #!/bin/bash
 
 shopt -s extglob
-cargo tarpaulin --verbose \
-    --exclude-files \
-        src/services/*.rs \
-        src/services/*/!(logic) \
-        src/services/*/logic/factory.rs \
-        src/!(utils|services) \
-    --timeout 120 --out Xml --skip-clean --output-dir ./target/tarpaulin/
+EXC_MODULES="src/services/*.rs src/services/*/!(logic) src/services/*/logic/@(factory|mod).rs src/!(utils|services) src/utils/@(mod|test).rs"
+
+cargo tarpaulin \
+    `if [[ $1 == "ci" ]]; then echo "--out Xml"; else echo "--skip-clean --out Html"; fi` \
+    --exclude-files echo $EXC_MODULES \
+    --timeout 120 --output-dir ./target/tarpaulin/
+
+shopt -u extglob
+
+REST_PATH="$(pwd)/target/tarpaulin/tarpaulin-report.html"
+echo $ENV
+echo $REST_PATH

@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Generate code coverage
-        run: bash coverage.sh
+        run: make coverage-ci
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v2
