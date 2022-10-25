@@ -1,7 +1,7 @@
 #!/bin/bash
 
 shopt -s extglob
-EXC_MODULES="src/services/*.rs src/services/*/!(logic) src/services/*/logic/@(factory|mod).rs src/!(utils|services) src/utils/@(mod|test).rs"
+EXC_MODULES="src/services/*.rs src/services/*/!(logic) src/services/*/logic/@(mod|factory).rs src/!(utils|services) src/utils/@(mod|test).rs"
 
 cargo tarpaulin \
     `if [[ $1 == "ci" ]]; then echo "--out Xml"; else echo "--skip-clean --out Html"; fi` \
