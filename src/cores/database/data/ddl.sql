@@ -56,3 +56,14 @@ CREATE TABLE orders (
     update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     update_by uuid NOT NULL
 );
+
+CREATE TABLE histories (
+    id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    order_id uuid NOT NULL,
+    from_state VARCHAR(50) NOT NULL,
+    to_state VARCHAR(50) NOT NULL,
+    create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
+    create_by uuid NOT NULL,
+    update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
+    update_by uuid NOT NULL
+);

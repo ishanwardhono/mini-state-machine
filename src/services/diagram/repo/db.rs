@@ -70,7 +70,7 @@ impl DbRepo for DbRepository {
     async fn get(&self, code: &str) -> Result<Diagram, Error> {
         tracing::info!("Database Execute - Diagram Get Query");
 
-        let mut business = sqlx::query(db_query::BUSINESS_SELECT)
+        let mut diagram = sqlx::query(db_query::BUSINESS_SELECT)
             .bind(&code)
             .map(|row: PgRow| Diagram {
                 code: row.get("code"),
@@ -84,7 +84,7 @@ impl DbRepo for DbRepository {
         sqlx::query(db_query::FLOW_SELECT)
             .bind(&code)
             .map(|row: PgRow| {
-                business.flows.insert(
+                diagram.flows.insert(
                     row.get("state"),
                     FlowModel {
                         is_initial_state: row.get("is_initial_state"),
@@ -95,7 +95,7 @@ impl DbRepo for DbRepository {
             .fetch_all(self.pool.as_ref())
             .await?;
 
-        Ok(business)
+        Ok(diagram)
     }
 
     async fn delete(&self, code: &str) -> Result<(), Error> {

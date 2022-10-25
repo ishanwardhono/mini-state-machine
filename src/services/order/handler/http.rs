@@ -76,6 +76,6 @@ async fn get_order(
     path: web::Path<String>,
 ) -> Result<HttpResponse, Error> {
     let id = Uuid::from_str(&path)?;
-    let result = factory.get(&id).await?;
+    let result = factory.get_detail(&id).await?;
     Ok(HttpResponse::Ok().json(result))
 }

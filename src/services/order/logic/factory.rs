@@ -5,7 +5,7 @@ use crate::{
         order::{
             logic::{get, insert, state_update, upsert},
             model::{
-                entity::Order,
+                model::OrderModel,
                 request::{OrderRequest, OrderStateUpdateRequest},
                 response::OrderResponse,
             },
@@ -31,7 +31,7 @@ pub trait Logic {
         req: &OrderStateUpdateRequest,
         actor: &Uuid,
     ) -> Result<OrderResponse, Error>;
-    async fn get(&self, id: &Uuid) -> Result<Order, Error>;
+    async fn get_detail(&self, id: &Uuid) -> Result<OrderModel, Error>;
 }
 
 #[async_trait]
@@ -55,7 +55,7 @@ impl Logic for Factory {
         state_update::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
     }
 
-    async fn get(&self, id: &Uuid) -> Result<Order, Error> {
+    async fn get_detail(&self, id: &Uuid) -> Result<OrderModel, Error> {
         tracing::info!("Logic Execute - Get Order");
         get::execute(self.repo.clone(), id).await
     }

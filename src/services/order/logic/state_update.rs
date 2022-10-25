@@ -24,8 +24,13 @@ pub async fn execute<'a>(
     diagram_factory
         .valid_transition(&curr_order.business, &curr_order.state, &order.state)
         .await?;
-    repo.state_update(&curr_order.id, &order.state, actor)
-        .await?;
+    repo.state_update(
+        &curr_order.id,
+        curr_order.state.as_str(),
+        order.state.as_str(),
+        actor,
+    )
+    .await?;
     Ok(OrderResponse {
         id: curr_order.id,
         client_order_id: curr_order.client_order_id,

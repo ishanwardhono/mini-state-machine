@@ -1,15 +1,15 @@
 use crate::{
     cores::error::service::Error,
-    services::order::{model::entity::Order, repo::db::DbRepo},
+    services::order::{model::model::OrderModel, repo::db::DbRepo},
     utils::validation,
 };
 use std::sync::Arc;
 use uuid::Uuid;
 
-pub async fn execute(repo: Arc<dyn DbRepo>, id: &Uuid) -> Result<Order, Error> {
+pub async fn execute(repo: Arc<dyn DbRepo>, id: &Uuid) -> Result<OrderModel, Error> {
     tracing::debug!("executing ...");
     validate(id)?;
-    repo.get(id).await
+    repo.get_detail(id).await
 }
 
 fn validate(id: &Uuid) -> Result<(), Error> {
