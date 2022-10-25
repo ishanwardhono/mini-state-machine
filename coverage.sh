@@ -1,5 +1,5 @@
 #!/bin/bash
-
+shopt -s expand_aliases
 shopt -s extglob
 EXC_MODULES="src/services/*.rs src/services/*/!(logic) src/services/*/logic/@(mod|factory).rs src/!(utils|services) src/utils/@(mod|test).rs"
 
