@@ -1,9 +1,12 @@
 use crate::{
     cores::error::service::Error,
-    services::state::{
-        logic::{delete, get_all, get_by_code, get_codes, insert, update},
-        model::{entity::State, request::StateCreateRequest, request::StateUpdateRequest},
-        repo::db::DbRepo,
+    services::{
+        client::logic::factory as ClientFactory,
+        state::{
+            logic::{delete, get_all, get_by_code, get_codes, insert, update},
+            model::{entity::State, request::StateCreateRequest, request::StateUpdateRequest},
+            repo::db::DbRepo,
+        },
     },
 };
 use async_trait::async_trait;
@@ -11,6 +14,7 @@ use std::sync::Arc;
 
 pub struct Factory {
     pub repo: Arc<dyn DbRepo>,
+    pub client_logic: Arc<dyn ClientFactory::Logic>,
 }
 
 #[async_trait]
@@ -45,7 +49,7 @@ impl Logic for Factory {
     }
     async fn insert(&self, state: &StateCreateRequest, actor: &uuid::Uuid) -> Result<State, Error> {
         tracing::info!("Logic Execute - Status Insert");
-        insert::execute(self.repo.clone(), state, actor).await
+        insert::execute(self.repo.clone(), self.client_logic.clone(), state, actor).await
     }
     async fn update(
         &self,
@@ -54,7 +58,14 @@ impl Logic for Factory {
         actor: &uuid::Uuid,
     ) -> Result<State, Error> {
         tracing::info!("Logic Execute - Status Update");
-        update::execute(self.repo.clone(), code, state, actor).await
+        update::execute(
+            self.repo.clone(),
+            self.client_logic.clone(),
+            code,
+            state,
+            actor,
+        )
+        .await
     }
     async fn delete(&self, code: &str) -> Result<String, Error> {
         tracing::info!("Logic Execute - Status Delete");

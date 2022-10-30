@@ -1,7 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::client::{
-        logic::{delete, get_by_code, insert, update},
+        logic::{delete, get_by_code, get_codes, insert, update},
         model::model::ClientModel,
         repo::db::DbRepo,
     },
@@ -17,6 +17,7 @@ pub struct Factory {
 #[cfg_attr(test, mockall::automock, allow(dead_code))]
 pub trait Logic: Send + Sync {
     async fn get_by_code(&self, code: &str) -> Result<ClientModel, Error>;
+    async fn get_codes(&self, code: &Vec<String>) -> Result<Vec<String>, Error>;
     async fn insert(&self, client: &ClientModel, actor: &uuid::Uuid) -> Result<String, Error>;
     async fn update(&self, client: &ClientModel, actor: &uuid::Uuid) -> Result<String, Error>;
     async fn delete(&self, code: &str) -> Result<String, Error>;
@@ -27,6 +28,10 @@ impl Logic for Factory {
     async fn get_by_code(&self, code: &str) -> Result<ClientModel, Error> {
         tracing::info!("Logic Execute - Client GetByCode");
         get_by_code::execute(self.repo.clone(), code).await
+    }
+    async fn get_codes(&self, code: &Vec<String>) -> Result<Vec<String>, Error> {
+        tracing::info!("Logic Execute - Client GetByCodes");
+        get_codes::execute(self.repo.clone(), code).await
     }
     async fn insert(&self, client: &ClientModel, actor: &uuid::Uuid) -> Result<String, Error> {
         tracing::info!("Logic Execute - Client Insert");

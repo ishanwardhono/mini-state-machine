@@ -21,6 +21,7 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 #[cfg_attr(test, mockall::automock)]
 pub trait DbRepo: Send + Sync {
     async fn get_by_code(&self, code: &str) -> Result<ClientModel, Error>;
+    async fn get_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error>;
     async fn insert(&self, client: &ClientModel, actor: &Uuid) -> Result<String, Error>;
     async fn update(&self, client: &ClientModel, actor: &Uuid) -> Result<String, Error>;
     async fn delete(&self, code: &str) -> Result<String, Error>;
@@ -38,6 +39,17 @@ impl DbRepo for DbRepository {
                 url: row.get("url"),
             })
             .fetch_one(self.pool.as_ref())
+            .await
+            .map_err(|e| Error::from_db(e))
+    }
+
+    async fn get_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error> {
+        tracing::info!("Database Execute - Clients GetByCodes Query");
+
+        sqlx::query(db_query::SELECT_BY_CODES)
+            .bind(codes.as_slice())
+            .map(|row: PgRow| row.get("code"))
+            .fetch_all(self.pool.as_ref())
             .await
             .map_err(|e| Error::from_db(e))
     }

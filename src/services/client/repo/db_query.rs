@@ -8,6 +8,12 @@ pub const SELECT_BY_CODE: &str = "
     WHERE code = $1
 ";
 
+pub const SELECT_BY_CODES: &str = "
+    SELECT code
+    FROM clients
+    WHERE code = ANY($1)
+";
+
 pub const INSERT: &str = "
     INSERT INTO clients 
         (id, code, url, create_time, create_by, update_time, update_by)

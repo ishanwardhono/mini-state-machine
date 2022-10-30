@@ -5,3 +5,19 @@ pub fn string_to_bool(bool_str: String) -> Option<bool> {
         _ => None,
     }
 }
+
+pub trait VecExt {
+    fn uncontain(&self, data: Vec<String>) -> Vec<String>;
+}
+
+impl VecExt for Vec<String> {
+    fn uncontain(&self, data: Vec<String>) -> Vec<String> {
+        let mut res = vec![];
+        for item in self {
+            if !data.contains(&item) {
+                res.push(item.clone());
+            }
+        }
+        res
+    }
+}
