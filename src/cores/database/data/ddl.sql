@@ -67,3 +67,13 @@ CREATE TABLE histories (
     update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     update_by uuid NOT NULL
 );
+
+CREATE TABLE clients (
+    id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    code VARCHAR(25) NOT NULL UNIQUE,
+    "url" TEXT NOT NULL,
+    create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
+    create_by uuid NOT NULL,
+    update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
+    update_by uuid NOT NULL
+)

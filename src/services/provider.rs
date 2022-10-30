@@ -1,4 +1,4 @@
-use super::{auth, diagram, order, state};
+use super::{auth, client, diagram, order, state};
 use crate::cores::{
     database::pg::DbPool,
     env::Config,
@@ -13,8 +13,10 @@ pub fn register(cfg: Arc<Config>, pool: Arc<DbPool>) -> Scope {
     let states = state::new(pool.clone());
     let diagrams = diagram::new(pool.clone(), states.factory.clone());
     let orders = order::new(pool.clone(), diagrams.factory.clone());
+    let clients = client::new(pool.clone());
 
     web::scope("/app")
+        .service(clients.init_http_service(auth.clone()))
         .service(states.init_http_service(auth.clone()))
         .service(diagrams.init_http_service(auth.clone()))
         .service(orders.init_http_service(auth.clone()))
