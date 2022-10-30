@@ -1,7 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::{
-        diagram::logic::factory as diagram_factory,
+        diagram::DiagramServiceLogic,
         order::{
             logic::{get, insert, state_update, upsert},
             model::{
@@ -19,7 +19,7 @@ use uuid::Uuid;
 
 pub struct Factory {
     pub repo: Arc<dyn DbRepo>,
-    pub diagram_factory: Arc<dyn diagram_factory::Logic>,
+    pub diagram_logic: Arc<DiagramServiceLogic>,
 }
 
 #[async_trait]
@@ -42,7 +42,7 @@ pub trait Logic {
 impl Logic for Factory {
     async fn insert(&self, req: &OrderRequest, actor: &Uuid) -> Result<OrderResponse, Error> {
         tracing::info!("Logic Execute - Insert Order");
-        insert::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
+        insert::execute(self.repo.clone(), self.diagram_logic.clone(), req, actor).await
     }
 
     async fn upsert(
@@ -60,7 +60,7 @@ impl Logic for Factory {
         actor: &Uuid,
     ) -> Result<OrderResponse, Error> {
         tracing::info!("Logic Execute - State Update Order");
-        state_update::execute(self.repo.clone(), self.diagram_factory.clone(), req, actor).await
+        state_update::execute(self.repo.clone(), self.diagram_logic.clone(), req, actor).await
     }
 
     async fn get_detail(&self, business: &str, client_order_id: &str) -> Result<OrderModel, Error> {

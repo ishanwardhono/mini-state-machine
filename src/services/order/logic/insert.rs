@@ -1,7 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::{
-        diagram::logic::factory as diagram_factory,
+        diagram::DiagramServiceLogic,
         order::{
             model::{request::OrderRequest, response::OrderResponse},
             repo::db::DbRepo,
@@ -14,14 +14,14 @@ use uuid::Uuid;
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
-    diagram_factory: Arc<dyn diagram_factory::Logic>,
+    diagram_logic: Arc<DiagramServiceLogic>,
     order: &'a OrderRequest,
     actor: &'a Uuid,
 ) -> Result<OrderResponse, Error> {
     tracing::debug!("executing ...");
     validate(order)?;
     validate_order_data(repo.clone(), order).await?;
-    diagram_factory
+    diagram_logic
         .valid_creation(&order.business, &order.state)
         .await?;
     repo.insert(order, actor).await

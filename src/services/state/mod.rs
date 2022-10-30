@@ -4,13 +4,15 @@ mod model;
 mod repo;
 
 use self::{handler::http::register_handler, logic::factory::Logic};
+use super::client::ClientServiceLogic;
 use crate::cores::database::pg::DbPool;
 use crate::cores::http::middleware::auth::Authority;
-use crate::services::client::logic::factory as ClientFactory;
 use actix_web::Scope;
 use std::sync::Arc;
 
-pub fn new(pool: Arc<DbPool>, client_logic: Arc<dyn ClientFactory::Logic>) -> Service {
+pub type StateServiceLogic = dyn Logic;
+
+pub fn new(pool: Arc<DbPool>, client_logic: Arc<ClientServiceLogic>) -> Service {
     Service {
         factory: logic::new(repo::db::new(pool), client_logic),
     }

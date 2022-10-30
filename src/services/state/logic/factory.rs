@@ -1,7 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::{
-        client::logic::factory as ClientFactory,
+        client::ClientServiceLogic,
         state::{
             logic::{delete, get_all, get_by_code, get_codes, insert, update},
             model::{entity::State, request::StateCreateRequest, request::StateUpdateRequest},
@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 pub struct Factory {
     pub repo: Arc<dyn DbRepo>,
-    pub client_logic: Arc<dyn ClientFactory::Logic>,
+    pub client_logic: Arc<ClientServiceLogic>,
 }
 
 #[async_trait]

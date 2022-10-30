@@ -1,7 +1,8 @@
+use super::helper;
 use crate::{
     cores::error::service::Error,
     services::{
-        client::logic::factory as ClientFactory,
+        client::ClientServiceLogic,
         state::{
             model::{entity::State, request::StateCreateRequest},
             repo::db::DbRepo,
@@ -11,11 +12,9 @@ use crate::{
 };
 use std::sync::Arc;
 
-use super::helper;
-
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
-    client_logic: Arc<dyn ClientFactory::Logic>,
+    client_logic: Arc<ClientServiceLogic>,
     req: &'a StateCreateRequest,
     actor: &'a uuid::Uuid,
 ) -> Result<State, Error> {

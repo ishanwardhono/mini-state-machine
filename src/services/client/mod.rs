@@ -9,6 +9,8 @@ use crate::cores::http::middleware::auth::Authority;
 use actix_web::Scope;
 use std::sync::Arc;
 
+pub type ClientServiceLogic = dyn Logic;
+
 pub fn new(pool: Arc<DbPool>) -> Service {
     Service {
         factory: logic::new(repo::db::new(pool)),

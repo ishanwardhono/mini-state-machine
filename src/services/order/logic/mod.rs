@@ -6,15 +6,12 @@ mod upsert;
 
 use self::factory::{Factory, Logic};
 use super::repo::db::DbRepo;
-use crate::services::diagram;
+use crate::services::diagram::DiagramServiceLogic;
 use std::sync::Arc;
 
-pub fn new(
-    repo: Arc<dyn DbRepo>,
-    diagram_factory: Arc<dyn diagram::logic::factory::Logic>,
-) -> Arc<dyn Logic> {
+pub fn new(repo: Arc<dyn DbRepo>, diagram_logic: Arc<DiagramServiceLogic>) -> Arc<dyn Logic> {
     Arc::new(Factory {
         repo,
-        diagram_factory,
+        diagram_logic,
     })
 }

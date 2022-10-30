@@ -4,16 +4,15 @@ pub mod model;
 mod repo;
 
 use self::{handler::http::register_handler, logic::factory::Logic};
-use crate::{
-    cores::{database::pg::DbPool, http::middleware::auth::Authority},
-    services::diagram::logic::factory::{self as diagram_factory},
-};
+use crate::cores::{database::pg::DbPool, http::middleware::auth::Authority};
 use actix_web::Scope;
 use std::sync::Arc;
 
-pub fn new(pool: Arc<DbPool>, diagram_factory: Arc<dyn diagram_factory::Logic>) -> OrderService {
+use super::diagram::DiagramServiceLogic;
+
+pub fn new(pool: Arc<DbPool>, diagram_logic: Arc<DiagramServiceLogic>) -> OrderService {
     OrderService {
-        factory: logic::new(repo::db::new(pool), diagram_factory),
+        factory: logic::new(repo::db::new(pool), diagram_logic),
     }
 }
 

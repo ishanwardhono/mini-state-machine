@@ -1,11 +1,10 @@
 use crate::{
-    cores::error::service::Error, services::client::logic::factory as ClientFactory,
-    utils::common::VecExt,
+    cores::error::service::Error, services::client::ClientServiceLogic, utils::common::VecExt,
 };
 use std::{collections::HashSet, sync::Arc};
 
 pub async fn validate_client_exists(
-    client_logic: Arc<dyn ClientFactory::Logic>,
+    client_logic: Arc<ClientServiceLogic>,
     clients: Option<Vec<String>>,
 ) -> Result<(), Error> {
     if clients.is_none() {

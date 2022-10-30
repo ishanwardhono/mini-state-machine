@@ -5,7 +5,7 @@ use crate::{
             model::model::{Diagram, FlowModel},
             repo::db::DbRepo,
         },
-        state::logic::factory as StateFactory,
+        state::StateServiceLogic,
     },
     utils::validation,
 };
@@ -17,13 +17,13 @@ use uuid::Uuid;
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
-    state_factory: Arc<dyn StateFactory::Logic>,
+    state_logic: Arc<StateServiceLogic>,
     diagram: &'a Diagram,
     actor: &'a Uuid,
 ) -> Result<String, Error> {
     tracing::debug!("executing ...");
     validate(&diagram)?;
-    validate_state(state_factory, &diagram.flows).await?;
+    validate_state(state_logic, &diagram.flows).await?;
     repo.insert(diagram, actor).await
 }
 
@@ -40,7 +40,7 @@ fn validate(diagram: &Diagram) -> Result<(), Error> {
 }
 
 async fn validate_state(
-    state_factory: Arc<dyn StateFactory::Logic>,
+    state_logic: Arc<StateServiceLogic>,
     flows: &HashMap<String, FlowModel>,
 ) -> Result<(), Error> {
     let mut validation = validation::Fields::new();
@@ -80,7 +80,7 @@ async fn validate_state(
     }
     validation.check()?;
 
-    let db_states = state_factory.get_codes(&states).await?;
+    let db_states = state_logic.get_codes(&states).await?;
     states.retain(|s| !db_states.contains(&s));
     if states.len() > 0 {
         validation.add(format!("States {} not found in database", states.join(",")));
@@ -101,7 +101,7 @@ mod tests {
     #[tokio::test]
     async fn fail_validation_code_empty() -> Result<(), Error> {
         let mock_db_repo = MockDbRepo::new();
-        let mock_state_factory = MockLogic::new();
+        let mock_state_logic = MockLogic::new();
         let diagram = Diagram {
             code: String::from(""),
             description: Some(String::from("")),
@@ -117,7 +117,7 @@ mod tests {
 
         let res = execute(
             Arc::new(mock_db_repo),
-            Arc::new(mock_state_factory),
+            Arc::new(mock_state_logic),
             &diagram,
             &test_uuid(),
         )
@@ -134,7 +134,7 @@ mod tests {
     #[tokio::test]
     async fn fail_validation_state() -> Result<(), Error> {
         let mock_db_repo = MockDbRepo::new();
-        let mock_state_factory = MockLogic::new();
+        let mock_state_logic = MockLogic::new();
         let diagram = Diagram {
             code: String::from("BUSINESS_CODE_TEST"),
             description: Some(String::from("")),
@@ -159,7 +159,7 @@ mod tests {
 
         let res = execute(
             Arc::new(mock_db_repo),
-            Arc::new(mock_state_factory),
+            Arc::new(mock_state_logic),
             &diagram,
             &test_uuid(),
         )
@@ -198,8 +198,8 @@ mod tests {
         };
 
         let mock_db_repo = MockDbRepo::new();
-        let mut mock_state_factory = MockLogic::new();
-        mock_state_factory
+        let mut mock_state_logic = MockLogic::new();
+        mock_state_logic
             .expect_get_codes()
             .withf(|transition| {
                 let matcher = vec!["TEST_STATE".to_owned(), "TEST_STATE_1".to_owned()];
@@ -211,7 +211,7 @@ mod tests {
 
         let res = execute(
             Arc::new(mock_db_repo),
-            Arc::new(mock_state_factory),
+            Arc::new(mock_state_logic),
             &diagram,
             &test_uuid(),
         )
@@ -256,8 +256,8 @@ mod tests {
             .once()
             .returning(move |_, _| Box::pin(async { Ok(String::from("BUSINESS_CODE_TEST")) }));
 
-        let mut mock_state_factory = MockLogic::new();
-        mock_state_factory
+        let mut mock_state_logic = MockLogic::new();
+        mock_state_logic
             .expect_get_codes()
             .withf(|transition| {
                 let matcher = vec!["TEST_STATE".to_owned(), "TEST_STATE_1".to_owned()];
@@ -271,7 +271,7 @@ mod tests {
 
         let res = execute(
             Arc::new(mock_db_repo),
-            Arc::new(mock_state_factory),
+            Arc::new(mock_state_logic),
             &diagram,
             &test_uuid(),
         )

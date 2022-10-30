@@ -3,7 +3,7 @@ use crate::{
     cores::error::service::Error,
     services::{
         diagram::{model::model::Diagram, repo::db::DbRepo},
-        state::logic::factory as StateFactory,
+        state::StateServiceLogic,
     },
 };
 use async_trait::async_trait;
@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 pub struct Factory {
     pub repo: Arc<dyn DbRepo>,
-    pub state_factory: Arc<dyn StateFactory::Logic>,
+    pub state_logic: Arc<StateServiceLogic>,
 }
 
 pub trait Logic: OperationLogic + DiagramLogic {}
@@ -36,7 +36,7 @@ pub trait DiagramLogic: Send + Sync {
 impl OperationLogic for Factory {
     async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<String, Error> {
         tracing::info!("Logic Execute - Insert Diagram");
-        insert::execute(self.repo.clone(), self.state_factory.clone(), req, actor).await
+        insert::execute(self.repo.clone(), self.state_logic.clone(), req, actor).await
     }
 
     async fn get(&self, code: &str) -> Result<Diagram, Error> {

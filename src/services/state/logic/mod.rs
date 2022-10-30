@@ -9,9 +9,9 @@ mod update;
 
 use self::factory::{Factory, Logic};
 use super::repo::db::DbRepo;
-use crate::services::client::logic::factory as ClientFactory;
+use crate::services::client::ClientServiceLogic;
 use std::sync::Arc;
 
-pub fn new(repo: Arc<dyn DbRepo>, client_logic: Arc<dyn ClientFactory::Logic>) -> Arc<dyn Logic> {
+pub fn new(repo: Arc<dyn DbRepo>, client_logic: Arc<ClientServiceLogic>) -> Arc<dyn Logic> {
     Arc::new(Factory { repo, client_logic })
 }

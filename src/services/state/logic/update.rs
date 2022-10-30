@@ -1,7 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::{
-        client::logic::factory as ClientFactory,
+        client::ClientServiceLogic,
         state::{
             logic::helper,
             model::{entity::State, request::StateUpdateRequest},
@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
-    client_logic: Arc<dyn ClientFactory::Logic>,
+    client_logic: Arc<ClientServiceLogic>,
     code: &'a str,
     state: &'a StateUpdateRequest,
     actor: &'a uuid::Uuid,
