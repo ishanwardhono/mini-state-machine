@@ -5,7 +5,7 @@ use crate::{cores::error::service::Error, services::state::repo::db::DbRepo, uti
 pub async fn execute(repo: Arc<dyn DbRepo>, codes: &Vec<String>) -> Result<Vec<String>, Error> {
     tracing::debug!("executing ...");
     validate(codes)?;
-    repo.get_by_codes(codes).await
+    repo.get_codes(codes).await
 }
 
 fn validate(codes: &Vec<String>) -> Result<(), Error> {
@@ -59,7 +59,7 @@ mod tests {
         let mut mock_db_repo = MockDbRepo::new();
 
         mock_db_repo
-            .expect_get_by_codes()
+            .expect_get_codes()
             .with(eq(req.clone()))
             .once()
             .returning(move |_| {

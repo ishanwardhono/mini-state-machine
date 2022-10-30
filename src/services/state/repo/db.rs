@@ -23,7 +23,7 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 pub trait DbRepo: Send + Sync {
     async fn get_all(&self) -> Result<Vec<State>, Error>;
     async fn get_by_code(&self, code: &str) -> Result<State, Error>;
-    async fn get_by_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error>;
+    async fn get_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error>;
     async fn insert(&self, state: &StateCreateRequest, actor: &Uuid) -> Result<State, Error>;
     async fn update(
         &self,
@@ -72,7 +72,7 @@ impl DbRepo for DbRepository {
             .map_err(|e| Error::from_db(e))
     }
 
-    async fn get_by_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error> {
+    async fn get_codes(&self, codes: &Vec<String>) -> Result<Vec<String>, Error> {
         tracing::info!("Database Execute - Status GetByCodes Query");
 
         sqlx::query(db_query::SELECT_BY_CODES)
