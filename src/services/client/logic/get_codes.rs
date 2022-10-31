@@ -19,57 +19,57 @@ fn validate(codes: &Vec<String>) -> Result<(), Error> {
     validation.check()
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::services::state::repo::db::MockDbRepo;
-//     use mockall::predicate::eq;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::services::client::repo::db::MockDbRepo;
+    use mockall::predicate::eq;
 
-//     #[tokio::test]
-//     async fn fail_codes_empty() -> Result<(), Error> {
-//         let mock_db_repo = MockDbRepo::new();
+    #[tokio::test]
+    async fn fail_codes_empty() -> Result<(), Error> {
+        let mock_db_repo = MockDbRepo::new();
 
-//         let res = execute(Arc::new(mock_db_repo), &vec![]).await;
+        let res = execute(Arc::new(mock_db_repo), &vec![]).await;
 
-//         assert!(res.is_err());
-//         assert_eq!(
-//             Error::BadRequest("Code is empty".to_owned()),
-//             res.unwrap_err()
-//         );
-//         Ok(())
-//     }
+        assert!(res.is_err());
+        assert_eq!(
+            Error::BadRequest("Code is empty".to_owned()),
+            res.unwrap_err()
+        );
+        Ok(())
+    }
 
-//     #[tokio::test]
-//     async fn fail_codes_invalid() -> Result<(), Error> {
-//         let mock_db_repo = MockDbRepo::new();
+    #[tokio::test]
+    async fn fail_codes_invalid() -> Result<(), Error> {
+        let mock_db_repo = MockDbRepo::new();
 
-//         let res = execute(Arc::new(mock_db_repo), &vec!["".to_owned()]).await;
+        let res = execute(Arc::new(mock_db_repo), &vec!["".to_owned()]).await;
 
-//         assert!(res.is_err());
-//         assert_eq!(
-//             Error::BadRequest("Invalid Code (Empty string)".to_owned()),
-//             res.unwrap_err()
-//         );
-//         Ok(())
-//     }
+        assert!(res.is_err());
+        assert_eq!(
+            Error::BadRequest("Invalid Code (Empty string)".to_owned()),
+            res.unwrap_err()
+        );
+        Ok(())
+    }
 
-//     #[tokio::test]
-//     async fn success() -> Result<(), Error> {
-//         let req = vec!["TEST_STATE_1".to_owned(), "TEST_STATE_2".to_owned()];
-//         let mut mock_db_repo = MockDbRepo::new();
+    #[tokio::test]
+    async fn success() -> Result<(), Error> {
+        let req = vec!["TEST_STATE_1".to_owned(), "TEST_STATE_2".to_owned()];
+        let mut mock_db_repo = MockDbRepo::new();
 
-//         mock_db_repo
-//             .expect_get_codes()
-//             .with(eq(req.clone()))
-//             .once()
-//             .returning(move |_| {
-//                 Box::pin(async { Ok(vec!["TEST_STATE_1".to_owned(), "TEST_STATE_2".to_owned()]) })
-//             });
+        mock_db_repo
+            .expect_get_codes()
+            .with(eq(req.clone()))
+            .once()
+            .returning(move |_| {
+                Box::pin(async { Ok(vec!["TEST_STATE_1".to_owned(), "TEST_STATE_2".to_owned()]) })
+            });
 
-//         let res = execute(Arc::new(mock_db_repo), &req).await;
+        let res = execute(Arc::new(mock_db_repo), &req).await;
 
-//         let return_result = res?;
-//         assert_eq!(req, return_result);
-//         Ok(())
-//     }
-// }
+        let return_result = res?;
+        assert_eq!(req, return_result);
+        Ok(())
+    }
+}
