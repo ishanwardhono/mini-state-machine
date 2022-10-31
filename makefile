@@ -7,3 +7,7 @@ coverage:
 
 coverage-ci:
 	@bash coverage.sh ci
+
+install:
+	@cp .env.sample .env
+	@code .
