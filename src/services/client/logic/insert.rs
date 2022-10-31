@@ -48,7 +48,7 @@ fn validate(req: &ClientModel) -> Result<(), Error> {
 //         let req = StateCreateRequest {
 //             code: String::from(""),
 //             description: None,
-//             webhooks: None,
+//             actions: None,
 //         };
 //         let actor = uuid::Uuid::new_v4();
 
@@ -67,7 +67,7 @@ fn validate(req: &ClientModel) -> Result<(), Error> {
 //         let req = StateCreateRequest {
 //             code: String::from("TEST"),
 //             description: None,
-//             webhooks: None,
+//             actions: None,
 //         };
 //         let actor = test_actor();
 
@@ -83,7 +83,7 @@ fn validate(req: &ClientModel) -> Result<(), Error> {
 //                         id: test_uuid(),
 //                         code: cloned_req.code,
 //                         description: cloned_req.description,
-//                         webhooks: cloned_req.webhooks,
+//                         actions: cloned_req.actions,
 //                         create_time: test_time(),
 //                         create_by: test_actor(),
 //                         update_time: test_time(),
@@ -98,7 +98,7 @@ fn validate(req: &ClientModel) -> Result<(), Error> {
 //         assert_eq!(return_result.id, test_uuid());
 //         assert_eq!(return_result.code, req.code);
 //         assert_eq!(return_result.description, req.description);
-//         assert_eq!(return_result.webhooks, req.webhooks);
+//         assert_eq!(return_result.actions, req.actions);
 //         assert_eq!(return_result.create_time, test_time());
 //         assert_eq!(return_result.create_by, actor);
 //         assert_eq!(return_result.update_time, test_time());

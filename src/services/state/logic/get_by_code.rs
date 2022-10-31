@@ -58,7 +58,7 @@ mod tests {
                         id: test_uuid(),
                         code: String::from("TEST"),
                         description: Some(String::from("test")),
-                        webhooks: Some(vec![String::from("test_app")]),
+                        actions: Some(vec![String::from("test_app")]),
                         create_time: test_time(),
                         create_by: test_actor(),
                         update_time: test_time(),
@@ -73,9 +73,9 @@ mod tests {
         assert_eq!(return_result.id, test_uuid());
         assert_eq!(return_result.code, req);
         assert_eq!(return_result.description, Some(String::from("test")));
-        assert_eq!(return_result.webhooks.as_ref().unwrap().len(), 1);
+        assert_eq!(return_result.actions.as_ref().unwrap().len(), 1);
         assert_eq!(
-            return_result.webhooks.as_ref().unwrap()[0],
+            return_result.actions.as_ref().unwrap()[0],
             String::from("test_app")
         );
         assert_eq!(return_result.create_time, test_time());

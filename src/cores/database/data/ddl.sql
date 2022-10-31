@@ -16,7 +16,7 @@ CREATE TABLE states (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     code VARCHAR(50) NOT NULL UNIQUE,
     description TEXT,
-    webhooks TEXT[],
+    actions TEXT[],
     create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     create_by uuid NOT NULL,
     update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),

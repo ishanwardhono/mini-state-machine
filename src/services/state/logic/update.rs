@@ -21,7 +21,7 @@ pub async fn execute<'a>(
 ) -> Result<State, Error> {
     tracing::debug!("executing ...");
     validate(code)?;
-    helper::validate_client_exists(client_logic, state.webhooks.clone()).await?;
+    helper::validate_client_exists(client_logic, state.actions.clone()).await?;
     repo.update(code, state, actor).await
 }
 
@@ -53,7 +53,7 @@ fn validate(req: &str) -> Result<(), Error> {
 //         let req_code = String::from("");
 //         let req = StateUpdateRequest {
 //             description: None,
-//             webhooks: None,
+//             actions: None,
 //         };
 //         let actor = uuid::Uuid::new_v4();
 
@@ -73,7 +73,7 @@ fn validate(req: &str) -> Result<(), Error> {
 //         let req_code = "TEST";
 //         let req = StateUpdateRequest {
 //             description: None,
-//             webhooks: None,
+//             actions: None,
 //         };
 //         let actor = test_actor();
 
@@ -89,7 +89,7 @@ fn validate(req: &str) -> Result<(), Error> {
 //                         id: test_uuid(),
 //                         code: cloned_code,
 //                         description: cloned_req.description,
-//                         webhooks: cloned_req.webhooks,
+//                         actions: cloned_req.actions,
 //                         create_time: test_time(),
 //                         create_by: test_actor(),
 //                         update_time: test_time(),
@@ -104,7 +104,7 @@ fn validate(req: &str) -> Result<(), Error> {
 //         assert_eq!(return_result.id, test_uuid());
 //         assert_eq!(return_result.code, req_code);
 //         assert_eq!(return_result.description, req.description);
-//         assert_eq!(return_result.webhooks, req.webhooks);
+//         assert_eq!(return_result.actions, req.actions);
 //         assert_eq!(return_result.create_time, test_time());
 //         assert_eq!(return_result.create_by, actor);
 //         assert_eq!(return_result.update_time, test_time());

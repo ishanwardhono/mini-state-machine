@@ -40,7 +40,7 @@ impl DbRepository {
             id: row.get("id"),
             code: row.get("code"),
             description: row.get("description"),
-            webhooks: row.get("webhooks"),
+            actions: row.get("actions"),
             create_time: row.get("create_time"),
             create_by: row.get("create_by"),
             update_time: row.get("update_time"),
@@ -92,7 +92,7 @@ impl DbRepo for DbRepository {
             .bind(uuid::Uuid::new_v4())
             .bind(&state.code) //code
             .bind(&state.description) //description
-            .bind(&state.webhooks) //webhooks
+            .bind(&state.actions) //actions
             .bind(time_now) //create_time
             .bind(actor) //create_by
             .bind(time_now) //create_time
@@ -114,7 +114,7 @@ impl DbRepo for DbRepository {
         sqlx::query(db_query::UPDATE)
             .bind(code)
             .bind(&state.description)
-            .bind(&state.webhooks)
+            .bind(&state.actions)
             .bind(db_time_now())
             .bind(actor)
             .map(self.state_full_map())

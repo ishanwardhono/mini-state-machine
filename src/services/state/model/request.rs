@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 pub struct StateCreateRequest {
     pub code: String,
     pub description: Option<String>,
-    pub webhooks: Option<Vec<String>>,
+    pub actions: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct StateUpdateRequest {
     pub description: Option<String>,
-    pub webhooks: Option<Vec<String>>,
+    pub actions: Option<Vec<String>>,
 }
