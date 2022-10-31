@@ -19,6 +19,7 @@ pub trait Logic: OperationLogic + DiagramLogic {}
 impl Logic for Factory {}
 
 #[async_trait]
+#[cfg_attr(test, mockall::automock)]
 pub trait OperationLogic {
     async fn insert(&self, req: &Diagram, actor: &Uuid) -> Result<String, Error>;
     async fn get(&self, code: &str) -> Result<Diagram, Error>;
