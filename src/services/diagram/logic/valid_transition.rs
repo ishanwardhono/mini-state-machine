@@ -51,14 +51,13 @@ mod tests {
     use crate::services::diagram::{
         logic::factory::MockOperationLogic,
         model::model::{Diagram, FlowModel},
-        repo::db::MockDbRepo,
     };
     use mockall::predicate::eq;
-    use std::{collections::HashMap, sync::Arc};
+    use std::{collections::HashMap};
 
     #[tokio::test]
     async fn fail_validate() -> Result<(), Error> {
-        let mut mock_logic = MockOperationLogic::new();
+        let mock_logic = MockOperationLogic::new();
 
         let res = execute(&mock_logic, "", "", "").await;
 
