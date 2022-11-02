@@ -41,7 +41,7 @@ async fn insert(
         tracing::error!("{}", AuthError::UserNotProvided);
         return Err(Error::unauth_from(AuthError::UserNotProvided));
     }
-    let result = factory.insert(&req.into_inner(), &user.unwrap().id).await?;
+    let result = factory.insert(req.into_inner(), &user.unwrap().id).await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -54,7 +54,7 @@ async fn upsert(
         tracing::error!("{}", AuthError::UserNotProvided);
         return Err(Error::unauth_from(AuthError::UserNotProvided));
     }
-    let result = factory.upsert(&req.into_inner(), &user.unwrap().id).await?;
+    let result = factory.upsert(req.into_inner(), &user.unwrap().id).await?;
     Ok(HttpResponse::Ok().json(result))
 }
 
@@ -68,7 +68,7 @@ async fn state_update(
         return Err(Error::unauth_from(AuthError::UserNotProvided));
     }
     let result = factory
-        .state_update(&req.into_inner(), &user.unwrap().id)
+        .state_update(req.into_inner(), &user.unwrap().id)
         .await?;
     Ok(HttpResponse::Ok().json(result))
 }

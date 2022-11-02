@@ -1,6 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::{
+        action::{model::Action, ActionServiceLogic},
         diagram::DiagramServiceLogic,
         order::{
             model::{entity::Order, request::OrderStateUpdateRequest, response::OrderResponse},
@@ -12,15 +13,16 @@ use crate::{
 use std::sync::Arc;
 use uuid::Uuid;
 
-pub async fn execute<'a>(
+pub async fn execute(
     repo: Arc<dyn DbRepo>,
     diagram_logic: Arc<DiagramServiceLogic>,
-    order: &'a OrderStateUpdateRequest,
-    actor: &'a Uuid,
+    action_logic: Arc<ActionServiceLogic>,
+    order: OrderStateUpdateRequest,
+    actor: &Uuid,
 ) -> Result<OrderResponse, Error> {
     tracing::debug!("executing ...");
-    validate(order)?;
-    let curr_order = validate_order(repo.clone(), order).await?;
+    validate(&order)?;
+    let curr_order = validate_order(repo.clone(), &order).await?;
     diagram_logic
         .valid_transition(&curr_order.business, &curr_order.state, &order.state)
         .await?;
@@ -31,11 +33,20 @@ pub async fn execute<'a>(
         actor,
     )
     .await?;
+    action_logic
+        .run(Action {
+            from_state: curr_order.state,
+            to_state: order.state.clone(),
+            business: curr_order.business.clone(),
+            order_id: curr_order.client_order_id.clone(),
+        })
+        .await?;
+
     Ok(OrderResponse {
         id: curr_order.id,
         client_order_id: curr_order.client_order_id,
         business: curr_order.business,
-        state: order.state.clone(),
+        state: order.state,
     })
 }
 

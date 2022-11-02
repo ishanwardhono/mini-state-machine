@@ -8,14 +8,14 @@ use crate::{
 };
 use uuid::Uuid;
 
-pub async fn execute<'a>(
-    logic: &'a impl Logic,
-    order: &'a OrderStateUpdateRequest,
-    actor: &'a Uuid,
+pub async fn execute(
+    logic: &impl Logic,
+    order: OrderStateUpdateRequest,
+    actor: &Uuid,
 ) -> Result<OrderResponse, Error> {
     let result = logic
         .insert(
-            &OrderRequest {
+            OrderRequest {
                 client_order_id: Some(order.client_order_id.clone()),
                 business: order.business.clone(),
                 state: order.state.clone(),

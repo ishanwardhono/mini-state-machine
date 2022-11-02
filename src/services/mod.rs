@@ -1,3 +1,4 @@
+mod action;
 pub mod auth;
 pub mod client;
 mod diagram;

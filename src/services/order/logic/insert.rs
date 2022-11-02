@@ -1,6 +1,7 @@
 use crate::{
     cores::error::service::Error,
     services::{
+        action::{model::Action, ActionServiceLogic},
         diagram::DiagramServiceLogic,
         order::{
             model::{request::OrderRequest, response::OrderResponse},
@@ -12,19 +13,30 @@ use crate::{
 use std::sync::Arc;
 use uuid::Uuid;
 
-pub async fn execute<'a>(
+pub async fn execute(
     repo: Arc<dyn DbRepo>,
     diagram_logic: Arc<DiagramServiceLogic>,
-    order: &'a OrderRequest,
-    actor: &'a Uuid,
+    action_logic: Arc<ActionServiceLogic>,
+    order: OrderRequest,
+    actor: &Uuid,
 ) -> Result<OrderResponse, Error> {
     tracing::debug!("executing ...");
-    validate(order)?;
-    validate_order_data(repo.clone(), order).await?;
+    validate(&order)?;
+    validate_order_data(repo.clone(), &order).await?;
     diagram_logic
         .valid_creation(&order.business, &order.state)
         .await?;
-    repo.insert(order, actor).await
+    let resp = repo.insert(&order, actor).await?;
+    action_logic
+        .run(Action {
+            from_state: String::from(""),
+            to_state: order.state,
+            business: order.business,
+            order_id: resp.client_order_id.clone(),
+        })
+        .await?;
+
+    Ok(resp)
 }
 
 fn validate(order: &OrderRequest) -> Result<(), Error> {

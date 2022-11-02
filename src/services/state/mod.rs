@@ -1,6 +1,6 @@
 mod handler;
 pub mod logic;
-mod model;
+pub mod model;
 mod repo;
 
 use self::{handler::http::register_handler, logic::factory::Logic};
