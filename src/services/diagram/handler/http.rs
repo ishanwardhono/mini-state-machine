@@ -6,7 +6,7 @@ use crate::{
     services::{
         auth::model::entity::User,
         diagram::{
-            logic::factory::{DiagramLogic, Logic},
+            logic::factory::Logic,
             model::{model::Diagram, reponse::CreatedResponse},
         },
     },
@@ -64,7 +64,7 @@ async fn delete_diagram(
 }
 
 async fn valid_transition(
-    factory: web::Data<dyn DiagramLogic>,
+    factory: web::Data<dyn Logic>,
     params: web::Path<(String, String, String)>,
 ) -> Result<HttpResponse, Error> {
     factory
