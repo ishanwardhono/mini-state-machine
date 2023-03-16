@@ -1,3 +1,5 @@
+pub mod entity;
+
 use serde::Serialize;
 
 #[derive(Serialize, Clone)]

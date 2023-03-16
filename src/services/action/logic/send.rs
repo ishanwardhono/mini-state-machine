@@ -1,8 +1,7 @@
+use crate::services::{action::model::Action, client::ClientServiceLogic};
 use hyper::{Body, Client, Request};
 use serde_json::json;
 use std::sync::Arc;
-
-use crate::services::{action::model::Action, client::ClientServiceLogic};
 
 pub async fn execute(client_logic: Arc<ClientServiceLogic>, client_code: String, action: Action) {
     let client = client_logic.get_by_code(&client_code).await;
@@ -22,7 +21,7 @@ pub async fn execute(client_logic: Arc<ClientServiceLogic>, client_code: String,
         .body(Body::from(body.to_string()));
 
     if req.is_err() {
-        tracing::error!("State Action Got Problem");
+        tracing::error!("State Action Request failed, err: {}", req.unwrap_err());
         return;
     }
 

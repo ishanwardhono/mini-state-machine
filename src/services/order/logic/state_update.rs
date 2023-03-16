@@ -34,12 +34,15 @@ pub async fn execute(
     )
     .await?;
     action_logic
-        .run(Action {
-            from_state: curr_order.state,
-            to_state: order.state.clone(),
-            business: curr_order.business.clone(),
-            order_id: curr_order.client_order_id.clone(),
-        })
+        .run(
+            Action {
+                from_state: curr_order.state,
+                to_state: order.state.clone(),
+                business: curr_order.business.clone(),
+                order_id: curr_order.client_order_id.clone(),
+            },
+            actor,
+        )
         .await?;
 
     Ok(OrderResponse {

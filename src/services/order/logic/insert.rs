@@ -28,12 +28,15 @@ pub async fn execute(
         .await?;
     let resp = repo.insert(&order, actor).await?;
     action_logic
-        .run(Action {
-            from_state: String::from(""),
-            to_state: order.state,
-            business: order.business,
-            order_id: resp.client_order_id.clone(),
-        })
+        .run(
+            Action {
+                from_state: String::from(""),
+                to_state: order.state,
+                business: order.business,
+                order_id: resp.client_order_id.clone(),
+            },
+            actor,
+        )
         .await?;
 
     Ok(resp)

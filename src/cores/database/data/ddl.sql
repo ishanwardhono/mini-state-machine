@@ -1,8 +1,8 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE role AS ENUM ('ADMIN', 'BUSINESS_CLIENT');
+CREATE TYPE IF NOT EXISTS role AS ENUM ('ADMIN', 'BUSINESS_CLIENT');
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     username VARCHAR(25) NOT NULL UNIQUE,
     "role" role NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE users (
     update_by uuid NOT NULL
 );
 
-CREATE TABLE states (
+CREATE TABLE IF NOT EXISTS states (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     code VARCHAR(50) NOT NULL UNIQUE,
     description TEXT,
@@ -23,7 +23,7 @@ CREATE TABLE states (
     update_by uuid NOT NULL
 );
 
-CREATE TABLE business (
+CREATE TABLE IF NOT EXISTS business (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     code VARCHAR(25) NOT NULL UNIQUE,
     description TEXT,
@@ -34,7 +34,7 @@ CREATE TABLE business (
     update_by uuid NOT NULL
 );
 
-CREATE TABLE flows (
+CREATE TABLE IF NOT EXISTS flows (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     business VARCHAR(25) NOT NULL,
     state VARCHAR(50) NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE flows (
     update_by uuid NOT NULL
 );
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     client_order_id VARCHAR(50) NOT NULL,
     business VARCHAR(25) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE orders (
     update_by uuid NOT NULL
 );
 
-CREATE TABLE histories (
+CREATE TABLE IF NOT EXISTS histories (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     order_id uuid NOT NULL,
     from_state VARCHAR(50) NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE histories (
     update_by uuid NOT NULL
 );
 
-CREATE TABLE clients (
+CREATE TABLE IF NOT EXISTS clients (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     code VARCHAR(25) NOT NULL UNIQUE,
     "url" TEXT NOT NULL,
@@ -76,4 +76,16 @@ CREATE TABLE clients (
     create_by uuid NOT NULL,
     update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     update_by uuid NOT NULL
-)
+);
+
+CREATE TABLE IF NOT EXISTS retry_actions (
+    id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    business VARCHAR(25) NOT NULL,
+    order_id VARCHAR(50) NOT NULL,
+    from_state VARCHAR(50),
+    to_state VARCHAR(50) NOT NULL,
+    create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
+    create_by uuid NOT NULL,
+    update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
+    update_by uuid NOT NULL
+);

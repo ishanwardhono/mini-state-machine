@@ -1,5 +1,6 @@
 mod logic;
 pub mod model;
+mod repo;
 
 use self::logic::factory::Logic;
 use super::{client::ClientServiceLogic, state::StateServiceLogic};
