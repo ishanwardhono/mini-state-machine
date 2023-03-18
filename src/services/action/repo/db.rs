@@ -3,7 +3,7 @@ use crate::{
         database::pg::{db_time_now, DbPool},
         error::service::Error,
     },
-    services::action::model::entity::RetryAction,
+    services::action::model::Action,
 };
 use async_trait::async_trait;
 use std::sync::Arc;
@@ -23,12 +23,12 @@ pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
 #[async_trait]
 #[cfg_attr(test, mockall::automock)]
 pub trait DbRepo: Send + Sync {
-    async fn insert(&self, retry_action: &RetryAction, actor: &Uuid) -> Result<(), Error>;
+    async fn insert(&self, retry_action: Action, actor: &Uuid) -> Result<(), Error>;
 }
 
 #[async_trait]
 impl DbRepo for DbRepository {
-    async fn insert(&self, retry_action: &RetryAction, actor: &Uuid) -> Result<(), Error> {
+    async fn insert(&self, retry_action: Action, actor: &Uuid) -> Result<(), Error> {
         tracing::info!("Database Execute - Status Insert Query");
 
         let time_now = db_time_now();

@@ -2,6 +2,7 @@ use super::types::DBERROR_VIOLATE_UNIQUE;
 use crate::cores::http::entity::ErrorResponse;
 use actix_web::{error, http::StatusCode, HttpResponse};
 use derive_more::Display;
+use hyper::http;
 use std::fmt::Display;
 
 #[derive(Debug, Display, PartialEq)]
@@ -58,6 +59,18 @@ impl From<sqlx::Error> for Error {
 impl From<uuid::Error> for Error {
     fn from(e: uuid::Error) -> Self {
         Self::BadRequest(format!("Invalid uuid: {}", e))
+    }
+}
+
+impl From<hyper::Error> for Error {
+    fn from(e: hyper::Error) -> Self {
+        Self::InternalError(e.to_string())
+    }
+}
+
+impl From<http::Error> for Error {
+    fn from(e: http::Error) -> Self {
+        Self::InternalError(e.to_string())
     }
 }
 

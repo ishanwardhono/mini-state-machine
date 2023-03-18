@@ -1,8 +1,6 @@
-pub mod entity;
-
 use serde::Serialize;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Action {
     pub from_state: String,
     pub to_state: String,
