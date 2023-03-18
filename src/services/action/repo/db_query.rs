@@ -3,7 +3,7 @@
 
 pub const INSERT: &str = "
     INSERT INTO retry_actions
-        (id, business, order_id, from_state, to_state, create_time, create_by, update_time, update_by)
+        (id, client, business, order_id, from_state, to_state, create_time, create_by, update_time, update_by)
     VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
 ";

@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS clients (
 
 CREATE TABLE IF NOT EXISTS retry_actions (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    client VARCHAR(25) NOT NULL,
     business VARCHAR(25) NOT NULL,
     order_id VARCHAR(50) NOT NULL,
     from_state VARCHAR(50),

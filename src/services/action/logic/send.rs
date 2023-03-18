@@ -1,7 +1,10 @@
 use crate::{
     cores::error::service::Error,
     services::{
-        action::{model::Action, repo::db::DbRepo},
+        action::{
+            model::{Action, InsertRetryAction},
+            repo::db::DbRepo,
+        },
         client::ClientServiceLogic,
     },
 };
@@ -36,7 +39,18 @@ pub async fn execute(
             client_code,
             resp.as_ref().unwrap_err()
         );
-        let insert_retry = repo.insert(action.clone(), actor).await;
+        let insert_retry = repo
+            .insert(
+                InsertRetryAction {
+                    client: client_code.clone(),
+                    business: action.business.clone(),
+                    order_id: action.order_id.clone(),
+                    from_state: action.from_state.clone(),
+                    to_state: action.to_state.clone(),
+                },
+                actor,
+            )
+            .await;
         if insert_retry.is_err() {
             tracing::error!(
                 "Failed to insert to retry action on {}, err: {}, data: {:?}",

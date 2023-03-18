@@ -7,3 +7,11 @@ pub struct Action {
     pub business: String,
     pub order_id: String,
 }
+
+pub struct InsertRetryAction {
+    pub client: String,
+    pub from_state: String,
+    pub to_state: String,
+    pub business: String,
+    pub order_id: String,
+}
