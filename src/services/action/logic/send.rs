@@ -61,5 +61,11 @@ pub async fn execute(
         }
         let _ = resp?;
     }
+    tracing::info!(
+        "Successfully execute action to {} for order {} on business {}",
+        client_code,
+        action.order_id,
+        action.business
+    );
     Ok(())
 }
