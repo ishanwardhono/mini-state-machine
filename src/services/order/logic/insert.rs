@@ -1,5 +1,5 @@
 use crate::{
-    cores::error::service::Error,
+    cores::{database::pg::db_time_now, error::service::Error},
     services::{
         action::{model::Action, ActionServiceLogic},
         diagram::DiagramServiceLogic,
@@ -34,6 +34,7 @@ pub async fn execute(
                 to_state: order.state,
                 business: order.business,
                 order_id: resp.client_order_id.clone(),
+                action_time: db_time_now(),
             },
             actor,
         )

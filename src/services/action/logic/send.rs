@@ -1,5 +1,5 @@
 use crate::{
-    cores::error::service::Error,
+    cores::{database::pg::db_time_now, error::service::Error},
     services::{
         action::{
             model::{Action, InsertRetryAction},
@@ -47,6 +47,7 @@ pub async fn execute(
                     order_id: action.order_id.clone(),
                     from_state: action.from_state.clone(),
                     to_state: action.to_state.clone(),
+                    action_time: db_time_now(),
                 },
                 actor,
             )

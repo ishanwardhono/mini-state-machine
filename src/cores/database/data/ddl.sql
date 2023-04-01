@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS retry_actions (
     order_id VARCHAR(50) NOT NULL,
     from_state VARCHAR(50),
     to_state VARCHAR(50) NOT NULL,
+    action_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     create_by uuid NOT NULL,
     update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),

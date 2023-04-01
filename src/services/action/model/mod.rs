@@ -6,6 +6,7 @@ pub struct Action {
     pub to_state: String,
     pub business: String,
     pub order_id: String,
+    pub action_time: chrono::NaiveDateTime,
 }
 
 pub struct InsertRetryAction {
@@ -14,4 +15,5 @@ pub struct InsertRetryAction {
     pub to_state: String,
     pub business: String,
     pub order_id: String,
+    pub action_time: chrono::NaiveDateTime,
 }
