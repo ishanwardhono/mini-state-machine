@@ -8,7 +8,7 @@ use crate::{
         client::ClientServiceLogic,
     },
 };
-use hyper::{Body, Client, Request};
+use hyper::{http::HeaderValue, Body, Client, Request};
 use serde_json::json;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -20,18 +20,24 @@ pub async fn execute(
     action: Action,
     actor: &Uuid,
 ) -> Result<(), Error> {
-    let client = client_logic.get_by_code(&client_code).await;
-    let url = client?.url;
+    let client = client_logic.get_by_code(&client_code).await?;
 
     let body = json!(action);
-    let req = Request::builder()
+    let mut req = Request::builder()
         .method("POST")
-        .uri(url)
+        .uri(client.url)
         .header("content-type", "application/json")
-        .body(Body::from(body.to_string()));
+        .body(Body::from(body.to_string()))?;
+
+    if client.auth_token.is_some() {
+        req.headers_mut().insert(
+            hyper::header::AUTHORIZATION,
+            HeaderValue::try_from(client.auth_token.unwrap())?,
+        );
+    }
 
     let client = Client::new();
-    let resp = client.request(req?).await;
+    let resp = client.request(req).await;
 
     if resp.is_err() {
         tracing::warn!(

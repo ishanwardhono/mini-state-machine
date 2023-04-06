@@ -37,6 +37,7 @@ impl DbRepo for DbRepository {
             .map(|row: PgRow| ClientModel {
                 code: row.get("code"),
                 url: row.get("url"),
+                auth_token: row.get("auth_token"),
             })
             .fetch_one(self.pool.as_ref())
             .await
@@ -63,6 +64,7 @@ impl DbRepo for DbRepository {
             .bind(uuid::Uuid::new_v4())
             .bind(&client.code) //code
             .bind(&client.url) //url
+            .bind(&client.auth_token)
             .bind(time_now) //create_time
             .bind(actor) //create_by
             .bind(time_now) //create_time
@@ -79,6 +81,7 @@ impl DbRepo for DbRepository {
         sqlx::query(db_query::UPDATE)
             .bind(&client.code)
             .bind(&client.url)
+            .bind(&client.auth_token)
             .bind(db_time_now())
             .bind(actor)
             .map(|row: PgRow| row.get("code"))

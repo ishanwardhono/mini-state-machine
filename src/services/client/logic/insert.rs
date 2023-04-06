@@ -46,6 +46,7 @@ mod tests {
         let req = ClientModel {
             code: String::from(""),
             url: String::from(""),
+            auth_token: Some(String::from("")),
         };
         let actor = uuid::Uuid::new_v4();
 
@@ -64,6 +65,7 @@ mod tests {
         let req = ClientModel {
             code: String::from("TEST"),
             url: String::from("TEST"),
+            auth_token: Some(String::from("TEST")),
         };
         let actor = test_actor();
 

@@ -4,4 +4,5 @@ use serde::{Deserialize, Serialize};
 pub struct ClientModel {
     pub code: String,
     pub url: String,
+    pub auth_token: Option<String>,
 }

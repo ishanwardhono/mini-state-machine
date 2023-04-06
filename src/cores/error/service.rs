@@ -93,3 +93,9 @@ impl error::ResponseError for Error {
         }
     }
 }
+
+impl From<hyper::header::InvalidHeaderValue> for Error {
+    fn from(e: hyper::header::InvalidHeaderValue) -> Self {
+        Self::InternalError(e.to_string())
+    }
+}

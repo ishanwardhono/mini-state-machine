@@ -54,6 +54,7 @@ mod tests {
                     Ok(ClientModel {
                         code: String::from("TEST"),
                         url: String::from("TEST"),
+                        auth_token: Some(String::from("TEST")),
                     })
                 })
             });

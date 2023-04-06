@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS clients (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     code VARCHAR(25) NOT NULL UNIQUE,
     "url" TEXT NOT NULL,
+    auth_token TEXT,
     create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     create_by uuid NOT NULL,
     update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
