@@ -34,7 +34,7 @@ pub async fn execute(
     let resp = client.request(req?).await;
 
     if resp.is_err() {
-        tracing::error!(
+        tracing::warn!(
             "Failed to execute action to {}, err: {}",
             client_code,
             resp.as_ref().unwrap_err()
@@ -53,7 +53,7 @@ pub async fn execute(
             )
             .await;
         if insert_retry.is_err() {
-            tracing::error!(
+            tracing::warn!(
                 "Failed to insert to retry action on {}, err: {}, data: {:?}",
                 client_code,
                 insert_retry.unwrap_err(),

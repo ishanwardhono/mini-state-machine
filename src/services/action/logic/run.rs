@@ -26,7 +26,7 @@ pub async fn execute(
         tokio::spawn(async move {
             let send_err = arc_logic.send(state_client, action, &actor).await;
             if send_err.is_err() {
-                tracing::error!("Failed on execute action, err: {} ", send_err.unwrap_err());
+                tracing::warn!("Failed on execute action, err: {} ", send_err.unwrap_err());
             }
         });
     }
