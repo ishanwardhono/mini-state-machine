@@ -1,6 +1,6 @@
 use crate::{
     cores::{
-        database::pg::{db_time_now, DbPool},
+        database::{db_time_now, DbPool},
         error::service::Error,
     },
     services::action::model::InsertRetryAction,

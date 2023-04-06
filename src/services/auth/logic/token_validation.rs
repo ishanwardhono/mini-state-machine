@@ -51,7 +51,7 @@ pub async fn execute(cfg: ConfigJWT, repo: Arc<dyn DbRepo>, token: &str) -> Resu
 mod tests {
     use crate::{
         cores::{
-            auth::role::Role,
+            auth::Role,
             env::{Config, ConfigApp, ConfigJWT},
             error::service::Error,
         },

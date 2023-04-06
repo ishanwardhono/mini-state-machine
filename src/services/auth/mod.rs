@@ -1,9 +1,15 @@
 mod logic;
-pub mod model;
-mod repo;
+pub mod model {
+    pub mod entity;
+    pub mod request;
+}
+mod repo {
+    pub mod db;
+    mod db_query;
+}
 
 use self::logic::factory::Logic;
-use crate::cores::{database::pg::DbPool, env::Config};
+use crate::cores::{database::DbPool, env::Config};
 use std::sync::Arc;
 
 pub type Service = Arc<dyn Logic>;

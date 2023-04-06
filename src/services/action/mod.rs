@@ -1,10 +1,13 @@
 mod logic;
 pub mod model;
-mod repo;
+mod repo {
+    pub mod db;
+    mod db_query;
+}
 
 use self::logic::factory::Logic;
 use super::{client::ClientServiceLogic, state::StateServiceLogic};
-use crate::cores::database::pg::DbPool;
+use crate::cores::database::DbPool;
 use std::sync::Arc;
 
 pub type ActionServiceLogic = dyn Logic;

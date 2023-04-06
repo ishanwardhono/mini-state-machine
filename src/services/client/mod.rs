@@ -1,10 +1,19 @@
-mod handler;
 pub mod logic;
-mod model;
-mod repo;
+mod repo {
+    pub mod db;
+    mod db_query;
+}
+mod handler {
+    pub mod http;
+}
+mod model {
+    pub mod entity;
+    pub mod model;
+    pub mod response;
+}
 
 use self::{handler::http::register_handler, logic::factory::Logic};
-use crate::cores::database::pg::DbPool;
+use crate::cores::database::DbPool;
 use crate::cores::http::middleware::auth::Authority;
 use actix_web::Scope;
 use std::sync::Arc;

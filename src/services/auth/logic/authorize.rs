@@ -1,6 +1,6 @@
 use super::factory::Logic;
 use crate::cores::{
-    auth::role::Role,
+    auth::Role,
     error::{service::Error, types::AuthError},
 };
 use crate::services::auth::model::entity::User;
@@ -33,7 +33,7 @@ mod tests {
     use mockall::predicate::eq;
 
     use crate::{
-        cores::{auth::role::Role, error::service::Error},
+        cores::{auth::Role, error::service::Error},
         services::auth::{
             logic::{authorize::execute, factory::MockLogic},
             model::entity::User,

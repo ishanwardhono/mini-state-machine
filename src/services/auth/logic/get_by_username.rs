@@ -12,7 +12,7 @@ pub async fn execute(repo: Arc<dyn DbRepo>, username: &str) -> Result<User, Erro
 #[cfg(test)]
 mod tests {
     use crate::{
-        cores::{auth::role::Role, error::service::Error},
+        cores::{auth::Role, error::service::Error},
         services::auth::{
             logic::get_by_username::execute, model::entity::User, repo::db::MockDbRepo,
         },

@@ -15,7 +15,7 @@ pub async fn execute(repo: Arc<dyn DbRepo>, req: &UserCreateRequest) -> Result<U
 #[cfg(test)]
 mod tests {
     use crate::{
-        cores::{auth::role::Role, error::service::Error},
+        cores::{auth::Role, error::service::Error},
         services::auth::{
             logic::insert::execute,
             model::{entity::User, request::UserCreateRequest},

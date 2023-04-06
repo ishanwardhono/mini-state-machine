@@ -11,8 +11,8 @@ services:
       - '${DB_PORT}:${DB_PORT}'
     volumes:
       - psql:/var/lib/postgresql/data
-      - ./src/cores/database/data/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
-      - ./src/cores/database/data/dml.sql:/docker-entrypoint-initdb.d/dml.sql
+      - ./data/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+      - ./data/dml.sql:/docker-entrypoint-initdb.d/dml.sql
 
 volumes:
   psql:

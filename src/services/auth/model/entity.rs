@@ -1,4 +1,4 @@
-use crate::cores::auth::role::Role;
+use crate::cores::auth::Role;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

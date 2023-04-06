@@ -44,7 +44,7 @@ pub async fn execute(
 mod tests {
     use crate::{
         cores::{
-            auth::role::Role,
+            auth::Role,
             env::{Config, ConfigApp, ConfigJWT},
             error::service::Error,
         },

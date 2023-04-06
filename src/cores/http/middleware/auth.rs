@@ -1,4 +1,3 @@
-use crate::{cores::auth::role::Role, services::auth};
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     http::header,
@@ -12,6 +11,8 @@ use std::{
     sync::Arc,
 };
 use tracing::Instrument;
+
+use crate::{cores::auth::Role, services::auth};
 
 pub type Authority = Arc<Authorizer>;
 

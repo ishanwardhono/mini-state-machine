@@ -1,5 +1,5 @@
 use crate::{
-    cores::{database::pg::db_time_now, error::service::Error},
+    cores::{database::db_time_now, error::service::Error},
     services::{
         action::{model::Action, ActionServiceLogic},
         diagram::DiagramServiceLogic,

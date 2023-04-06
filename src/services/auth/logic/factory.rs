@@ -1,5 +1,5 @@
 use crate::{
-    cores::{auth::role::Role, env::Config, error::service::Error},
+    cores::{auth::Role, env::Config, error::service::Error},
     services::auth::{
         logic::{authorize, get_by_username, insert, is_permitted, login, token_validation},
         model::{entity::User, request::UserCreateRequest},

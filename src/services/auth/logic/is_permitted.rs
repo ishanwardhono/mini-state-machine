@@ -1,4 +1,4 @@
-use crate::cores::auth::role::Role;
+use crate::cores::auth::Role;
 
 pub fn execute(valid_permission: Role, user_permission: Role) -> bool {
     if user_permission.level() <= valid_permission.level() {
@@ -10,7 +10,7 @@ pub fn execute(valid_permission: Role, user_permission: Role) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::{
-        cores::{auth::role::Role, error::service::Error},
+        cores::{auth::Role, error::service::Error},
         services::auth::logic::is_permitted::execute,
     };
 

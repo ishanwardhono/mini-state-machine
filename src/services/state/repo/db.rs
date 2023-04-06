@@ -1,5 +1,5 @@
 use super::db_query;
-use crate::cores::database::pg::{db_time_now, DbPool};
+use crate::cores::database::{db_time_now, DbPool};
 use crate::cores::error::service::Error;
 use crate::services::state::model::entity::State;
 use crate::services::state::model::request::{StateCreateRequest, StateUpdateRequest};

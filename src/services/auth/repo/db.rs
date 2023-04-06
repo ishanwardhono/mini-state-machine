@@ -1,7 +1,7 @@
 use super::db_query;
 use crate::{
     cores::{
-        database::pg::{db_time_now, DbPool},
+        database::{db_time_now, DbPool},
         error::service::Error,
     },
     services::auth::model::{entity::User, request::UserCreateRequest},

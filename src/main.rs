@@ -13,7 +13,7 @@ async fn main() -> std::io::Result<()> {
     //log
     let _log_guard = cores::log::init(config.log.clone());
 
-    let pool = cores::database::pg::init(config.db.clone()).await;
+    let pool = cores::database::init(config.db.clone()).await;
 
     let app_url = config.app.url.clone();
 

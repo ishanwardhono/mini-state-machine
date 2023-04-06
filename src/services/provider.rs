@@ -1,6 +1,6 @@
 use super::{action, auth, client, diagram, order, state};
 use crate::cores::{
-    database::pg::DbPool,
+    database::DbPool,
     env::Config,
     http::{self, middleware::auth::Authority},
 };
