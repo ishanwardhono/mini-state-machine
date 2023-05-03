@@ -6,10 +6,15 @@ use crate::{
     },
 };
 use std::sync::Arc;
+use uuid::Uuid;
 
-pub async fn execute(repo: Arc<dyn DbRepo>, req: &UserCreateRequest) -> Result<User, Error> {
+pub async fn execute<'a>(
+    repo: Arc<dyn DbRepo>,
+    req: &'a UserCreateRequest,
+    actor: &'a Uuid,
+) -> Result<User, Error> {
     tracing::debug!("executing...");
-    repo.insert(req).await
+    repo.insert(req, actor).await
 }
 
 #[cfg(test)]
@@ -32,13 +37,14 @@ mod tests {
             username: String::from("test"),
             role: Role::Admin,
         };
+        let actor = test_actor();
 
         let mut mock_db_repo = MockDbRepo::new();
         mock_db_repo
             .expect_insert()
-            .with(eq(req.clone()))
+            .with(eq(req.clone()), eq(actor.clone()))
             .once()
-            .returning(move |req| {
+            .returning(move |req, _| {
                 let cloned_req = req.clone();
                 Box::pin(async {
                     Ok(User {
@@ -53,7 +59,7 @@ mod tests {
                 })
             });
 
-        let res = execute(Arc::new(mock_db_repo), &req).await;
+        let res = execute(Arc::new(mock_db_repo), &req, &actor).await;
 
         let return_result = res?;
         assert_eq!(return_result.id, test_uuid());

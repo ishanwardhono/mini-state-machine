@@ -9,6 +9,7 @@ use crate::{
 use async_trait::async_trait;
 use sqlx::{postgres::PgRow, Row};
 use std::sync::Arc;
+use uuid::Uuid;
 
 pub fn new(pool: Arc<DbPool>) -> Arc<dyn DbRepo> {
     Arc::new(DbRepository { pool })
@@ -23,7 +24,7 @@ struct DbRepository {
 #[cfg_attr(test, mockall::automock)]
 pub trait DbRepo: Send + Sync {
     async fn get_by_username(&self, username: &str) -> Result<User, Error>;
-    async fn insert(&self, user: &UserCreateRequest) -> Result<User, Error>;
+    async fn insert(&self, user: &UserCreateRequest, actor: &Uuid) -> Result<User, Error>;
 }
 
 impl DbRepository {
@@ -52,13 +53,15 @@ impl DbRepo for DbRepository {
             .map_err(|e| Error::from_db(e))
     }
 
-    async fn insert(&self, user: &UserCreateRequest) -> Result<User, Error> {
+    async fn insert(&self, user: &UserCreateRequest, actor: &Uuid) -> Result<User, Error> {
         tracing::info!("Database Execute - User Insert Query");
         sqlx::query(db_query::INSERT)
             .bind(&user.username)
             .bind(&user.role)
             .bind(db_time_now())
+            .bind(actor)
             .bind(db_time_now())
+            .bind(actor)
             .map(self.user_full_map())
             .fetch_one(self.pool.as_ref())
             .await

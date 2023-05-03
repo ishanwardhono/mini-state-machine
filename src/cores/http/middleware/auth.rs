@@ -1,3 +1,4 @@
+use crate::{cores::auth::Role, services::auth::AuthorityService};
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     http::header,
@@ -12,11 +13,9 @@ use std::{
 };
 use tracing::Instrument;
 
-use crate::{cores::auth::Role, services::auth};
-
 pub type Authority = Arc<Authorizer>;
 
-pub fn new(auth_service: auth::Service) -> Authority {
+pub fn new(auth_service: Arc<AuthorityService>) -> Authority {
     let authorizer = Authorizer {
         admin: Arc::new(AuthMiddleware {
             valid_role: Role::Admin,
@@ -46,7 +45,7 @@ impl Authorizer {
 
 pub struct AuthMiddleware {
     valid_role: Role,
-    auth_service: auth::Service,
+    auth_service: Arc<AuthorityService>,
 }
 
 impl<S, B> Transform<S, ServiceRequest> for AuthMiddleware
@@ -73,7 +72,7 @@ where
 pub struct RouteMiddleware<S> {
     service: Rc<RefCell<S>>,
     valid_role: Role,
-    auth_service: auth::Service,
+    auth_service: Arc<AuthorityService>,
 }
 
 impl<S, B> Service<ServiceRequest> for RouteMiddleware<S>
