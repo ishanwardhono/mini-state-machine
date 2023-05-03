@@ -1,7 +1,7 @@
 use crate::{
     cores::{auth::Role, env::Config, error::service::Error},
     services::auth::{
-        logic::{authorize, get_by_username, get_key, insert, is_permitted, token_validation},
+        logic::{authorize, generate_key, get_by_username, insert, is_permitted, token_validation},
         model::{entity::User, request::UserCreateRequest},
         repo::db::DbRepo,
     },
@@ -20,7 +20,7 @@ pub struct Factory {
 pub trait Logic {
     async fn get_by_username(&self, username: &str) -> Result<User, Error>;
     async fn insert(&self, req: &UserCreateRequest, actor: &Uuid) -> Result<User, Error>;
-    async fn get_key(&self, username: &str) -> Result<String, Error>;
+    async fn generate_key(&self, username: &str) -> Result<String, Error>;
     async fn authorize(&self, token: Option<String>, valid_permission: Role)
         -> Result<User, Error>;
     async fn token_validation(&self, token: &str) -> Result<User, Error>;
@@ -39,9 +39,9 @@ impl Logic for Factory {
         insert::execute(self.repo.clone(), req, actor).await
     }
 
-    async fn get_key(&self, username: &str) -> Result<String, Error> {
-        tracing::info!("Auth - get_key");
-        get_key::execute(self.cfg.clone(), self.repo.clone(), username).await
+    async fn generate_key(&self, username: &str) -> Result<String, Error> {
+        tracing::info!("Auth - generate_key");
+        generate_key::execute(self.cfg.clone(), self.repo.clone(), username).await
     }
 
     async fn authorize(

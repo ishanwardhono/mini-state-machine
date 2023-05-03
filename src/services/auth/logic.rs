@@ -1,7 +1,7 @@
 mod authorize;
 pub mod factory;
+mod generate_key;
 mod get_by_username;
-mod get_key;
 mod insert;
 mod is_permitted;
 mod token_validation;
