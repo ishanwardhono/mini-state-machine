@@ -49,7 +49,7 @@ mod tests {
             error::service::Error,
         },
         services::auth::{
-            logic::login::execute,
+            logic::get_key::execute,
             model::entity::{Claim, User},
             repo::db::MockDbRepo,
         },

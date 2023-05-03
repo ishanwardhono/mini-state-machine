@@ -1,9 +1,9 @@
 mod authorize;
 pub mod factory;
 mod get_by_username;
+mod get_key;
 mod insert;
 mod is_permitted;
-mod login;
 mod token_validation;
 
 use self::factory::{Factory, Logic};
