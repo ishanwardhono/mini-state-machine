@@ -1,20 +1,32 @@
 use crate::{
-    cores::error::service::Error,
+    cores::{auth::Role, error::service::Error},
     services::auth::{
         model::{entity::User, request::UserCreateRequest},
         repo::db::DbRepo,
     },
+    utils::validation,
 };
 use std::sync::Arc;
 use uuid::Uuid;
 
 pub async fn execute<'a>(
     repo: Arc<dyn DbRepo>,
-    req: &'a UserCreateRequest,
+    req: &'a mut UserCreateRequest,
     actor: &'a Uuid,
 ) -> Result<User, Error> {
     tracing::debug!("executing...");
+    validate(req)?;
     repo.insert(req, actor).await
+}
+
+fn validate(req: &mut UserCreateRequest) -> Result<(), Error> {
+    let mut validation = validation::Fields::new();
+    if req.role == Role::BusinessClient && req.business.is_none() {
+        validation.add_str("Business Name must be provided for BusinessClient");
+    } else if req.role == Role::Admin {
+        req.business = None;
+    }
+    validation.check()
 }
 
 #[cfg(test)]
@@ -33,9 +45,10 @@ mod tests {
 
     #[tokio::test]
     async fn success() -> Result<(), Error> {
-        let req = UserCreateRequest {
+        let mut req = UserCreateRequest {
             username: String::from("test"),
             role: Role::Admin,
+            business: None,
         };
         let actor = test_actor();
 
@@ -51,6 +64,7 @@ mod tests {
                         id: test_uuid(),
                         username: cloned_req.username,
                         role: Role::Admin,
+                        business: None,
                         create_time: test_time(),
                         create_by: test_actor(),
                         update_time: test_time(),
@@ -59,7 +73,7 @@ mod tests {
                 })
             });
 
-        let res = execute(Arc::new(mock_db_repo), &req, &actor).await;
+        let res = execute(Arc::new(mock_db_repo), &mut req, &actor).await;
 
         let return_result = res?;
         assert_eq!(return_result.id, test_uuid());

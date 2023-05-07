@@ -16,7 +16,7 @@ use actix_web::{
     web::{self, post},
     HttpResponse, Scope,
 };
-use std::sync::Arc;
+use std::{borrow::BorrowMut, sync::Arc};
 
 pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
     web::scope("/users")
@@ -30,14 +30,14 @@ pub fn register_handler(factory: Arc<dyn Logic>, auth: Authority) -> Scope {
 
 async fn insert(
     factory: web::Data<dyn Logic>,
-    req: web::Json<UserCreateRequest>,
+    mut req: web::Json<UserCreateRequest>,
     user: Option<web::ReqData<User>>,
 ) -> Result<HttpResponse, Error> {
     if user.is_none() {
         tracing::error!("{}", AuthError::UserNotProvided);
         return Err(Error::unauth_from(AuthError::UserNotProvided));
     }
-    let result = factory.insert(&req, &user.unwrap().id).await?;
+    let result = factory.insert(req.borrow_mut(), &user.unwrap().id).await?;
     Ok(HttpResponse::Ok().json(UserCreateResponse {
         username: result.username,
     }))

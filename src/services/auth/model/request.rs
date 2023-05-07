@@ -5,4 +5,5 @@ use serde_derive::Deserialize;
 pub struct UserCreateRequest {
     pub username: String,
     pub role: Role,
+    pub business: Option<String>,
 }

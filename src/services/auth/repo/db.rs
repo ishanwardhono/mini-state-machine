@@ -33,6 +33,7 @@ impl DbRepository {
             id: row.get("id"),
             username: row.get("username"),
             role: row.get("role"),
+            business: row.get("business"),
             create_time: row.get("create_time"),
             create_by: row.get("create_by"),
             update_time: row.get("update_time"),
@@ -58,6 +59,7 @@ impl DbRepo for DbRepository {
         sqlx::query(db_query::INSERT)
             .bind(&user.username)
             .bind(&user.role)
+            .bind(&user.business)
             .bind(db_time_now())
             .bind(actor)
             .bind(db_time_now())

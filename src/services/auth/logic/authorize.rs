@@ -54,6 +54,7 @@ mod tests {
                         id: test_uuid(),
                         username: token,
                         role: Role::Admin,
+                        business: None,
                         create_time: test_time(),
                         create_by: test_actor(),
                         update_time: test_time(),

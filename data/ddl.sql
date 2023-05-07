@@ -1,11 +1,12 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE IF NOT EXISTS role AS ENUM ('ADMIN', 'BUSINESS_CLIENT');
+CREATE TYPE role AS ENUM ('ADMIN', 'BUSINESS_CLIENT');
 
 CREATE TABLE IF NOT EXISTS users (
     id uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     username VARCHAR(25) NOT NULL UNIQUE,
     "role" role NOT NULL,
+    business VARCHAR(25),
     create_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),
     create_by uuid NOT NULL,
     update_time TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc'),

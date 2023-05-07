@@ -7,6 +7,7 @@ pub struct User {
     pub id: Uuid,
     pub username: String,
     pub role: Role,
+    pub business: Option<String>,
     pub create_time: chrono::NaiveDateTime,
     pub create_by: Uuid,
     pub update_time: chrono::NaiveDateTime,
